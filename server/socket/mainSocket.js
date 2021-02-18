@@ -340,8 +340,8 @@ sockets.init = function(server) {
       // if correct, emit a signal, telling both of them that's it's okay. Update the progress for the room and move turn to 3.
       if (compare) {
 
-        Chatroom.findById(roomID)
-        .then(roomFound => {
+        await Chatroom.findById(roomID)
+        .then(async (roomFound) => {
           if (!roomFound) {
             console.log("... Some shenanigan.. Room doesn't even exist.");
             // IMPLEMENT SOME KIND OF ERROR!!!
@@ -354,7 +354,7 @@ sockets.init = function(server) {
               return null;
             } else {
               // update progress
-              Progress.findById(roomFound.progress)
+              const newProgress = await Progress.findById(roomFound.progress)
               .then(progressFound => {
                 if (!progressFound) {
                   console.log("... Some shenanigan.. Progress doesn't even exist.");
@@ -378,7 +378,9 @@ sockets.init = function(server) {
               .catch(err => console.log(err))
 
               // emit signal
-              io.to(roomID).emit('intent correct', {});
+              io.to(roomID).emit('intent correct', {
+                newProgress: newProgress,
+              });
               
               // update turn
               // BUG!!!! Since there's no error system for progress updating so even though if there's any problem with progress updating, the system will still move on.

@@ -1,17 +1,18 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {useSelector, useDispatch} from 'react-redux';
-import {Row, Col, Input} from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
+import {Row, Col} from 'antd';
+
 import './Section/Shared/RecordButton.css';
 import './Chatroom.css'
 import Scenario from './Section/Client/Scenario';
+import ProgressNote from './Section/Servant/ProgressNote';
 import AudioList from './Section/Shared/AudioList';
 import AudioRecordingScreen from './Section/Sub-container/AudioRecordingScreen'
 import {getRoom} from '../../../_actions/chatroom_actions'
 import TextChatScreen from './Section/Sub-container/TextChatScreen';
 import LoadingPage from '../Loading/LoadingPage';
 import LoadingComponent from '../Loading/LoadingComponent';
-
-const {TextArea} = Input;
 
 export default function Chatroom(props) {
   const canvasRef = useRef(null);
@@ -30,6 +31,21 @@ export default function Chatroom(props) {
   const [ loading, setLoading ] = useState(true);
 
   const dispatch = useDispatch();
+
+  const updateProgress = (newProgress) => {
+    let tempProgress = [];
+    for(const property in newProgress) {
+      if (property !== '_id' && property !== '__v' && newProgress[property] !== null) {
+        tempProgress.push([
+          property,
+          newProgress[property],
+          // key: property,
+          // value: progress[property],
+        ])
+      }
+    }
+    setProgress(tempProgress);
+  }
 
   useEffect(() => {
     if (userRole !== "" && socket !== null && user !== null) {
@@ -60,19 +76,8 @@ export default function Chatroom(props) {
       }
       setScenario(tempIntent);
 
-      let tempProgress = []
       const progress = response.payload.roomFound.progress;
-      for(const property in progress) {
-        if (property !== '_id' && property !== '__v' && progress[property] !== null) {
-          tempProgress.push([
-            property,
-            progress[property],
-            // key: property,
-            // value: progress[property],
-          ])
-        }
-      }
-      setProgress(tempProgress);
+      updateProgress(progress)
 
       const audios = response.payload.roomFound.audioList;
       let tempAudioList = [];
@@ -134,8 +139,9 @@ export default function Chatroom(props) {
         console.log(`User ${data.username} has left the room`);
       });
 
-      socket.on('intent correct', () => {
+      socket.on('intent correct', ({ newProgress }) => {
         console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
+        updateProgress(newProgress);
         setTurn(3);
       });
 
@@ -167,11 +173,6 @@ export default function Chatroom(props) {
 
     return (
         <div className="chatroom">
-          {/* <Row>
-            <Col style={{textAlign: "center"}}>
-              <p>You are the {userRole}</p>
-            </Col>
-          </Row> */}
           <Row>
             <Col span={20}>
               {room_content_type === '0' ?
@@ -197,14 +198,9 @@ export default function Chatroom(props) {
               <Row>
                 <Col>
                   {
-                    // Got to update this scenario={scenario} to scenario={progress}
-                    // Remember to flood gate this shit too.
                     userRole === "client" ? <Scenario scenario={scenario} progress={progress}/> : 
                     userRole === "servant" ? (
-                      <>
-                        <h3 style={{textAlign: "center"}}>Ghi chú công việc đã làm được</h3>
-                        <TextArea style={{height: "200px"}} maxLength={100}/>
-                      </>
+                      <ProgressNote progress={progress} scenario={scenario}/>
                     ) : (
                       <LoadingComponent />
                     )

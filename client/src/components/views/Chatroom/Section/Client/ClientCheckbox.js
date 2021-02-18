@@ -9,7 +9,7 @@ const {Panel} = Collapse
 export default function ClientCheckbox(props) {
 
   const list = props ? props.list : []
-  const visible = props ? props.visible : true
+  const visible = props ? props.visible : true;
   const [ loading, setLoading ] = useState(true);
 
   useEffect(() => {
@@ -72,8 +72,8 @@ export default function ClientCheckbox(props) {
 
   return (
     <>
-      <Collapse defaultActiveKey={['1']}>
-        <Panel header="Xác nhận câu lệnh: " key="1">
+      <Collapse defaultActiveKey={['commandConfirm']}>
+        <Panel header="Xác nhận câu lệnh: " key="commandConfirm">
           <Checkbox.Group style={{ width: '100%' }} onChange={onChange}>
             <Row>
               {renderList(list)}
