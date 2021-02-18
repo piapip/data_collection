@@ -1,11 +1,9 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import {Affix, Col, Row} from "antd";
-// import React from 'react'
-// import { Col, Row } from "antd";
 
 export default function AudioList(props) {
 
-  const [container, setContainer] = useState(10);
+  const [ container, setContainer ] = useState(10);
 
   const showAudio = props ? (
     props.audioList ? props.audioList.map(audio => {
@@ -28,7 +26,7 @@ export default function AudioList(props) {
           <Col span={24} style={{textAlign: "center",fontsize:"18px"}}>Lịch sử hội thoại</Col>
           {/* Empty affix will cause the system to fire a long-ass warning */}
           <Affix target={() => container}>
-            
+            <div></div>
           </Affix>
           {showAudio}
         </Row>
