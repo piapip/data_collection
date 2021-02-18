@@ -1,17 +1,18 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {useSelector, useDispatch} from 'react-redux';
-import {Row, Col, Input} from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
+import {Row, Col} from 'antd';
+
 import './Section/Shared/RecordButton.css';
 import './Chatroom.css'
 import Scenario from './Section/Client/Scenario';
+import ProgressNote from './Section/Servant/ProgressNote';
 import AudioList from './Section/Shared/AudioList';
 import AudioRecordingScreen from './Section/Sub-container/AudioRecordingScreen'
 import {getRoom} from '../../../_actions/chatroom_actions'
 import TextChatScreen from './Section/Sub-container/TextChatScreen';
 import LoadingPage from '../Loading/LoadingPage';
 import LoadingComponent from '../Loading/LoadingComponent';
-
-const {TextArea} = Input;
 
 export default function Chatroom(props) {
   const canvasRef = useRef(null);
@@ -172,11 +173,6 @@ export default function Chatroom(props) {
 
     return (
         <div className="chatroom">
-          {/* <Row>
-            <Col style={{textAlign: "center"}}>
-              <p>You are the {userRole}</p>
-            </Col>
-          </Row> */}
           <Row>
             <Col span={20}>
               {room_content_type === '0' ?
@@ -202,14 +198,9 @@ export default function Chatroom(props) {
               <Row>
                 <Col>
                   {
-                    // Got to update this scenario={scenario} to scenario={progress}
-                    // Remember to flood gate this shit too.
                     userRole === "client" ? <Scenario scenario={scenario} progress={progress}/> : 
                     userRole === "servant" ? (
-                      <>
-                        <h3 style={{textAlign: "center"}}>Ghi chú công việc đã làm được</h3>
-                        <TextArea style={{height: "200px"}} maxLength={100}/>
-                      </>
+                      <ProgressNote progress={progress} scenario={scenario}/>
                     ) : (
                       <LoadingComponent />
                     )
