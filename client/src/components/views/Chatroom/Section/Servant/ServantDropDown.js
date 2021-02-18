@@ -155,8 +155,8 @@ export default function ServantDropDown(props) {
   // const marginRight = "5px";
 
   return (
-    <Collapse defaultActiveKey={['1']}>
-      <Panel header="Thông tin nghe được trong câu nói của Client: " key="1">
+    <Collapse defaultActiveKey={['information']}>
+      <Panel header="Thông tin nghe được trong câu nói của Client: " key="information">
         <Row>
         <Col span={5}>Thiết bị</Col>
         <Col span={5}>Phòng</Col>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import {Col, Row} from "antd";
-import Checkbox2 from "./Checkbox2";
 
+// import Checkbox2 from "./Checkbox2";
+import Progress from "./Progress";
 import LoadingComponent from './../../../Loading/LoadingComponent';
 import { COLOR } from './../../../../Config';
 
@@ -17,14 +18,14 @@ export default function Scenario(props) {
     } else setLoading(true);
   }, [scenario, progress])
 
-  const [Filters, setFilters] = useState({
-    locations: [],
-  })
-  const handleFilters = (filters, category) => {
-    const newFilters = {...Filters}
-    newFilters[category] = filters
-    setFilters(newFilters)
-  }
+  // const [Filters, setFilters] = useState({
+  //   locations: [],
+  // })
+  // const handleFilters = (filters, category) => {
+  //   const newFilters = {...Filters}
+  //   newFilters[category] = filters
+  //   setFilters(newFilters)
+  // }
 
   const generateScript = () => {
     if (scenario && scenario.length >= 4) { 
@@ -88,11 +89,13 @@ export default function Scenario(props) {
             }
           </Col>
           <Col span={24}>
-            <Checkbox2
+            <Progress 
+              progress={progress}/>
+            {/* <Checkbox2
               list={scenario}
               progress={progress}
               handleFilters={filters => handleFilters(filters, "locations")}
-            />
+            /> */}
           </Col>
         </Row>
       </div>

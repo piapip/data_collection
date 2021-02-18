@@ -31,6 +31,21 @@ export default function Chatroom(props) {
 
   const dispatch = useDispatch();
 
+  const updateProgress = (newProgress) => {
+    let tempProgress = [];
+    for(const property in newProgress) {
+      if (property !== '_id' && property !== '__v' && newProgress[property] !== null) {
+        tempProgress.push([
+          property,
+          newProgress[property],
+          // key: property,
+          // value: progress[property],
+        ])
+      }
+    }
+    setProgress(tempProgress);
+  }
+
   useEffect(() => {
     if (userRole !== "" && socket !== null && user !== null) {
       setLoading(false);
@@ -60,19 +75,8 @@ export default function Chatroom(props) {
       }
       setScenario(tempIntent);
 
-      let tempProgress = []
       const progress = response.payload.roomFound.progress;
-      for(const property in progress) {
-        if (property !== '_id' && property !== '__v' && progress[property] !== null) {
-          tempProgress.push([
-            property,
-            progress[property],
-            // key: property,
-            // value: progress[property],
-          ])
-        }
-      }
-      setProgress(tempProgress);
+      updateProgress(progress)
 
       const audios = response.payload.roomFound.audioList;
       let tempAudioList = [];
@@ -134,8 +138,9 @@ export default function Chatroom(props) {
         console.log(`User ${data.username} has left the room`);
       });
 
-      socket.on('intent correct', () => {
+      socket.on('intent correct', ({ newProgress }) => {
         console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
+        updateProgress(newProgress);
         setTurn(3);
       });
 
