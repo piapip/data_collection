@@ -7,6 +7,6 @@ const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 export default function LoadingComponent() {
   return (
-    <Spin indicator={antIcon} />
+    <Spin indicator={antIcon}/>
   )
 }

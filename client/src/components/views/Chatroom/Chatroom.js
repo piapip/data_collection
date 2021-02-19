@@ -13,6 +13,7 @@ import {getRoom} from '../../../_actions/chatroom_actions'
 import TextChatScreen from './Section/Sub-container/TextChatScreen';
 import LoadingPage from '../Loading/LoadingPage';
 import LoadingComponent from '../Loading/LoadingComponent';
+import PromptLeaving from './Section/Shared/PromptLeaving';
 
 export default function Chatroom(props) {
   const canvasRef = useRef(null);
@@ -131,12 +132,12 @@ export default function Chatroom(props) {
         }
       });
 
-      socket.on('joinRoom announce', (data) => {
-        console.log(`User ${data.username} has joined the room`);
+      socket.on('joinRoom announce', ({ username }) => {
+        console.log(`User ${username} has joined the room`);
       });
 
-      socket.on('leaveRoom announce', (data) => {
-        console.log(`User ${data.username} has left the room`);
+      socket.on('leaveRoom announce', ({ username }) => {
+        console.log(`User ${username} has left the room`);
       });
 
       socket.on('intent correct', ({ newProgress }) => {
@@ -165,58 +166,87 @@ export default function Chatroom(props) {
     // Idk about this... it may cause problem later...
   }, [turn, socket, audioHistory])
 
+  const handleLeaveChatroom = () => {
+    if (socket) {
+      socket.emit("leaveRoom", {
+        chatroomID,
+        username,
+      });
+    }
+  }
+
+  const getPromptStatus = () => {
+    let count = 0;
+    progress.map(item => {
+      return item[1] === 0 ? count++ : "";
+    })
+
+    if (count !== 0) return true;
+    else return false;
+  }
+
   if (loading) {
     return (
-      <LoadingPage />
+      <>
+        <PromptLeaving 
+          when={getPromptStatus()}
+          onLeave={handleLeaveChatroom}/>
+        <LoadingPage />
+      </>
     )
   } else {
 
     return (
-        <div className="chatroom">
-          <Row>
-            <Col span={20}>
-              {room_content_type === '0' ?
-                <AudioRecordingScreen
-                  turn={turn}
-                  canvasRef={canvasRef}
-                  socket={socket}
-                  user={user}
-                  scenario={scenario}
-                  roomContentType={room_content_type}
-                  chatroomID={chatroomID}
-                  userRole={userRole}
-                /> :
-                <TextChatScreen 
-                  socket={socket} 
-                  user={user} 
-                  chatroomID={chatroomID}
-                  dispatch={dispatch} 
-                  message={message} 
-                  userRole={userRole}/>}
-            </Col>
-            <Col span={4}>
-              <Row>
-                {
-                  userRole === "client" ? (
-                  <Col><Scenario scenario={scenario} progress={progress}/></Col> ) : 
-                  userRole === "servant" ? (
-                  <Col><ProgressNote progress={progress} scenario={scenario}/></Col>) : 
-                  (
-                    <Col style={{textAlign: "center", height: "200px"}}>
-                      <LoadingComponent />
-                    </Col>
-                  )
-                }
-              </Row>
+      <>
+      <PromptLeaving 
+        onLeave={handleLeaveChatroom}
+        when={getPromptStatus()}/>
+      <div className="chatroom">
+        <Row>
+          <Col span={20}>
+            {room_content_type === '0' ?
+              <AudioRecordingScreen
+                turn={turn}
+                canvasRef={canvasRef}
+                socket={socket}
+                user={user}
+                scenario={scenario}
+                roomContentType={room_content_type}
+                chatroomID={chatroomID}
+                userRole={userRole}
+              /> :
+              <TextChatScreen 
+                socket={socket} 
+                user={user} 
+                chatroomID={chatroomID}
+                dispatch={dispatch} 
+                message={message} 
+                userRole={userRole}/>}
+          </Col>
+          <Col span={4}>
+            <Row>
+              {
+                userRole === "client" ? (
+                <Col><Scenario scenario={scenario} progress={progress}/></Col> ) : 
+                userRole === "servant" ? (
+                <Col><ProgressNote progress={progress} scenario={scenario}/></Col>) : 
+                (
+                  <Col style={{textAlign: "center", height: "200px", lineHeight: "200px"}}>
+                    <LoadingComponent />
+                  </Col>
+                )
+              }
+            </Row>
 
-              <Row>
-                <Col>
-                  {room_content_type === '0' ? <AudioList audioList={audioHistory}/> : ""}
-                </Col> 
-              </Row>
-            </Col>
-          </Row>
-        </div>
+            <Row>
+              <Col>
+                {room_content_type === '0' ? <AudioList audioList={audioHistory}/> : ""}
+              </Col> 
+            </Row>
+          </Col>
+        </Row>
+      </div>
+      </>
     )
   }
 }

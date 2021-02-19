@@ -52,23 +52,23 @@ export default function Servant(props) {
 
   useEffect(() => {
     if (socket) {
-      socket.on('newAudioURL', (data) => {
-        console.log(`Receive signal from ${data.sender} with the ID of ${data.userID}`)
+      socket.on('newAudioURL', ({ sender, userID }) => {
+        console.log(`Receive signal from ${sender} with the ID of ${userID}`)
       })
     }
   })
-  useEffect(()=>{
-    if(socket){
-      socket.on('chat end', function(data) {
-        console.log(data);
-        console.log(chatroomID);
-        socket.leave(chatroomID);
-        history.push('/');// it's possible to leave from both server and client, hoever it is better to be done by the client in this case
-        // room = '';
-      });
-    }
+  // useEffect(()=>{
+  //   if(socket){
+  //     socket.on('chat end', function(data) {
+  //       console.log(data);
+  //       console.log(chatroomID);
+  //       socket.leave(chatroomID);
+  //       history.push('/');// it's possible to leave from both server and client, hoever it is better to be done by the client in this case
+  //       // room = '';
+  //     });
+  //   }
 
-  })
+  // })
   const sendAudioSignal = () => {
     if (socket) {
       let sender = user.userData.name
