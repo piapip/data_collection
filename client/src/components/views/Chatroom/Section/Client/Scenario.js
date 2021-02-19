@@ -74,7 +74,7 @@ export default function Scenario(props) {
               loading ? (
                 <LoadingComponent />
               ) : (
-                generateScript()
+                <p>{generateScript()}</p>
               )
             }
           </Col>

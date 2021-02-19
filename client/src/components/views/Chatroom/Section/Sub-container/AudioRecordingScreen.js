@@ -192,7 +192,9 @@ export default function AudioRecordingScreen(props) {
                   intent={intent}
                   setIntent={setIntent}/>
               ) : (
-                <LoadingComponent />
+                <div style={{textAlign: "center"}}>
+                  <LoadingComponent />
+                </div>
               )
               }
             </div>
