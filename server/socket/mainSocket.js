@@ -32,10 +32,10 @@ sockets.init = function(server) {
 
   // vvvvv client socket
   io.on('connection', (socket) => {
-    console.log("Connected: " + socket.id);
+    // console.log("Connected: " + socket.id);
 
     socket.on('disconnect', () => {
-      console.log("Disconnected: " + socket.id)
+      // console.log("Disconnected: " + socket.id)
       var index = audioQueue.findIndex(item => item.socketID === socket.id)
       if (index !== -1) {
         audioQueue.splice(index, 1);
