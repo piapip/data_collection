@@ -55,7 +55,10 @@ function RoomList(props) {
 
   if (loading) {
     return (
-      <LoadingComponent />
+      <div style={{ height: "100px" }}>
+        <LoadingComponent />
+      </div>
+      
     )
   } else if (roomList == null) {
     return (

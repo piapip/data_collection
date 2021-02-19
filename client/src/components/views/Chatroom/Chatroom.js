@@ -196,16 +196,17 @@ export default function Chatroom(props) {
             </Col>
             <Col span={4}>
               <Row>
-                <Col>
-                  {
-                    userRole === "client" ? <Scenario scenario={scenario} progress={progress}/> : 
-                    userRole === "servant" ? (
-                      <ProgressNote progress={progress} scenario={scenario}/>
-                    ) : (
+                {
+                  userRole === "client" ? (
+                  <Col><Scenario scenario={scenario} progress={progress}/></Col> ) : 
+                  userRole === "servant" ? (
+                  <Col><ProgressNote progress={progress} scenario={scenario}/></Col>) : 
+                  (
+                    <Col style={{textAlign: "center", height: "200px"}}>
                       <LoadingComponent />
-                    )
-                  }
-                </Col> 
+                    </Col>
+                  )
+                }
               </Row>
 
               <Row>
