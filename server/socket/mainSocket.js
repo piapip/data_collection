@@ -177,6 +177,13 @@ sockets.init = function(server) {
 
     // when an user enters the room, announce to everyone else in the room
     socket.on('joinRoom', ({ chatroomID, username }) => {
+
+      // need to check if the room has any slot left for the user.
+      // if there's then we'll update room slot and do this 
+      // else remember to shoot back a signal to the user, which mean, I'll have to update the create room function in the aws function, 
+      // instead of preassign slot for user, now we let it empty, and we'll handle slot from here.
+      // we'll do the assigning here, assign user slot based on turn. And we'll fix random room function later. Lol the code is coupled as shit. FML.
+
       socket.join(chatroomID);
       console.log(`The user ${username} has joined chatroom: ${chatroomID}`);
       
@@ -188,6 +195,9 @@ sockets.init = function(server) {
 
     // when an user leaves the room, announce to everyone else in the room
     socket.on('leaveRoom', ({ chatroomID, username }) => {
+
+      // remember to remove user from the user slot. (set it to null)
+
       socket.leave(chatroomID);
       console.log(`The user ${username} has left chatroom: ${chatroomID}`)
 
