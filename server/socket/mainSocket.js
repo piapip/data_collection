@@ -192,7 +192,12 @@ sockets.init = function(server) {
       } else if (status === -1) {
         io.to(socketID).emit('room full', {});
       } else if (status === 0) {
+        socket.join(chatroomID);
         console.log(`The user ${username} has rejoined chatroom: ${chatroomID}`);
+
+        io.to(chatroomID).emit('joinRoom announce', {	
+          username: username,	
+        });
       } else {
         console.log("how the fuck...??? joinRoom mainsocket.js")
       }
@@ -216,6 +221,8 @@ sockets.init = function(server) {
     // Just receive a signal
     socket.on('chatroomAudio', ({ chatroomID, sender, link }) => {
       // sending to individual socketid (private message)
+      console.log("Sending")
+      console.log(chatroomID)
       io.to(chatroomID).emit('newAudioURL', {
         userID: socket.userId,
         sender: sender,
@@ -398,6 +405,17 @@ sockets.init = function(server) {
                 newProgress: newProgress,
               });
               
+              if (
+                newProgress.action !== 0 &&
+                newProgress.device !== 0 && 
+                newProgress.floor !== 0 &&
+                newProgress.room !== 0 &&
+                newProgress.scale !== 0 &&
+                newProgress.level !== 0) {
+                  roomFound.done = true;
+                }
+                
+
               // update turn
               // BUG!!!! Since there's no error system for progress updating so even though if there's any problem with progress updating, the system will still move on.
               roomFound.turn = 3;

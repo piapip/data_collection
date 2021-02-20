@@ -53,12 +53,13 @@ const chatroomSchema = new mongoose.Schema({
     max: 3,
     default: 1,
     required: "Need to decide whose turn of this room is",
+  },
+  done: {
+    type: Boolean,
+    required: "Need done status for chatroom",
+    default: false,
   }
 })
-
-// update room's intent and progress
-// messageSchema.statics.updateAudio = 
-
 
 const Chatroom = mongoose.model('Chatroom', chatroomSchema);
 

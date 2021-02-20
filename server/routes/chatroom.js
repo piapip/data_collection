@@ -43,6 +43,9 @@ router.get("/random", (req, res) => {
   })
 })
 
+// GET RANDOM WITH CONDITION
+
+
 // GET ONE
 router.get("/:roomID", (req, res) => {
   Chatroom.findById(req.params.roomID)
