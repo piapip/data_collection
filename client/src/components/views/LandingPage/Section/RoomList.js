@@ -33,9 +33,13 @@ function RoomList(props) {
           return room.key = room._id
         })
         response.payload.roomFound.sort((a, b) => {
-          if (a.name < b.name) return -1
-          else if (a.name > b.name) return 1
-          else return 0
+          if (a.done && !b.done) return 1;
+          else if (!a.done && b.done) return -1;
+          else {
+            if (a.name < b.name) return -1;
+            else if (a.name > b.name) return 1;
+            else return 0;
+          }
         })
 
         setRoomList(response.payload.roomFound)

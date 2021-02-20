@@ -120,8 +120,43 @@ export default function Chatroom(props) {
 
   useEffect(() => {
     if (socket) {
+      socket.on('room full', () => {
+        setRedirect(true)
+      });
+  
+      socket.on('joinRoom announce', ({ username }) => {
+        console.log(`User ${username} has joined the room`);
+      });
+  
+      socket.on('leaveRoom announce', ({ username }) => {
+        console.log(`User ${username} has left the room`);
+      });
+  
+      socket.on('intent incorrect', () => {
+        console.log(`Servant doesn't seem to understood client's intent!`)
+      });
+    }
+  });
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('intent correct', ({ newProgress }) => {
+        console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
+        if (newProgress.action !== 0 && newProgress.device !== 0 && newProgress.floor !== 0 && 
+          newProgress.room !== 0 && newProgress.scale !== 0 && newProgress.level !== 0) {
+          setRedirect(true);
+        }
+        updateProgress(newProgress);
+        setTurn(3);        
+      });
+    }
+  }, [progress, socket]);
+
+
+  useEffect(() => {
+    if (socket) {
       socket.on('newAudioURL', ({ userID, sender, audioLink }) => {
-        // console.log(`Receive signal from ${sender} with the ID of ${userID}. Here's the link: ${audioLink}`)
+        console.log(`Receive signal from ${sender} with the ID of ${userID}. Here's the link: ${audioLink}`)
         let newHistory = [...audioHistory];
         // newHistory.push(data.audioLink)
         newHistory = [audioLink, ...audioHistory];
@@ -137,29 +172,12 @@ export default function Chatroom(props) {
           // when turn = -1 (loading...)
         }
       });
+    }
+    // Idk about this... it may cause problem later...
+  }, [turn, socket, audioHistory]);
 
-      socket.on('room full', () => {
-        setRedirect(true)
-      });
-
-      socket.on('joinRoom announce', ({ username }) => {
-        console.log(`User ${username} has joined the room`);
-      });
-
-      socket.on('leaveRoom announce', ({ username }) => {
-        console.log(`User ${username} has left the room`);
-      });
-
-      socket.on('intent correct', ({ newProgress }) => {
-        console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
-        updateProgress(newProgress);
-        setTurn(3);
-      });
-
-      socket.on('intent incorrect', () => {
-        console.log(`Servant doesn't seem to understood client's intent!`)
-      });
-
+  useEffect(() => {
+    if (socket) {
       socket.on('audio removed', () => {
         let newHistory = [...audioHistory];
         newHistory.shift();
@@ -173,8 +191,7 @@ export default function Chatroom(props) {
         }
       });
     }
-    // Idk about this... it may cause problem later...
-  }, [turn, socket, audioHistory])
+  }, [audioHistory, socket, turn]);
 
   const handleLeaveChatroom = () => {
     if (socket) {

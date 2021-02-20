@@ -26,11 +26,27 @@ router.get("/", (req, res) => {
 router.get("/random", (req, res) => {
 
   // Get the count of all records
-  Chatroom.estimatedDocumentCount().exec((err, count) => {
+  Chatroom.countDocuments({
+    $and: [
+      {done: 0},
+      {$or: [
+        {user1: null},
+        {user2: null},
+      ]},
+    ]
+  }).exec((err, count) => {
     if (err) res.status(500).send({ success: false, message: "Can't estimate document count", err })
     // Get a random entry 
     var random = Math.floor(Math.random() * count)
-    Chatroom.findOne().skip(random)
+    Chatroom.findOne({
+      $and: [
+        {done: 0},
+        {$or: [
+          {user1: null},
+          {user2: null},
+        ]},
+      ]
+    }).skip(random)
     // .populate('intent')
     .populate('progress')
     .exec((err, roomFound) => {
