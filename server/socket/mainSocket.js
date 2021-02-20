@@ -726,13 +726,19 @@ const kickUser = (roomID, userID) => {
 //  0 - already in room
 //  1 - got in there successfully
 const addSlot = async (roomID, userID) => {
-  return Chatroom.findById(roomID)
-  .then(roomFound => {
+  return await Chatroom.findById(roomID)
+  .then(async (roomFound) => {
     if (!roomFound) {
       console.log("... Some shenanigan.. Room doesn't even exist.");
       // IMPLEMENT SOME KIND OF ERROR!!!
       return null;
     } else {
+
+      const roomProgress = await checkProgress(roomFound.progress);
+      if (roomProgress === 1) {
+        return -1;
+      }
+
       // check if the room has the user.
       if ((roomFound.user1 !== null && roomFound.user1.equals(userID)) || 
           (roomFound.user2 !== null && roomFound.user2.equals(userID))) {
@@ -773,6 +779,31 @@ const addSlot = async (roomID, userID) => {
     }
   })
   .catch(err => console.log("Kicking user: ", err))
+}
+
+// -1 - non-existence.
+//  0 - not done.
+//  1 - done.
+const checkProgress = (progressID) => {
+  return Progress.findById(progressID)
+    .then(progressFound => {
+      if (!progressFound) {
+        console.log("... Some shenanigan.. Audio doesn't even exist.");
+        // IMPLEMENT SOME KIND OF ERROR!!!
+        return -1;
+      } else {
+        if (
+          progressFound.action === 0 ||
+          progressFound.device === 0 || 
+          progressFound.floor === 0 ||
+          progressFound.room === 0 ||
+          progressFound.scale === 0 ||
+          progressFound.level === 0) 
+          return 0;
+        else return 1;
+      }
+    })
+    .catch(err => console.log("adding slot... finding progress by id: ", err))
 }
 
 module.exports = sockets;
