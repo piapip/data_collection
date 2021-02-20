@@ -142,11 +142,16 @@ export default function Chatroom(props) {
     if (socket) {
       socket.on('intent correct', ({ newProgress }) => {
         console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
+        if (newProgress.action !== 0 && newProgress.device !== 0 && newProgress.floor !== 0 && 
+          newProgress.room !== 0 && newProgress.scale !== 0 && newProgress.level !== 0) {
+          setRedirect(true);
+        }
         updateProgress(newProgress);
-        setTurn(3);
+        setTurn(3);        
       });
     }
   }, [progress, socket]);
+
 
   useEffect(() => {
     if (socket) {
