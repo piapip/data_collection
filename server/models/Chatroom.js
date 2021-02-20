@@ -13,12 +13,14 @@ const chatroomSchema = new mongoose.Schema({
   // user1 gives command
   user1: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',      
+    ref: 'User',
+    default: null
   },
   // user2 receive command and shoot back response.
   user2: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',      
+    ref: 'User',
+    default: null    
   },
   // content_type decides the input type that users will provide 0 - audio, 1 - message
   content_type: {

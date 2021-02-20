@@ -15,3 +15,4 @@ module.exports = {
 
 
 I don't know how to refactor code in socket file...
+I don't know how to test the room slotting feature by myself... can't create a 3rd accounts to do this for me. (Need to work on the signaling too, telling em that the room is already full).

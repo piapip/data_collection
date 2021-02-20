@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 
 import {Row, Col} from 'antd';
 
@@ -30,6 +31,7 @@ export default function Chatroom(props) {
   const [ progress, setProgress ] = useState([]);
   const [ turn, setTurn ] = useState(-1);
   const [ loading, setLoading ] = useState(true);
+  const [ redirect, setRedirect ] = useState(false) // redirect is the substitute of history.
 
   const dispatch = useDispatch();
 
@@ -96,8 +98,11 @@ export default function Chatroom(props) {
 
   useEffect(() => {
     if (socket) {
+      let socketID = socket.id;
       socket.emit("joinRoom", {
+        socketID,
         chatroomID,
+        userID,
         username,
       });
     }
@@ -106,11 +111,12 @@ export default function Chatroom(props) {
       if (socket) {
         socket.emit("leaveRoom", {
           chatroomID,
+          userID,
           username,
         });
       }
     };
-  }, [socket, chatroomID, username])
+  }, [socket, chatroomID, username, userID])
 
   useEffect(() => {
     if (socket) {
@@ -130,6 +136,10 @@ export default function Chatroom(props) {
           // when turn = 2 (Throw a fit... shoudn't be triggered this thing at that time)
           // when turn = -1 (loading...)
         }
+      });
+
+      socket.on('room full', () => {
+        setRedirect(true)
       });
 
       socket.on('joinRoom announce', ({ username }) => {
@@ -183,6 +193,12 @@ export default function Chatroom(props) {
 
     if (count !== 0) return true;
     else return false;
+  }
+
+  if (redirect) {
+    return (
+      <Redirect to={"/"} socket={socket} />
+    )
   }
 
   if (loading) {

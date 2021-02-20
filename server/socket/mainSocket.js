@@ -176,18 +176,34 @@ sockets.init = function(server) {
     })
 
     // when an user enters the room, announce to everyone else in the room
-    socket.on('joinRoom', ({ chatroomID, username }) => {
-      socket.join(chatroomID);
-      console.log(`The user ${username} has joined chatroom: ${chatroomID}`);
-      
-      // sending to individual socketid (private message)	
-      io.to(chatroomID).emit('joinRoom announce', {	
-        username: username,	
-      });
+    socket.on('joinRoom', async ({ socketID, chatroomID, userID, username }) => {
+
+      // -1 - no slot left  0 - already in room  1 - got in there successfully
+      let status = await addSlot(chatroomID, userID);
+
+      if (status === 1) {
+        socket.join(chatroomID);
+        console.log(`The user ${username} has joined chatroom: ${chatroomID}`);
+        
+        // sending to individual socketid (private message)	
+        io.to(chatroomID).emit('joinRoom announce', {	
+          username: username,	
+        });
+      } else if (status === -1) {
+        io.to(socketID).emit('room full', {});
+      } else if (status === 0) {
+        console.log(`The user ${username} has rejoined chatroom: ${chatroomID}`);
+      } else {
+        console.log("how the fuck...??? joinRoom mainsocket.js")
+      }
     });
 
     // when an user leaves the room, announce to everyone else in the room
-    socket.on('leaveRoom', ({ chatroomID, username }) => {
+    socket.on('leaveRoom', ({ chatroomID, userID, username }) => {
+
+      // remember to remove user from the user slot. (set it to null)
+      kickUser(chatroomID, userID)
+
       socket.leave(chatroomID);
       console.log(`The user ${username} has left chatroom: ${chatroomID}`)
 
@@ -676,6 +692,118 @@ const compareIntent = (intent1, intent2) => {
     (intent1.scale === intent2.scale || (intent1.scale === null && intent2.scale === null)) && 
     (intent1.level === intent2.level  || (intent1.level === null && intent2.level === null));
   }
+}
+
+const kickUser = (roomID, userID) => {
+
+  Chatroom.findById(roomID)
+  .then(roomFound => {
+    if (!roomFound) {
+      console.log("... Some shenanigan.. Room doesn't even exist.");
+      // IMPLEMENT SOME KIND OF ERROR!!!
+      return null;
+    } else {
+      // check if the room has the user and remove them. Otherwise it's aight, don't fret.
+      let count = 0;
+      // lol mongoose is unique really
+      if (roomFound.user1 !== null && roomFound.user1.equals(userID)) {
+        roomFound.user1 = null;
+        count++;
+      }
+      if (roomFound.user2 !== null && roomFound.user2.equals(userID)) {
+        roomFound.user2 = null;
+        count++;
+      }
+
+      if (count !== 0) return roomFound.save();
+      else return null;
+    }
+  })
+  .catch(err => console.log("Kicking user: ", err))
+}
+
+// -1 - no slot left
+//  0 - already in room
+//  1 - got in there successfully
+const addSlot = async (roomID, userID) => {
+  return await Chatroom.findById(roomID)
+  .then(async (roomFound) => {
+    if (!roomFound) {
+      console.log("... Some shenanigan.. Room doesn't even exist.");
+      // IMPLEMENT SOME KIND OF ERROR!!!
+      return null;
+    } else {
+
+      const roomProgress = await checkProgress(roomFound.progress);
+      if (roomProgress === 1) {
+        return -1;
+      }
+
+      // check if the room has the user.
+      if ((roomFound.user1 !== null && roomFound.user1.equals(userID)) || 
+          (roomFound.user2 !== null && roomFound.user2.equals(userID))) {
+        // IMPLEMENT ANNOUNCEMENT!
+        return 0;
+      }
+      
+      // check if the room has any slot left (order based on turn)
+      if (roomFound.turn === 1) {
+        if (roomFound.user1 === null) {
+          roomFound.user1 = userID;
+          roomFound.save();
+          return 1;
+        } else if (roomFound.user2 === null) {
+          roomFound.user2 = userID;
+          roomFound.save();
+          return 1;
+        } else {
+          // IMPLEMENT ANNOUNCEMENT!
+          return -1;
+        }
+      } else {
+        if (roomFound.user2 === null) {
+          roomFound.user2 = userID;
+          roomFound.save();
+          return 1;
+        } else if (roomFound.user1 === null) {
+          roomFound.user1 = userID;
+          roomFound.save();
+          return 1;
+        } else {
+          // IMPLEMENT ANNOUNCEMENT!
+          return -1;
+        }
+      }
+      
+      
+    }
+  })
+  .catch(err => console.log("Kicking user: ", err))
+}
+
+// -1 - non-existence.
+//  0 - not done.
+//  1 - done.
+const checkProgress = (progressID) => {
+  return Progress.findById(progressID)
+    .then(progressFound => {
+      if (!progressFound) {
+        console.log("... Some shenanigan.. Audio doesn't even exist.");
+        // IMPLEMENT SOME KIND OF ERROR!!!
+        return -1;
+      } else {
+        if (
+          progressFound.action === 0 ||
+          progressFound.device === 0 || 
+          progressFound.floor === 0 ||
+          progressFound.room === 0 ||
+          progressFound.scale === 0 ||
+          progressFound.level === 0) 
+          return 0;
+        else return 1;
+      }
+    })
+    .catch(err => console.log("adding slot... finding progress by id: ", err))
 }
 
 module.exports = sockets;
