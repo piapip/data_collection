@@ -4,6 +4,7 @@ const path = require("path");
 const cors = require('cors');
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const subscriptionHandler = require('./socket/subscriptionHandler');
 
 const config = require("./config/key");
 
@@ -37,6 +38,10 @@ app.use('/api/aws/upload', require('./routes/upload_aws'));
 //use this to show the image you have in node js server to client (react js)
 //https://stackoverflow.com/questions/48914987/send-image-path-from-node-js-express-server-to-react-client
 app.use('/uploads', express.static('uploads'));
+
+// for matching notification
+app.post('/subscription', subscriptionHandler.handlePushNotificationSubscription);
+app.get('/subscription/:id', subscriptionHandler.sendPushNotification);
 
 app.use(express.static(__dirname))
 

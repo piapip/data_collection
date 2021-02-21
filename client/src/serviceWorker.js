@@ -20,6 +20,8 @@ const isLocalhost = Boolean(
     )
 );
 
+const pushServerPublicKey = "BNMtEkDR6eqNNSdAsQnv0SBgtoNDSKAKq_r0NIcB8oqYfeOuasOgfsKO1LTkFaCPyFJetjfIlBUpVuer1zp6fA8";
+
 export function register(config) {
   if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
@@ -132,4 +134,35 @@ export function unregister() {
       registration.unregister();
     });
   }
+}
+
+export async function askUserPermission() {
+  return await Notification.requestPermission();
+}
+
+export async function createNotificationSubscription() {
+  //wait for service worker installation to be ready
+
+  const serviceWorker = await navigator.serviceWorker.ready;
+
+  // subscribe and return the subscription
+  return await serviceWorker.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: pushServerPublicKey
+  });
+}
+
+export function getUserSubscription() {
+  //wait for service worker installation to be ready, and then
+  return navigator.serviceWorker.ready
+  .then(function(serviceWorker) {
+    return serviceWorker.pushManager.getSubscription();
+  })
+  .then(function(pushSubscription) {
+    return pushSubscription;
+  });
+}
+
+export function isPushNotificationSupported() {
+  return 'serviceWorker' in navigator && 'PushManager' in window;
 }
