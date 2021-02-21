@@ -6,7 +6,7 @@ import { COLOR } from '../../../../Config';
 const {Panel} = Collapse;
 const {Option} = Select;
 
-const deviceData = ['Không có', 'Quạt', 'Quạt thông gió', 'Tivi', 'Loa', 'Đèn bàn', 'Đèn trần', 'Đèn cầu thang', 'Bình nóng lạnh', 'Điều hòa', 'Lò sưởi', 'Cổng', 'Lò nướng', 'Bếp'];
+const deviceData = ['Không có', 'Bình nóng lạnh', 'Bếp', 'Cổng', 'Đèn cầu thang', 'Đèn bàn', 'Đèn trần', 'Điều hòa', 'Loa', 'Lò nướng', 'Lò sưởi', 'Quạt', 'Quạt thông gió', 'Tivi'];
 const roomData = {
   'Quạt': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng bếp', 'Phòng ngủ', 'Phòng vệ sinh', 'Phòng làm việc', 'Phòng tắm'],
   'Quạt thông gió': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng bếp', 'Phòng ngủ', 'Phòng vệ sinh', 'Phòng làm việc', 'Phòng tắm'],

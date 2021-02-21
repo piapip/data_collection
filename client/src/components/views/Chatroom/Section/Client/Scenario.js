@@ -31,13 +31,19 @@ export default function Scenario(props) {
         switch(scenario[4][2].toLowerCase()) {
         case "độ sáng":
         case "âm lượng": 
+        if (scenario[0][2].toLowerCase() === "tăng") {
+          return `thêm ${scenario[5][2]} ${scenario[4][2].toLowerCase()}`
+        } else if (scenario[0][2].toLowerCase() === "giảm") {
+          return `đi ${scenario[5][2]} ${scenario[4][2].toLowerCase()}`
+        } else {
           return `với ${scenario[4][2].toLowerCase()} ở mức ${scenario[5][2]}%`
+        }
         case "màu":
           return `với ${scenario[4][2].toLowerCase()} ${COLOR[scenario[5][2]].toLowerCase()}`
         case "kênh":
         case "mức":
           if (scenario[0][2].toLowerCase() === "tăng") {
-            return `lên ${scenario[5][2]} ${scenario[4][2].toLowerCase()}`
+            return `thêm ${scenario[5][2]} ${scenario[4][2].toLowerCase()}`
           } else if (scenario[0][2].toLowerCase() === "giảm") {
             return `đi ${scenario[5][2]} ${scenario[4][2].toLowerCase()}`
           } else {

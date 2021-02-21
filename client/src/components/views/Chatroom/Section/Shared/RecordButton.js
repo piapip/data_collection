@@ -8,6 +8,8 @@ export default function RecordButton(props) {
 
     const isRecording = props ? props.isRecording : false;
     const turn = props ? props.turn : false;
+    const socket = props ? props.socket : null;
+    const roomID = props ? props.roomID : "";
 
     const renderRecordingButton = (
         turn ? (
@@ -31,13 +33,23 @@ export default function RecordButton(props) {
         <div style={{margin: '4rem auto'}}>
             <div className="primary-button">
                 <ReactRecord
-                    disable={true}
                     record={isRecording}
                     onData={() => {}}
                     onSave={() => {}}
-                    onStart={() => {}}
+                    onStart={() => {
+                        if (socket) {
+                            socket.emit('Recording', {
+                                roomID,
+                            });
+                        }
+                    }}
                     onStop={blobObject => {
                         props.setAudio(blobObject);
+                        if (socket) {
+                            socket.emit('Done Recording', {
+                                roomID,
+                            });
+                        }
                     }}>
                     {renderRecordingButton}
                 </ReactRecord>

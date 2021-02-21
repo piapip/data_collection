@@ -221,8 +221,6 @@ sockets.init = function(server) {
     // Just receive a signal
     socket.on('chatroomAudio', ({ chatroomID, sender, link }) => {
       // sending to individual socketid (private message)
-      console.log("Sending")
-      console.log(chatroomID)
       io.to(chatroomID).emit('newAudioURL', {
         userID: socket.userId,
         sender: sender,
@@ -484,11 +482,15 @@ sockets.init = function(server) {
       io.to(roomID).emit('audio removed');
     });
 
-    // when room intent is finished. Kick everyone out. Lock the room. Log the record to a txt file.
+    socket.on("Recording", ({ roomID }) => {
+      io.to(roomID).emit("user recording", {});
+    })
+
+    socket.on("Done Recording", ({ roomID }) => {
+      io.to(roomID).emit("user done recording", {});
+    })
+    // when room intent is finished. Lock the room. Log the record to a txt file.
     // The record will consist of the room information. (Doesn't matter who's servant, who's client.)
-    
-    // remove people from the room record when they disconnect or leave room.
-    // update matching.
 
     // when receive a message
     socket.on("Input Chat message", msg => {
@@ -519,7 +521,7 @@ sockets.init = function(server) {
 }
 
 const addToQueue = (queue, userID) => {
-  queue.push(userID)
+  queue.push(userID);
 }
 
 const removeFromQueue = (queue, target) => {
