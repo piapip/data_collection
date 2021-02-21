@@ -5,14 +5,12 @@ import {/*ShareIcon,*/ RedoIcon, PlayOutlineIcon, StopIcon} from '../../../../ui
 
 import Wave from '../Shared/Wave';
 import RecordButton from '../Shared/RecordButton';
-// import SendButton from '../Shared/SendButton';
 import ClientSendButton from '../Client/ClientSendButton';
 import ClientCheckbox from '../Client/ClientCheckbox';
 import ServantSendButton from '../Servant/ServantSendButton';
 import ServantDropDown from '../Servant/ServantDropDown';
 import LoadingComponent from './../../../Loading/LoadingComponent';
-// import Dropdown from '../Servant/Dropdown';
-// import {dropdowns} from '../Data';
+import Status from '../Shared/Status';
 
 export default function AudioRecordingScreen(props) {
   const canvasRef = props.canvasRef;
@@ -23,6 +21,8 @@ export default function AudioRecordingScreen(props) {
   const user = props ? props.user : null;
   const userRole = props ? props.userRole : "";
   const turn = props ? props.turn : false;
+  const message = props ? props.message : "Loading";
+  const scenario = props ? props.scenario : [];
   const [ isPlaying, setIsPlaying ] = useState(false);
   const [ audio, setAudio ] = useState(null);
   const [ intent, setIntent ] = useState(null); 
@@ -158,17 +158,22 @@ export default function AudioRecordingScreen(props) {
 
   return (
     <>
-      <Row>
+      {/* This row gonna be status */}
+      {/* <Row>
         <Col style={{textAlign: "center"}}>
           <p>You are the {userRole}</p>
         </Col>
-      </Row>
+      </Row> */}
+      {/* <Status message={`You are the ${userRole}`} /> */}
+      <Status message={message} />
       <Row style={{textAlign: "center"}}>
         <div className="primary-buttons">
           <canvas className="primary-buttons canvas" ref={canvasRef}
                   style={{width: '100%', position: 'absolute', maxWidth: 'calc(1400px - 40px)'}}/>
           <RecordButton
-            turn={(turn === 1 && userRole === "client") || (turn === 3 && userRole === "servant")}
+            turn={((turn === 1 && userRole === "client") || (turn === 3 && userRole === "servant")) && (audio === null)}
+            roomID={chatroomID}
+            socket={socket}
             isRecording={isRecording}
             setAudio={setAudio}
             setIsRecording={setIsRecording}/>
@@ -178,15 +183,15 @@ export default function AudioRecordingScreen(props) {
         <Row>
           <Col>
             <div style={{width: '75%', margin: '1rem auto'}}>
-              {props.userRole === "client" ?
+              {userRole === "client" ?
                 <ClientCheckbox
                   // visible={tagVisibility && audio !== null}
                   intent={tagVisibility ? intent : null}
                   visible={tagVisibility}
                   setIntent={setIntent}
-                  list={props.scenario}  
+                  list={scenario}  
                 /> : 
-              props.userRole === "servant" ? (
+              userRole === "servant" ? (
                 // <Dropdown list={dropdowns}/>
                 <ServantDropDown 
                   intent={intent}

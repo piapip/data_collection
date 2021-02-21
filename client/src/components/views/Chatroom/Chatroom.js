@@ -2,19 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
-import {Row, Col} from 'antd';
+import {Row, Col, Modal} from 'antd';
 
 import './Section/Shared/RecordButton.css';
-import './Chatroom.css'
+import './Chatroom.css';
+import StatusMessage from './Section/Shared/StatusMessage';
 import Scenario from './Section/Client/Scenario';
 import ProgressNote from './Section/Servant/ProgressNote';
 import AudioList from './Section/Shared/AudioList';
-import AudioRecordingScreen from './Section/Sub-container/AudioRecordingScreen'
-import {getRoom} from '../../../_actions/chatroom_actions'
-import TextChatScreen from './Section/Sub-container/TextChatScreen';
+import AudioRecordingScreen from './Section/Sub-container/AudioRecordingScreen';
+import {getRoom} from '../../../_actions/chatroom_actions';
+import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
 import LoadingComponent from '../Loading/LoadingComponent';
 import PromptLeaving from './Section/Shared/PromptLeaving';
+// import SwitchingTurn from './Section/Shared/SwitchingTurn';
 
 export default function Chatroom(props) {
   const canvasRef = useRef(null);
@@ -22,7 +24,6 @@ export default function Chatroom(props) {
   const room_content_type = window.location.href.split("/")[4]
   const chatroomID = window.location.href.split("/")[5]
   const user = useSelector(state => state.user);
-  const message = useSelector(state => state.message);
   let userID = user.userData ? user.userData._id : "";
   let username = user.userData ? user.userData.name : "";
   const [ userRole, setUserRole ] = useState("");
@@ -31,7 +32,10 @@ export default function Chatroom(props) {
   const [ progress, setProgress ] = useState([]);
   const [ turn, setTurn ] = useState(-1);
   const [ loading, setLoading ] = useState(true);
-  const [ redirect, setRedirect ] = useState(false) // redirect is the substitute of history.
+  const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
+  const [ message, setMessage ] = useState("Loading");
+
+  const [ isModalVisible, setIsModalVisible ] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -90,6 +94,9 @@ export default function Chatroom(props) {
       })
 
       setTurn(response.payload.roomFound.turn);
+      if (response.payload.roomFound.turn === 1) {
+        setMessage(StatusMessage.TURN_CLIENT_START);
+      } else setMessage(StatusMessage.TURN_SERVANT_START);
 
       setAudioHistory(tempAudioList);
       setLoading(false);
@@ -125,15 +132,18 @@ export default function Chatroom(props) {
       });
   
       socket.on('joinRoom announce', ({ username }) => {
-        console.log(`User ${username} has joined the room`);
+        // console.log(`User ${username} has joined the room`);
+        setMessage(`${username} đã vào phòng.`);
       });
   
       socket.on('leaveRoom announce', ({ username }) => {
-        console.log(`User ${username} has left the room`);
+        // console.log(`User ${username} has left the room`);
+        setMessage(`${username} đã rời phòng.`);
       });
   
       socket.on('intent incorrect', () => {
-        console.log(`Servant doesn't seem to understood client's intent!`)
+        // console.log(`Servant doesn't seem to understood client's intent!`)
+        setMessage(StatusMessage.INTENT_INCORECT);
       });
     }
   });
@@ -141,7 +151,8 @@ export default function Chatroom(props) {
   useEffect(() => {
     if (socket) {
       socket.on('intent correct', ({ newProgress }) => {
-        console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
+        // console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
+        setMessage(StatusMessage.INTENT_CORRECT)
         if (newProgress.action !== 0 && newProgress.device !== 0 && newProgress.floor !== 0 && 
           newProgress.room !== 0 && newProgress.scale !== 0 && newProgress.level !== 0) {
           setRedirect(true);
@@ -156,7 +167,7 @@ export default function Chatroom(props) {
   useEffect(() => {
     if (socket) {
       socket.on('newAudioURL', ({ userID, sender, audioLink }) => {
-        console.log(`Receive signal from ${sender} with the ID of ${userID}. Here's the link: ${audioLink}`)
+        // console.log(`Receive signal from ${sender} with the ID of ${userID}. Here's the link: ${audioLink}`)
         let newHistory = [...audioHistory];
         // newHistory.push(data.audioLink)
         newHistory = [audioLink, ...audioHistory];
@@ -164,9 +175,17 @@ export default function Chatroom(props) {
         // if client sent then move on
         if(turn === 1) {
           setTurn(2);
+          setMessage(StatusMessage.TURN_TWO_TRANSITION);
+          if (userRole === "servant") {
+            setIsModalVisible(true);
+          }
         // if servant sent then move on
         } else if (turn === 3) {
           setTurn(1);
+          setMessage(StatusMessage.TURN_ONE_TRANSITION);
+          if (userRole === "client") {
+            setIsModalVisible(true);
+          }
         } else {
           // when turn = 2 (Throw a fit... shoudn't be triggered this thing at that time)
           // when turn = -1 (loading...)
@@ -174,24 +193,49 @@ export default function Chatroom(props) {
       });
     }
     // Idk about this... it may cause problem later...
-  }, [turn, socket, audioHistory]);
+  }, [turn, socket, audioHistory, userRole]);
 
   useEffect(() => {
     if (socket) {
       socket.on('audio removed', () => {
         let newHistory = [...audioHistory];
         newHistory.shift();
-
         setAudioHistory(newHistory);
 
         if (turn === 1) {
           setTurn(3);
+          setMessage(StatusMessage.AUDIO_REMOVED_CLIENT);
         } else if (turn === 2) {
           setTurn (1);
+          setMessage(StatusMessage.AUDIO_REMOVED_SERVANT);
         }
       });
     }
   }, [audioHistory, socket, turn]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('user recording', () => {
+        if (turn === 1) {
+          setMessage(StatusMessage.USER_RECORDING_CLIENT);
+        } else if (turn === 3) {
+          setMessage(StatusMessage.USER_RECORDING_SERVANT);
+        } else {
+          setMessage('Sao thu âm được hay thế?');
+        }
+      });
+
+      socket.on('user done recording', () => {
+        if (turn === 1) {
+          setMessage(StatusMessage.USER_DONE_RECORDING_CLIENT);
+        } else if (turn === 3) {
+          setMessage(StatusMessage.USER_DONE_RECORDING_SERVANT);
+        } else {
+          setMessage('Sao thu âm được hay thế?');
+        }
+      })
+    }
+  }, [socket, turn])
 
   const handleLeaveChatroom = () => {
     if (socket) {
@@ -211,6 +255,14 @@ export default function Chatroom(props) {
     if (count !== 0) return true;
     else return false;
   }
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
 
   if (redirect) {
     return (
@@ -234,11 +286,19 @@ export default function Chatroom(props) {
       <PromptLeaving 
         onLeave={handleLeaveChatroom}
         when={getPromptStatus()}/>
+      <Modal 
+        closable={false}
+        visible={isModalVisible} 
+        onOk={handleOk} 
+        onCancel={handleCancel}>
+        <p>Tới lượt của bạn</p>
+      </Modal>
       <div className="chatroom">
         <Row>
           <Col span={20}>
             {room_content_type === '0' ?
               <AudioRecordingScreen
+                message={message}
                 turn={turn}
                 canvasRef={canvasRef}
                 socket={socket}
@@ -248,13 +308,7 @@ export default function Chatroom(props) {
                 chatroomID={chatroomID}
                 userRole={userRole}
               /> :
-              <TextChatScreen 
-                socket={socket} 
-                user={user} 
-                chatroomID={chatroomID}
-                dispatch={dispatch} 
-                message={message} 
-                userRole={userRole}/>}
+              <ErrorNotFound />}
           </Col>
           <Col span={4}>
             <Row>
