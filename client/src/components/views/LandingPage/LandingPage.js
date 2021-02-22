@@ -63,7 +63,7 @@ function LandingPage(props) {
         setPromptDuration(10)
       });
     }
-  })
+  }, [socket])
 
   // useEffect(() => {
   //   if (socket) {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
-import {Row, Col, Modal} from 'antd';
+import { Row, Col, Modal, notification } from 'antd';
 
 import './Section/Shared/RecordButton.css';
 import './Chatroom.css';
@@ -53,6 +53,14 @@ export default function Chatroom(props) {
     }
     setProgress(tempProgress);
   }
+
+  const openNotificationWithIcon = (type, message, description) => {
+    notification[type]({
+      message: message,
+      description: description,
+    });
+  };
+  
 
   useEffect(() => {
     if (userRole !== "" && socket !== null && user !== null) {
@@ -114,15 +122,15 @@ export default function Chatroom(props) {
       });
     }
 
-    return () => {
-      if (socket) {
-        socket.emit("leaveRoom", {
-          chatroomID,
-          userID,
-          username,
-        });
-      }
-    };
+    // return () => {
+    //   if (socket) {
+    //     socket.emit("leaveRoom", {
+    //       chatroomID,
+    //       userID,
+    //       username,
+    //     });
+    //   }
+    // };
   }, [socket, chatroomID, username, userID])
 
   useEffect(() => {
@@ -134,11 +142,13 @@ export default function Chatroom(props) {
       socket.on('joinRoom announce', ({ username }) => {
         // console.log(`User ${username} has joined the room`);
         setMessage(`${username} đã vào phòng.`);
+        openNotificationWithIcon('info', `${username} đã vào phòng.`, '')
       });
   
       socket.on('leaveRoom announce', ({ username }) => {
         // console.log(`User ${username} has left the room`);
         setMessage(`${username} đã rời phòng.`);
+        openNotificationWithIcon('info', `${username} đã rời phòng.`, '')
       });
   
       socket.on('intent incorrect', () => {
@@ -146,7 +156,7 @@ export default function Chatroom(props) {
         setMessage(StatusMessage.INTENT_INCORECT);
       });
     }
-  });
+  }, [socket]);
 
   useEffect(() => {
     if (socket) {
@@ -298,6 +308,8 @@ export default function Chatroom(props) {
           <Col span={20}>
             {room_content_type === '0' ?
               <AudioRecordingScreen
+                progress={progress}
+                latestAudio={audioHistory === [] ? null : audioHistory[0]}
                 message={message}
                 turn={turn}
                 canvasRef={canvasRef}

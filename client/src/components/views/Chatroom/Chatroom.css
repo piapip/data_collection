@@ -101,6 +101,7 @@
 }
 .pill.done{
     background: white;
+    border: 1px solid #dedede;
 }
 .pill.done.contents{
     display: flex !important;
