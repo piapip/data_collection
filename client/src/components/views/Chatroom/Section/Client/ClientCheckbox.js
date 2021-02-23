@@ -14,10 +14,10 @@ export default function ClientCheckbox(props) {
   const [ loading, setLoading ] = useState(true);
 
   useEffect(() => {
-    if (list !== []) {
+    if (list !== [] && progress !== []) {
       setLoading(false);
     } else setLoading(true);
-  }, [list])
+  }, [list, progress])
 
   // update label for color criteria
   if(list) {
@@ -62,7 +62,7 @@ export default function ClientCheckbox(props) {
           {/* I was thinking of assigning object to the checkbox value, but then there's no way for me to manipulate the way it compares 2 objects 
           so it can't be done. */}
           {
-            progress[index][1] === 0 ? (
+            progress === [] ? "" : progress[index][1] === 0 ? (
               <Checkbox value={item[0]} disabled={!visible} style={{color: "#eb2f96"}}>
                 {item[1]}
               </Checkbox>

@@ -122,21 +122,22 @@ export default function Chatroom(props) {
       });
     }
 
-    // return () => {
-    //   if (socket) {
-    //     socket.emit("leaveRoom", {
-    //       chatroomID,
-    //       userID,
-    //       username,
-    //     });
-    //   }
-    // };
+    return () => {
+      if (socket) {
+        socket.emit("leaveRoom", {
+          chatroomID,
+          userID,
+          username,
+        });
+      }
+    };
   }, [socket, chatroomID, username, userID])
 
   useEffect(() => {
     if (socket) {
       socket.on('room full', () => {
         setRedirect(true)
+        openNotificationWithIcon('error', 'Phòng không còn chỗ', 'Phòng hoặc đã hết chỗ, hoặc chỗ cũ của bạn đang có người khác dùng!')
       });
   
       socket.on('joinRoom announce', ({ username }) => {
