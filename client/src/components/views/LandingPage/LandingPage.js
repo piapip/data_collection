@@ -200,7 +200,8 @@ function LandingPage(props) {
             <div className="app">
 
               <RoomList pageSize="4"/>
-              <RandomRoomButton/>
+              <RandomRoomButton
+                userID={user.userData ? user.userData._id : ""}/>
             </div>
           </Row>
 

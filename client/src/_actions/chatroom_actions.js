@@ -29,9 +29,9 @@ export function getAllRooms() {
   }
 }
 
-export function getRandomRoom() {
+export function getRandomRoom(userID) {
   const request = 
-    axios.get(`${ROOM_SERVER}/random`)
+    axios.get(`${ROOM_SERVER}/random/${userID}`)
       .then(response => response.data);
 
   return {

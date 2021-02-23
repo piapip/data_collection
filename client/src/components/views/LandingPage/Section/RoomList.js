@@ -42,7 +42,7 @@ function RoomList(props) {
           }
         })
 
-        setRoomList(response.payload.roomFound)
+        setRoomList(response.payload.roomFound.filter(room => room.done === false))
       } else {
         alert("Something's wrong with the server. We are very sorry for the inconvenience!")
       }

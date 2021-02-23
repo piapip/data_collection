@@ -8,7 +8,9 @@ import { getRandomRoom } from '../../../../_actions/chatroom_actions'
 import ErrorInternalSystem from '../../Error/ErrorInternalSystem'
 // import ErrorNotFound from '../../Error/ErrorNotFound'
 
-export default function RandomRoomButton() {
+export default function RandomRoomButton(props) {
+
+  const userID = props ? props.userID : "";
 
   const [ randomRoomID, setRandomRoomID ] = useState("");
   const [ redirect, setRedirect ] = useState(false);
@@ -30,7 +32,7 @@ export default function RandomRoomButton() {
   };
 
   const onClickRandom = () => {
-    dispatch(getRandomRoom())
+    dispatch(getRandomRoom(userID))
     .then(async (response) => {
       if (response.payload.success) {
         if (response.payload.roomFound === null) { 
