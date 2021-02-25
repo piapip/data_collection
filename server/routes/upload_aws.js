@@ -31,15 +31,16 @@ const upload = multer({ storage }).single('soundBlob');
 // save those blob to the server
 router.post('/', upload, (req, res) => {
 
-  let myFile = req.file.originalname.split(".")
-  const fileType = myFile[myFile.length - 1]
+  let myFile = req.file.originalname.split(".");
+  const fileType = myFile[myFile.length - 1];
+  const fileName = myFile.replace(fileType, "");
 
-  console.log(`myFile: ${myFile}, fileTyp: ${fileType}`)
+  // console.log(`myFile: ${myFile}, fileType: ${fileType}`)
 
   const params = {
     Bucket: awsBucketName, 
-    // Key: `${uuidv4()}.${fileType}`,
-    Key: req.file.originalname,
+    Key: `${fileName}.${fileType}`,
+    // Key: req.file.originalname,
     Body: req.file.buffer,
   }
 
