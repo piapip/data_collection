@@ -22,6 +22,7 @@ export default function AudioRecordingScreen(props) {
 
   let socket = props ? props.socket : null;
   const progress = props ? props.progress : [];
+  const audioName = props ? props.audioName : "";
   const chatroomID = props ? props.chatroomID : "";
   const user = props ? props.user : null;
   const userRole = props ? props.userRole : "";
@@ -34,14 +35,6 @@ export default function AudioRecordingScreen(props) {
   const [ intent, setIntent ] = useState(null); 
   const [ isRecording, setIsRecording ] = useState(false);
   const [ tagVisibility, setTagVisibility ] = useState(true);
-
-  // const [ loading, setLoading ] = useState(true);
-
-  // useEffect(() => {
-  //   if (socket !== null && chatroomID !== "" && user != null && userRole !== "") {
-  //     setLoading(false);
-  //   } else setLoading(true);
-  // }, [socket, chatroomID, user, userRole]);
 
   useEffect(() => {
     const canvasObj = canvasRef.current;
@@ -159,19 +152,8 @@ export default function AudioRecordingScreen(props) {
     } else return ""
   }
 
-  // if (loading) {
-  //   return <LoadingPage /> 
-  // }
-
   return (
     <>
-      {/* This row gonna be status */}
-      {/* <Row>
-        <Col style={{textAlign: "center"}}>
-          <p>You are the {userRole}</p>
-        </Col>
-      </Row> */}
-      {/* <Status message={`You are the ${userRole}`} /> */}
       <Status message={message} />
       <Row style={{textAlign: "center"}}>
         <div className="primary-buttons">
@@ -189,13 +171,17 @@ export default function AudioRecordingScreen(props) {
 
       {/* latest audio */}
       <Row type="flex" justify="center" style={{textAlign: "center"}}>
-        <CustomAudioPlayer audioLink={latestAudio} autoPlay={false}/>
+        <CustomAudioPlayer 
+          audioLink={latestAudio}
+          turn={turn}
+          userrole={userRole}
+          autoPlay={true}/>
       </Row>
 
       <Row>
         <Row>
           <Col>
-            <div style={{width: '75%', margin: '1rem auto'}}>
+            <div style={{width: '100%', margin: '1rem auto'}}>
               {userRole === "client" && progress !== [] ?
                 <ClientCheckbox
                   // visible={tagVisibility && audio !== null}
@@ -207,7 +193,8 @@ export default function AudioRecordingScreen(props) {
                 /> : 
               userRole === "servant" ? (
                 // <Dropdown list={dropdowns}/>
-                <ServantDropDown 
+                <ServantDropDown
+                  turn={turn}
                   intent={intent}
                   setIntent={setIntent}/>
               ) : (
@@ -226,6 +213,7 @@ export default function AudioRecordingScreen(props) {
               {
                 userRole === "client" ? (
                   <ClientSendButton 
+                    audioName={audioName}
                     turn={turn}
                     disable={intent === null && tagVisibility}
                     socket={socket}
@@ -244,6 +232,7 @@ export default function AudioRecordingScreen(props) {
                   //   sendAudioSignal={sendAudioSignal}/>
 
                   <ServantSendButton
+                    audioName={audioName}
                     socket={socket}
                     turn={turn}
                     audio={audio} 
@@ -265,7 +254,7 @@ export default function AudioRecordingScreen(props) {
             ) : ""
           } */}
           <Col span={6}>
-            <Checkbox onChange={toggleTagVisibility}>Không có tag</Checkbox>
+            <Checkbox onChange={toggleTagVisibility} disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}>Không có tag</Checkbox>
           </Col>
         </Row>
       </Row>

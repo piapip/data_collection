@@ -48,6 +48,7 @@ export default function CustomAudioPlayer(props) {
         <div className="pill done">
           <div className="pill done contents">
             <audio 
+              key={audioLink}
               autoPlay={autoPlay}
               preload="auto" 
               onEnded={toggleIsPlaying} 

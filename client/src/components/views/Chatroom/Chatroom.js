@@ -28,6 +28,7 @@ export default function Chatroom(props) {
   let username = user.userData ? user.userData.name : "";
   const [ userRole, setUserRole ] = useState("");
   const [ audioHistory, setAudioHistory ] = useState([]);
+  const [ latestAudio, setLatestAudio ] = useState("");
   const [ scenario, setScenario ] = useState([]);
   const [ progress, setProgress ] = useState([]);
   const [ turn, setTurn ] = useState(-1);
@@ -97,8 +98,8 @@ export default function Chatroom(props) {
       const audios = response.payload.roomFound.audioList;
       let tempAudioList = [];
       audios.map(audio => {
-        // return tempAudioList.push(audio.link)
-        return tempAudioList = [audio.link, ...tempAudioList];
+        return tempAudioList.push(audio.link);
+        // return tempAudioList = [audio.link, ...tempAudioList];
       })
 
       setTurn(response.payload.roomFound.turn);
@@ -107,6 +108,7 @@ export default function Chatroom(props) {
       } else setMessage(StatusMessage.TURN_SERVANT_START);
 
       setAudioHistory(tempAudioList);
+      setLatestAudio(audios[audios.length - 1].link);
       setLoading(false);
     })
   }
@@ -174,37 +176,39 @@ export default function Chatroom(props) {
     }
   }, [progress, socket]);
 
-
   useEffect(() => {
     if (socket) {
-      socket.on('newAudioURL', ({ userID, sender, audioLink }) => {
-        // console.log(`Receive signal from ${sender} with the ID of ${userID}. Here's the link: ${audioLink}`)
+      socket.on('newAudioURL', async ({ userID, sender, audioLink }) => {
+        console.log(`Receive signal from ${sender} with the ID of ${userID}. Here's the link: ${audioLink}`)
         let newHistory = [...audioHistory];
-        // newHistory.push(data.audioLink)
-        newHistory = [audioLink, ...audioHistory];
-        setAudioHistory(newHistory);
+        newHistory.push(audioLink);
+        // await newHistory.unshift(audioLink);
+        await setAudioHistory(newHistory);
+        await setLatestAudio(audioLink);
         // if client sent then move on
         if(turn === 1) {
-          setTurn(2);
+          await setTurn(2);
           setMessage(StatusMessage.TURN_TWO_TRANSITION);
           if (userRole === "servant") {
             setIsModalVisible(true);
           }
         // if servant sent then move on
         } else if (turn === 3) {
-          setTurn(1);
+          await setTurn(1);
           setMessage(StatusMessage.TURN_ONE_TRANSITION);
           if (userRole === "client") {
             setIsModalVisible(true);
           }
-        } else {
-          // when turn = 2 (Throw a fit... shoudn't be triggered this thing at that time)
-          // when turn = -1 (loading...)
+        }
+        
+        return () => {
+          socket.off();
         }
       });
     }
     // Idk about this... it may cause problem later...
   }, [turn, socket, audioHistory, userRole]);
+  // }, [])
 
   useEffect(() => {
     if (socket) {
@@ -212,6 +216,8 @@ export default function Chatroom(props) {
         let newHistory = [...audioHistory];
         newHistory.shift();
         setAudioHistory(newHistory);
+        if (newHistory.length === 0) setLatestAudio(null);
+        else setLatestAudio(newHistory[0]);
 
         if (turn === 1) {
           setTurn(3);
@@ -306,11 +312,12 @@ export default function Chatroom(props) {
       </Modal>
       <div className="chatroom">
         <Row>
-          <Col span={20}>
+          <Col xs={24} xl={19}>
             {room_content_type === '0' ?
               <AudioRecordingScreen
+                audioName={`${chatroomID}_${userID}_${audioHistory.length}.wav`}
                 progress={progress}
-                latestAudio={audioHistory === [] ? null : audioHistory[0]}
+                latestAudio={latestAudio}
                 message={message}
                 turn={turn}
                 canvasRef={canvasRef}
@@ -323,7 +330,7 @@ export default function Chatroom(props) {
               /> :
               <ErrorNotFound />}
           </Col>
-          <Col span={4}>
+          <Col xs={24} xl={5}>
             <Row>
               {
                 userRole === "client" ? (
@@ -340,7 +347,7 @@ export default function Chatroom(props) {
 
             <Row>
               <Col>
-                {room_content_type === '0' ? <AudioList audioList={audioHistory}/> : ""}
+                <AudioList audioList={audioHistory}/>
               </Col> 
             </Row>
           </Col>

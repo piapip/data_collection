@@ -203,6 +203,7 @@ function LandingPage(props) {
                 userID={user.userData ? user.userData._id : ""}
                 pageSize="4"/>
               <RandomRoomButton
+                isAuth={user.userData ? user.userData.isAuth : false}
                 userID={user.userData ? user.userData._id : ""}/>
             </div>
           </Row>

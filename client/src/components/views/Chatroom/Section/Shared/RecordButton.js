@@ -23,7 +23,7 @@ export default function RecordButton(props) {
                 </button>
             )
         ) : (
-            <button onClick={() => alert("Yo")} style={{cursor: 'not-allowed'}} disabled>
+            <button onClick={() => alert("Yo")} style={{cursor: 'not-allowed', width: '88px', height: '88px'}} disabled>
                 <MicIcon />
             </button>
         )
