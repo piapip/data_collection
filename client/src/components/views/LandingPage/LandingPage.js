@@ -10,6 +10,8 @@ import ReadyButton from './Section/ReadyButton';
 // import ContentSelection from './Section/ContentSelection';
 import ConfirmModal from './Section/ConfirmModal';
 import LoadingPage from './../Loading/LoadingPage';
+import {MicIcon} from '../../ui/icons';
+import './LandingPage.css';
 
 function LandingPage(props) {
   const role = useRef("")
@@ -175,13 +177,6 @@ function LandingPage(props) {
             </Col>
             <Col span={8}>Servant role guide</Col>
           </Row>
-          {/* <Row style={{marginBottom: "10px", marginTop: "10px"}}>
-            <Col style={{textAlign: "center"}}>
-              <ContentSelection 
-                disabled={readyStatus}
-                setInputType={setInputType}/>
-            </Col>
-          </Row> */}
           <Row style={{marginBottom: "10px", marginTop: "10px"}}>
             <Col style={{textAlign: "center"}}>
               <ReadyButton 
@@ -196,17 +191,61 @@ function LandingPage(props) {
               <p>{readyStatus}</p>
             </Col>
           </Row>
-          <Row>
-            <div className="app">
 
-              <RoomList 
-                userID={user.userData ? user.userData._id : ""}
-                pageSize="4"/>
-              <RandomRoomButton
-                isAuth={user.userData ? user.userData.isAuth : false}
-                userID={user.userData ? user.userData._id : ""}/>
+          <div className="container">
+            
+            <div className="box">
+              <div className="column-title">
+                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Speak</h1>
+                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Donate your voice</h1>
+                <p className="content-hover">Recording voice clips is an integral
+                  part of building our open dataset; some would say it's the fun part too.
+                </p>
+                <a href="https://www.w3schools.com/" className="guide" target="_blank">Guide</a>
+              </div>
+              
+              <div className="column-cta">
+                <ReadyButton 
+                  isAuth={user.userData ? user.userData.isAuth : false}
+                  readyStatus={readyStatus}
+                  readySignal={readySignal}
+                  cancelReadySignal={cancelReadySignal}/>
+              </div>
             </div>
-          </Row>
+
+
+            <div className="box1">
+              <div className="column-title">
+                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Listen</h1>
+                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Help us validate data</h1>
+                <p className="content-hover">Validating donated clips is equally important to the Common Voice mission.
+                  Take a listen and help us create quality open source voice data.
+                </p>
+                <a href="https://www.w3schools.com/" className="guide">Guide</a>
+              </div>
+
+              <div className="column-cta">
+                <div className="primary-button">
+                  <button className="listen" type="button">
+                    <MicIcon/>
+                  </button>
+                  <div className="primary-button backgroundplay"/>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+
+          <div className="app">
+            <RoomList 
+              userID={user.userData ? user.userData._id : ""}
+              pageSize="4"/>
+            <RandomRoomButton
+              isAuth={user.userData ? user.userData.isAuth : false}
+              userID={user.userData ? user.userData._id : ""}/>
+          </div>
 
         </div>
 

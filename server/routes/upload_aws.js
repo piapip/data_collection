@@ -33,7 +33,7 @@ router.post('/', upload, (req, res) => {
 
   let myFile = req.file.originalname.split(".");
   const fileType = myFile[myFile.length - 1];
-  const fileName = myFile.replace(fileType, "");
+  const fileName = req.file.originalname.replace(fileType, "");
 
   // console.log(`myFile: ${myFile}, fileType: ${fileType}`)
 
