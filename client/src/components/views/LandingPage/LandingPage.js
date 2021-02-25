@@ -63,7 +63,7 @@ function LandingPage(props) {
         setPromptDuration(10)
       });
     }
-  })
+  }, [socket, user.userData])
 
   // useEffect(() => {
   //   if (socket) {
@@ -199,8 +199,12 @@ function LandingPage(props) {
           <Row>
             <div className="app">
 
-              <RoomList pageSize="4"/>
-              <RandomRoomButton/>
+              <RoomList 
+                userID={user.userData ? user.userData._id : ""}
+                pageSize="4"/>
+              <RandomRoomButton
+                isAuth={user.userData ? user.userData.isAuth : false}
+                userID={user.userData ? user.userData._id : ""}/>
             </div>
           </Row>
 

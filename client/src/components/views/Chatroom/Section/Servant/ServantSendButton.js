@@ -24,11 +24,13 @@ export default function ServantSendButton(props) {
     level: null,
   };
 
+  const audioName = props ? props.audioName : "test.wav";
+
   const uploadAudioAWS = async (e) => {
 
     // create data
     let formdata = new FormData()
-    formdata.append('soundBlob', data.blob, 'test.wav')
+    formdata.append('soundBlob', data.blob, audioName)
     formdata.append('userID', userID)
     formdata.append('roomID', roomID)
      

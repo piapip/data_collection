@@ -17,6 +17,8 @@ export default function ClientSendButton(props) {
   const buttonDisable = props ? props.disable : true;
   const turn = props ? props.turn : -1;
 
+  const audioName = props ? props.audioName : "test.wav";
+
   const [ buttonState, setButtonState ] = useState(false);
 
   // const popoverContent = (
@@ -30,7 +32,7 @@ export default function ClientSendButton(props) {
 
     // create data
     let formdata = new FormData();
-    formdata.append('soundBlob', data.blob, 'test.wav');
+    formdata.append('soundBlob', data.blob, audioName);
     formdata.append('userID', userID);
     formdata.append('roomID', roomID);
     // formdata.append('audioIntent', intent);

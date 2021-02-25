@@ -21,13 +21,13 @@ export default function Progress(props) {
     progress.map(property => {
       if (property[1] >= 1) {
         return (
-          <Col span={4} key={property[0]}>
+          <Col span={4} key={property[0]} style={{alignItems: "center"}}>
             <CheckCircleTwoTone twoToneColor="#52c41a"/>
           </Col>
         )
       } else if (property[1] === 0) {
         return (
-          <Col span={4} key={property[0]}>
+          <Col span={4} key={property[0]} style={{alignItems: "center", textAlign: "center"}}>
             <MinusCircleTwoTone twoToneColor="#eb2f96"/>
           </Col>
         )
@@ -45,7 +45,7 @@ export default function Progress(props) {
     <>
       <Collapse defaultActiveKey={['progress']}>
         <Panel header="Tiến trình hoàn thành: " key="progress">
-          <Row>
+          <Row justify="center" align="middle">
             {renderProgress}
           </Row>
         </Panel>

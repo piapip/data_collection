@@ -34,9 +34,12 @@ router.post('/', upload, (req, res) => {
   let myFile = req.file.originalname.split(".")
   const fileType = myFile[myFile.length - 1]
 
+  console.log(`myFile: ${myFile}, fileTyp: ${fileType}`)
+
   const params = {
     Bucket: awsBucketName, 
-    Key: `${uuidv4()}.${fileType}`,
+    // Key: `${uuidv4()}.${fileType}`,
+    Key: req.file.originalname,
     Body: req.file.buffer,
   }
 

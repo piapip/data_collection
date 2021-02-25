@@ -1,34 +1,49 @@
-import React, { useState } from 'react'
-import {Affix, Col, Row} from "antd";
+import React from 'react'
+import { Col, Row } from "antd";
+
+import CustomAudioPlayer from './CustomAudioPlayer';
+import LoadingComponent from './../../../Loading/LoadingComponent';
 
 export default function AudioList(props) {
 
-  const [ container, setContainer ] = useState(10);
-
   const showAudio = props ? (
-    props.audioList ? props.audioList.map(audio => {
+    props.audioList ? props.audioList.map((audio, index) => {
+    // audioList ? audioList.map((audio, index) => {
       return (
-        <div key={audio}>
-          <audio
-            controls="controls"
-            src={audio}>
-          <track kind="captions"/>
-          </audio>
+        // <div key={audio}>
+        //   <audio
+        //     controls="controls"
+        //     src={audio}>
+        //   <track kind="captions"/>
+        //   </audio>
+        // </div>
+        <div key={`audio_${index}`}>
+          <Row style={{marginTop: "3px", marginBottom: "3px"}}>
+            <Col span={2}>
+              {
+                index % 2 === 0 ? "C" : "S"
+              }
+            </Col>
+            <Col span={22}>
+              <CustomAudioPlayer audioLink={audio} autoPlay={false}/>
+            </Col>
+          </Row>
         </div>
       )
     }) : "") : ""
 
+  if (!props) {
+    return <LoadingComponent />
+  }
+
   return (
-      <div style={{display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%"}}
-           ref={setContainer}>
+      <div style={{display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%"}}>
        {/* <div style={{display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%"}}> */}
-        <Row style={{fontWeight: 'bold', border: "1px solid white", flexGrow: '1',backgroundColor:"white"}}>
+        <Row style={{fontWeight: 'bold', border: "1px solid white", flexGrow: '1',backgroundColor:"white", alignItems: "left"}}>
           <Col span={24} style={{textAlign: "center",fontsize:"18px"}}>Lịch sử hội thoại</Col>
-          {/* Empty affix will cause the system to fire a long-ass warning */}
-          <Affix target={() => container}>
-            <div></div>
-          </Affix>
-          {showAudio}
+          {/* <Row align="middle"> */}
+            {showAudio}
+          {/* </Row> */}
         </Row>
       </div>
   )

@@ -23,29 +23,105 @@ router.get("/", (req, res) => {
 })
 
 // GET RANDOM
-router.get("/random", (req, res) => {
+router.get("/random/:userID", (req, res) => {
+
+  const userID = req.params.userID
 
   // Get the count of all records
   Chatroom.countDocuments({
-    $and: [
-      {done: 0},
-      {$or: [
-        {user1: null},
-        {user2: null},
-      ]},
+    $or: [
+    {
+      $and: [
+        {done: 0},
+        {$or: [
+          {
+            $and: [
+              {user1: null},
+              {client: userID},
+            ]
+          },
+          {
+            $and: [
+              {user2: null},
+              {servant: userID},
+            ]
+          }
+        ]}
+      ]
+    },
+    {
+      $and: [
+        {done: 0},
+        {$or: [
+          {
+            $and: [
+              {user1: null},
+              {servant: {
+                $ne: userID
+              }}
+            ]
+          },
+          {
+            $and: [
+              {user2: null},
+              {client: {
+                $ne: userID
+              }}
+            ]
+          }
+        ]},
+      ]
+    },
     ]
   }).exec((err, count) => {
     if (err) res.status(500).send({ success: false, message: "Can't estimate document count", err })
     // Get a random entry 
     var random = Math.floor(Math.random() * count)
     Chatroom.findOne({
-      $and: [
-        {done: 0},
-        {$or: [
-          {user1: null},
-          {user2: null},
-        ]},
-      ]
+      $or: [
+        {
+          $and: [
+            {done: 0},
+            {$or: [
+              {
+                $and: [
+                  {user1: null},
+                  {client: userID},
+                ]
+              },
+              {
+                $and: [
+                  {user2: null},
+                  {servant: userID},
+                ]
+              }
+            ]}
+          ]
+        },
+        {
+          $and: [
+            {done: 0},
+            {$or: [
+              {
+                $and: [
+                  {user1: null},
+                  {servant: {
+                    $ne: userID
+                  }}
+                ]
+              },
+              {
+                $and: [
+                  {user2: null},
+                  {client: {
+                    $ne: userID
+                  }}
+                ]
+              }
+            ]},
+          ]
+        },
+        ]
     }).skip(random)
     // .populate('intent')
     .populate('progress')

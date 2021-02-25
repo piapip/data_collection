@@ -599,6 +599,8 @@ const createRoom = async (userID1, userID2, roomType) => {
     content_type: content_type,
     user1: userID1,
     user2: userID2,
+    client: [userID1],
+    servant: [userID2],
     intent: intent._id,
     progress: progress._id,
     turn: 1,
@@ -765,37 +767,60 @@ const addSlot = async (roomID, userID) => {
         // IMPLEMENT ANNOUNCEMENT!
         return 0;
       }
-      
-      // check if the room has any slot left (order based on turn)
-      if (roomFound.turn === 1) {
-        if (roomFound.user1 === null) {
-          roomFound.user1 = userID;
-          roomFound.save();
-          return 1;
-        } else if (roomFound.user2 === null) {
-          roomFound.user2 = userID;
-          roomFound.save();
-          return 1;
+
+      // check if the room has any slot left 
+      if (roomFound.user1 === null || roomFound.user2 === null) {
+        // check the room record of client and servant if the user has been here before
+
+        // if they have been here before
+        if (roomFound.client.includes(userID)) {
+          if (roomFound.user1 === null) {
+            roomFound.user1 = userID;
+            roomFound.save();
+            return 1;
+          } else return -1;
+        } else if (roomFound.servant.includes(userID)) {
+          if (roomFound.user2 === null) {
+            roomFound.user2 = userID;
+            roomFound.save();
+            return 1;
+          } else return -1;
         } else {
-          // IMPLEMENT ANNOUNCEMENT!
-          return -1;
+          // if they have NOT been here before
+          // check if the room has any slot left (order based on turn)
+          if (roomFound.turn === 1) {
+            if (roomFound.user1 === null) {
+              roomFound.user1 = userID;
+              roomFound.client.push(userID);
+              roomFound.save();
+              return 1;
+            } else if (roomFound.user2 === null) {
+              roomFound.user2 = userID;
+              roomFound.servant.push(userID);
+              roomFound.save();
+              return 1;
+            } else {
+              // IMPLEMENT ANNOUNCEMENT!
+              return -1;
+            }
+          } else {
+            if (roomFound.user2 === null) {
+              roomFound.user2 = userID;
+              roomFound.servant.push(userID);
+              roomFound.save();
+              return 1;
+            } else if (roomFound.user1 === null) {
+              roomFound.user1 = userID;
+              roomFound.client.push(userID);
+              roomFound.save();
+              return 1;
+            } else {
+              // IMPLEMENT ANNOUNCEMENT!
+              return -1;
+            }
+          }
         }
-      } else {
-        if (roomFound.user2 === null) {
-          roomFound.user2 = userID;
-          roomFound.save();
-          return 1;
-        } else if (roomFound.user1 === null) {
-          roomFound.user1 = userID;
-          roomFound.save();
-          return 1;
-        } else {
-          // IMPLEMENT ANNOUNCEMENT!
-          return -1;
-        }
-      }
-      
-      
+      } else return -1;
     }
   })
   .catch(err => console.log("Kicking user: ", err))

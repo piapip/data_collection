@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 
 import { Modal, Button } from 'antd';
@@ -8,7 +8,10 @@ import { getRandomRoom } from '../../../../_actions/chatroom_actions'
 import ErrorInternalSystem from '../../Error/ErrorInternalSystem'
 // import ErrorNotFound from '../../Error/ErrorNotFound'
 
-export default function RandomRoomButton() {
+export default function RandomRoomButton(props) {
+
+  const isAuth = props ? props.isAuth : false;
+  const userID = props ? props.userID : "";
 
   const [ randomRoomID, setRandomRoomID ] = useState("");
   const [ redirect, setRedirect ] = useState(false);
@@ -30,7 +33,7 @@ export default function RandomRoomButton() {
   };
 
   const onClickRandom = () => {
-    dispatch(getRandomRoom())
+    dispatch(getRandomRoom(userID))
     .then(async (response) => {
       if (response.payload.success) {
         if (response.payload.roomFound === null) { 
@@ -84,9 +87,16 @@ export default function RandomRoomButton() {
         onCancel={handleCancel}>
         <p>Hiện tại đang không còn phòng nào trống! Mong bạn hãy vào hàng chờ bằng ấn nút "Sẵn sàng" và chờ một người khác để tạo phòng cùng. Xin cảm ơn.</p>
       </Modal>
-      {/* flood gate this button so it can only be clicked once. This button mechanic will be changed later. */}
-        {/* <Link to={`/chatroom/${roomType}/${randomRoomID}`}><Button>Chọn phòng ngẫu nhiên</Button></Link> */}
-        <Button onClick={onClickRandom}>Chọn phòng ngẫu nhiên</Button>
+        {
+          isAuth ? (
+            <Button onClick={onClickRandom}>Chọn phòng ngẫu nhiên</Button>
+          ) : (
+            <Link to={`/login`}>
+              <Button>Chọn phòng ngẫu nhiên</Button>
+            </Link>
+          )
+        }
+        
       </>
     )
   }

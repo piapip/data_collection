@@ -9,14 +9,15 @@ const {Panel} = Collapse
 export default function ClientCheckbox(props) {
 
   const list = props ? props.list : []
+  const progress = props ? props.progress : [];
   const visible = props ? props.visible : true;
   const [ loading, setLoading ] = useState(true);
 
   useEffect(() => {
-    if (list !== []) {
+    if (list !== [] && progress !== []) {
       setLoading(false);
     } else setLoading(true);
-  }, [list])
+  }, [list, progress])
 
   // update label for color criteria
   if(list) {
@@ -55,12 +56,22 @@ export default function ClientCheckbox(props) {
 
   const renderList = (list) => {
     // item - 0 - key - 1 - label - 2 - value
-    return list ? list.map(item => {
+    return list ? list.map((item, index) => {
       return (
         <Col span={24/list.length} key={item[0]}>
           {/* I was thinking of assigning object to the checkbox value, but then there's no way for me to manipulate the way it compares 2 objects 
           so it can't be done. */}
-          <Checkbox value={item[0]} disabled={!visible}>{item[1]}</Checkbox>  
+          {
+            progress === [] ? "" : progress[index][1] === 0 ? (
+              <Checkbox value={item[0]} disabled={!visible} style={{color: "#eb2f96"}}>
+                {item[1]}
+              </Checkbox>
+            ) : (
+              <Checkbox value={item[0]} disabled={!visible} style={{color: "#52c41a"}}>
+                {item[1]}
+              </Checkbox>
+            )
+          }
         </Col>
       )
     }) : ""

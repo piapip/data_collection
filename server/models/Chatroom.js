@@ -22,6 +22,18 @@ const chatroomSchema = new mongoose.Schema({
     ref: 'User',
     default: null    
   },
+  // store who has been client of the room.
+  client: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: []
+  }],
+  // store who has been servant of the room.
+  servant: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: []
+  }],
   // content_type decides the input type that users will provide 0 - audio, 1 - message
   content_type: {
     type: Number,
