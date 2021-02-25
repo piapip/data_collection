@@ -162,22 +162,8 @@ function LandingPage(props) {
           redirect ? (<Redirect to={roomLink} userRole={role.current} />) : ""
         }
         <div>
-          <Row>
-            <Col span={8}>Client role guide</Col>
-            <Col span={8} style={{textAlign: "center"}}>
-              <ConfirmModal 
-                socket={socket}
-                visible={matchFound}
-                roomType={content_type.current}
-                promptStatus={promptStatus}
-                promptDuration={promptDuration}
-                setPromptStatus={setPromptStatus}
-                handleOk={handleConfirmPromptModal}
-                handleCancel={handleDenyPromptModal}/>
-            </Col>
-            <Col span={8}>Servant role guide</Col>
-          </Row>
-          <Row style={{marginBottom: "10px", marginTop: "10px"}}>
+          
+          {/* <Row style={{marginBottom: "10px", marginTop: "10px"}}>
             <Col style={{textAlign: "center"}}>
               <ReadyButton 
                 isAuth={user.userData ? user.userData.isAuth : false}
@@ -190,14 +176,14 @@ function LandingPage(props) {
             <Col style={{textAlign: "center"}}>
               <p>{readyStatus}</p>
             </Col>
-          </Row>
+          </Row> */}
 
           <div className="container">
             
             <div className="box">
               <div className="column-title">
-                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Speak</h1>
-                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Donate your voice</h1>
+                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Client</h1>
+                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Người ra lệnh</h1>
                 <p className="content-hover">Recording voice clips is an integral
                   part of building our open dataset; some would say it's the fun part too.
                 </p>
@@ -216,8 +202,8 @@ function LandingPage(props) {
 
             <div className="box1">
               <div className="column-title">
-                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Listen</h1>
-                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Help us validate data</h1>
+                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Servant</h1>
+                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Bot nhận lệnh</h1>
                 <p className="content-hover">Validating donated clips is equally important to the Common Voice mission.
                   Take a listen and help us create quality open source voice data.
                 </p>
@@ -236,6 +222,22 @@ function LandingPage(props) {
 
           </div>
 
+
+          <Row>
+            {/* <Col span={8}>Client role guide</Col> */}
+            <Col span={8} style={{textAlign: "center"}}>
+              <ConfirmModal 
+                socket={socket}
+                visible={matchFound}
+                roomType={content_type.current}
+                promptStatus={promptStatus}
+                promptDuration={promptDuration}
+                setPromptStatus={setPromptStatus}
+                handleOk={handleConfirmPromptModal}
+                handleCancel={handleDenyPromptModal}/>
+            </Col>
+            {/* <Col span={8}>Servant role guide</Col> */}
+          </Row>
 
 
           <div className="app">
