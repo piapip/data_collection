@@ -23,6 +23,7 @@ export default function PromptLeaving(props) {
         onLeave();
       }
     }
+  // eslint-disable-next-line
   }, [when])
 
   const alertUser = e => {

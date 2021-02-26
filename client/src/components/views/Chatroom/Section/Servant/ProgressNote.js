@@ -40,6 +40,7 @@ export default function ProgressNote(props) {
         (
         <TextArea 
           readOnly
+          // style={{height: "200px", background: "transparent", border: "none"}}
           style={{height: "200px"}}
           spellCheck={false}
           value={renderProgress === "" ? "Chưa xác định được bất kì mục tiêu nào!" : renderProgress} />

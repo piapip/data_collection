@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import  { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getAllRooms } from '../../../../_actions/chatroom_actions';
-import ErrorInternalSystem from '../../Error/ErrorInternalSystem';
 
-import { Table } from 'antd';
+import { Table, Row, Col, Button, Popover } from 'antd';
 import { CheckCircleTwoTone, MinusCircleTwoTone , MinusOutlined } from '@ant-design/icons';
 
+import RandomRoomButton from './RandomRoomButton';
 import LoadingComponent from './../../Loading/LoadingComponent';
+import ErrorInternalSystem from '../../Error/ErrorInternalSystem';
 
 const { Column } = Table;
 
@@ -15,8 +16,10 @@ function RoomList(props) {
 
   const [ loading, setLoading ] = useState(true);
   const [ roomList, setRoomList ] = useState([]);
+  const isAuth = props ? props.isAuth : false;
   const pageSize = props ? props.pageSize : 4;
   const userID = props ? props.userID : "";
+  const readyStatus = props ? props.readyStatus : true;
   const dispatch = useDispatch();
 
   // !!! POTENTIAL BUG!!! 
@@ -64,6 +67,12 @@ function RoomList(props) {
     })
   }
 
+  const content = (
+    <div>
+      Bạn phải "Dừng tìm kiếm" nếu bạn muốn dùng chức năng này.
+    </div>
+  )
+
   let lastIndex = 0
   const updateIndex = () => {
     let index = roomList[lastIndex] ? `${roomList[lastIndex].content_type}/${roomList[lastIndex]._id}` : "";
@@ -74,7 +83,9 @@ function RoomList(props) {
   if (loading) {
     return (
       <div style={{ height: "100px" }}>
-        <LoadingComponent />
+        <Col style={{textAlign: "center"}}>
+          <LoadingComponent />
+        </Col>
       </div>
       
     )
@@ -87,61 +98,100 @@ function RoomList(props) {
   } else {
     return (
       <>
-        <Table
-          dataSource={roomList} 
-          pagination={{ pageSize: parseInt(pageSize) }}
-          onRow={(record) => {
-            return {
-              style: { 
-                background: record.superPrior === 1 ? "#F3F0AD" : "white",
-                fontWeight: record.superPrior === 1 ? "bold" : "norma",
-              }
-            }
-          }} >
-          <Column dataIndex='name' key='name' />
-          <Column 
-            title='Tiến độ' 
-            dataIndex='progress' 
-            key='progress' 
-            render={(progress) => (
-            <>
-              {Object.entries(progress).map((object) => {
-                if (object[0] !== "_id" && object[0] !== "__v") {
-                  return object[1] !== -1 ? (
-                    object[1] === 0 ? (
-                      <MinusCircleTwoTone key={object[0]} twoToneColor="#eb2f96"/>
-                    ) : (
-                      <CheckCircleTwoTone key={object[0]} twoToneColor="#52c41a"/>
-                    )
-                  ) : (
-                    <MinusOutlined key={object[0]} />
-                  )
-                } else return ""
-              })}
-            </>
-          )}/>
-          <Column 
-            title='Người tham gia' 
-            dataIndex='capacity' 
-            align='center' 
-            key='capacity' 
-            render={(capacity) => (
-            <>
-              {capacity}/2
-            </>
-          )}/>
+        {
+          roomList.length > 0 ? 
+            !readyStatus ? (
+            <Row style={{marginBottom: "10px"}}>
+              <Col style={{textAlign: "center"}}>
+                <RandomRoomButton 
+                  isAuth={isAuth}
+                  userID={userID}/>
+              </Col>
+            </Row>
+          ) : (
+            <Row style={{marginBottom: "10px"}}>
+              <Col style={{textAlign: "center"}}>
+                <Popover trigger="hover" content={content}>
+                  <Button disabled>Chọn phòng ngẫu nhiên</Button>
+                </Popover>
+              </Col>
+            </Row>
+          ) : ""
+        }
 
-          <Column render={() => {
-            return (
-              <>
-                {/* !!! A BUG !!! CHAT ROOM INDEX DOESN'T REFRESH AFTER {LOG OUT THEN RE LOGIN}*/}
-                <Link to={`/chatroom/${updateIndex()}`}>
-                  Join
-                </Link>
-              </>
-            )
-          }} />
-        </Table>
+        <Row>
+          <Col>
+            <Table
+              dataSource={roomList} 
+              pagination={{ pageSize: parseInt(pageSize) }}
+              onRow={(record) => {
+                return {
+                  style: { 
+                    background: record.superPrior === 1 ? "#F3F0AD" : "white",
+                    fontWeight: record.superPrior === 1 ? "bold" : "norma",
+                  }
+                }
+              }} >
+              <Column dataIndex='name' key='name' />
+              <Column 
+                title='Tiến độ' 
+                dataIndex='progress' 
+                key='progress' 
+                render={(progress) => (
+                <>
+                  {Object.entries(progress).map((object) => {
+                    if (object[0] !== "_id" && object[0] !== "__v") {
+                      return object[1] !== -1 ? (
+                        object[1] === 0 ? (
+                          <MinusCircleTwoTone key={object[0]} twoToneColor="#eb2f96"/>
+                        ) : (
+                          <CheckCircleTwoTone key={object[0]} twoToneColor="#52c41a"/>
+                        )
+                      ) : (
+                        <MinusOutlined key={object[0]} />
+                      )
+                    } else return ""
+                  })}
+                </>
+              )}/>
+              <Column 
+                title='Người tham gia' 
+                dataIndex='capacity' 
+                align='center' 
+                key='capacity' 
+                render={(capacity) => (
+                <>
+                  {capacity}/2
+                </>
+              )}/>
+
+              <Column render={() => {
+                return (
+                  <>
+                    {/* !!! A BUG !!! CHAT ROOM INDEX DOESN'T REFRESH AFTER {LOG OUT THEN RE LOGIN}*/}
+                    {
+                      readyStatus ? (
+                        <Popover trigger="hover" content={content}>
+                          <p style={{color: "#1890ff", fontSize: "14px"}}>Join</p>
+                          {/* <Link to={`/chatroom/${updateIndex()}`} style={{pointerEvents: "none"}}>
+                            Join
+                          </Link> */}
+                        </Popover>
+                      ) : (
+                        <Link to={`/chatroom/${updateIndex()}`}>
+                          Join
+                        </Link>
+                      )
+                    }
+                    {/* <Link to={`/chatroom/${updateIndex()}`}>
+                      Join
+                    </Link> */}
+                  </>
+                )
+              }} />
+            </Table>
+            </Col>
+        </Row>
       </>
     )
   }

@@ -17,13 +17,13 @@ export default function Scenario(props) {
     } else setLoading(true);
   }, [scenario, progress])
 
-  const generateScript = () => {
-    if (scenario && scenario.length >= 4) { 
-      return `Bạn muốn ${scenario[0][2].toLowerCase()} ${scenario[1][2].toLowerCase()} trong ${scenario[3][2].toLowerCase()} ở tầng ${scenario[2][2]} ${generateAction()}. Bạn hãy mô tả yêu cầu trên bằng tiếng Việt ( có thể bằng 1 hoặc nhiều lần nói).`
-    }
+  // const generateScript = () => {
+  //   if (scenario && scenario.length >= 4) { 
+  //     return `Bạn muốn ${scenario[0][2].toLowerCase()} ${scenario[1][2].toLowerCase()} trong ${scenario[3][2].toLowerCase()} ở tầng ${scenario[2][2]} ${generateAction()}. Bạn hãy mô tả yêu cầu trên bằng tiếng Việt ( có thể bằng 1 hoặc nhiều lần nói).`
+  //   }
     
-    return ''
-  }
+  //   return ''
+  // }
 
   const generateAction = () => {
     if (scenario) {
@@ -71,16 +71,24 @@ export default function Scenario(props) {
     return ''
   }
 
+  const generateScript = (
+    (scenario && scenario.length >= 4) ? (
+      <p>Bạn muốn <b>{scenario[0][2].toLowerCase()}</b> <b>{scenario[1][2].toLowerCase()}</b> trong <b>{scenario[3][2].toLowerCase()}</b> ở <b>tầng {scenario[2][2]}</b> <b>{generateAction()}</b>. Bạn hãy mô tả yêu cầu trên bằng tiếng Việt ( có thể bằng 1 hoặc nhiều lần nói)</p>
+    ) : ""
+  )
+
   return (
       <div style={{display:"flex",flexDirection:"column",justifyContent:"space-between",alignItems:"stretch"}}>
-        <Row style={{borderLeft:"1px solid",height:"100%",borderColor:"white",backgroundColor:"white"}}>
+        {/* <Row style={{borderLeft:"1px solid",height:"100%",borderColor:"white",backgroundColor:"white"}}></Row> */}
+        <Row style={{height:"100%"}}>
           <h3 style={{fontWeight:'bold',fontSize:'18px',textAlign: "center"}}>Kịch bản hội thoại</h3>
-          <Col span={24} style={{fontSize:"15px",marginTop:"auto"}}>
+          <Col span={24} style={{fontSize:"15px",marginTop:"auto", padding: "10px"}}>
             {
               loading ? (
                 <LoadingComponent />
               ) : (
-                <p>{generateScript()}</p>
+                // <p>{generateScript()}</p>
+                generateScript
               )
             }
           </Col>

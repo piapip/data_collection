@@ -42,23 +42,39 @@ export default function ReadyButton(props) {
 
   return (
     <>
-      <Row>
+      <Row 
+        type="flex"
+        style={{ alignItems: "center", marginTop: "7px", marginBottom: "7px" }}
+        justify="center"
+        gutter={10}>
         <Col style={{textAlign: "center"}}>
           {isAuth ? (
             !props.readyStatus ? (
-              <Button onClick={ready}>Sẵn sàng</Button>
+              <Button shape="round" onClick={ready} style={{marginTop: "45px", marginBottom: "45px"}}>Sẵn sàng</Button>
             ) : (
-              <Button onClick={cancelReady}>Dừng tìm kiếm</Button>
+              <div style={{marginTop: "45px", marginBottom: "45px"}}>
+                <Row>
+                  <Button shape="round" onClick={cancelReady}>
+                    Dừng tìm kiếm
+                  </Button>
+                </Row>
+                <Row>
+                  Đang tìm bạn: {timeConverter(timer)}
+                </Row>
+                
+                
+              </div>
+              
             )) : (
               <Link to={`/login`}>
-                <Button>Sẵn sàng</Button>
+                <Button shape="round" style={{marginTop: "45px", marginBottom: "45px"}}>Sẵn sàng</Button>
               </Link>
             )
           }
         </Col>
       </Row>
       
-      {
+      {/* {
         props.readyStatus ? (
           <Row>
             <Col>
@@ -66,7 +82,7 @@ export default function ReadyButton(props) {
             </Col>
           </Row>    
         ) : ""
-      }
+      } */}
       
     </>
   )

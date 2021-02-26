@@ -10,6 +10,7 @@ export default function ServantSendButton(props) {
   const [ buttonState, setButtonState ] = useState(false);
 
   const data = props ? props.audio : null;
+  const roomDone = props ? props.roomDone : null;
   const userRole = props ? props.userRole : "";
   const userID = props ? props.userID : "";
   const roomID = props ? props.roomID : "";
@@ -78,14 +79,14 @@ export default function ServantSendButton(props) {
   // const insertSendIntentButton = 
 
   const insertSendButton = (turn === 3 && data !== null) ? (
-    <button className="buttons" onClick={uploadAudioAWS} disabled={buttonState}>Gửi</button>
+    <button className="buttons" onClick={uploadAudioAWS} disabled={roomDone || buttonState}>Gửi</button>
   ) : (turn === 2 ? (
     <div>
       <RejectAudioButton
         roomID={roomID}
         userRole={userRole} 
         socket={socket}/>
-      <button className="buttons" onClick={onConfirm} disabled={buttonState}>Xác nhận</button>
+      <button className="buttons" onClick={onConfirm} disabled={roomDone || buttonState}>Xác nhận</button>
     </div>
     
   ) : "")

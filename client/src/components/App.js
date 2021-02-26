@@ -8,7 +8,7 @@ import LandingPage from "./views/LandingPage/LandingPage.js";
 import LoginPage from "./views/LoginPage/LoginPage.js";
 import RegisterPage from "./views/RegisterPage/RegisterPage.js";
 import NavBar from "./views/NavBar/NavBar";
-import Footer from "./views/Footer/Footer"
+// import Footer from "./views/Footer/Footer";
 
 import { BACKEND_URL } from './Config'
 // import Servant from "./views/Chatroom/Servant";
@@ -63,7 +63,8 @@ function App(props) {
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
       <NavBar />
-      <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
+      {/* <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}> */}
+      <div style={{ paddingTop: '69px' }}>
         <Switch>
           <Route exact path="/" component={Auth(LandingPageWithSocket, null)} />
           <Route exact path="/login" component={Auth(LoginPageWithSocket, false)} />
@@ -74,7 +75,7 @@ function App(props) {
 
         </Switch>
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </Suspense>
   );
 }

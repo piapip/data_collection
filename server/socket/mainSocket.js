@@ -520,8 +520,16 @@ sockets.init = function(server) {
   // Also create a log for those deleted record. So can pluck em out and put them into a trash folder
 }
 
-const addToQueue = (queue, userID) => {
-  queue.push(userID);
+const addToQueue = (queue, userInfo) => {
+  let count = 0;
+  for (let i = 0; i < queue.length; i++) {
+    if (queue[i].userID === userInfo.userID) {
+      count++;
+      break;
+    }
+  }
+  
+  if (count === 0) queue.push(userInfo);
 }
 
 const removeFromQueue = (queue, target) => {
@@ -725,6 +733,9 @@ const kickUser = (roomID, userID) => {
       // IMPLEMENT SOME KIND OF ERROR!!!
       return null;
     } else {
+      // special treatment for those who has completed the room.
+      if (roomFound.done) return null;
+
       // check if the room has the user and remove them. Otherwise it's aight, don't fret.
       let count = 0;
       // lol mongoose is unique really
@@ -758,7 +769,11 @@ const addSlot = async (roomID, userID) => {
 
       const roomProgress = await checkProgress(roomFound.progress);
       if (roomProgress === 1) {
-        return -1;
+        if ((roomFound.user1 !== null && roomFound.user1.equals(userID)) || 
+          (roomFound.user2 !== null && roomFound.user2.equals(userID))) { 
+          return 0;
+        }
+        else return -1;
       }
 
       // check if the room has the user.

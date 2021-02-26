@@ -21,6 +21,7 @@ export default function AudioRecordingScreen(props) {
   const audioRef = useRef(null);
 
   let socket = props ? props.socket : null;
+  const roomDone = props ? props.roomDone : false;
   const progress = props ? props.progress : [];
   const audioName = props ? props.audioName : "";
   const chatroomID = props ? props.chatroomID : "";
@@ -60,7 +61,7 @@ export default function AudioRecordingScreen(props) {
       })
     }
     setAudio(null);
-    setTagVisibility(true);
+    // setTagVisibility(true);
   }
 
   const toggleIsPlaying = () => {
@@ -154,13 +155,15 @@ export default function AudioRecordingScreen(props) {
 
   return (
     <>
-      <Status message={message} />
+      <Status 
+        message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message}
+        turn={turn} />
       <Row style={{textAlign: "center"}}>
         <div className="primary-buttons">
           <canvas className="primary-buttons canvas" ref={canvasRef}
                   style={{width: '100%', position: 'absolute', maxWidth: 'calc(1400px - 40px)'}}/>
           <RecordButton
-            turn={((turn === 1 && userRole === "client") || (turn === 3 && userRole === "servant")) && (audio === null)}
+            turn={((turn === 1 && userRole === "client" && !roomDone) || (turn === 3 && userRole === "servant" && !roomDone)) && (audio === null)}
             roomID={chatroomID}
             socket={socket}
             isRecording={isRecording}
@@ -179,6 +182,7 @@ export default function AudioRecordingScreen(props) {
       </Row>
 
       <Row>
+        {/* <Row style={{marginLeft: "15px", marginRight: "15px"}}> */}
         <Row>
           <Col>
             <div style={{width: '100%', margin: '1rem auto'}}>
@@ -196,6 +200,7 @@ export default function AudioRecordingScreen(props) {
                 <ServantDropDown
                   turn={turn}
                   intent={intent}
+                  visible={tagVisibility}
                   setIntent={setIntent}/>
               ) : (
                 <div style={{textAlign: "center"}}>
@@ -215,7 +220,7 @@ export default function AudioRecordingScreen(props) {
                   <ClientSendButton 
                     audioName={audioName}
                     turn={turn}
-                    disable={intent === null && tagVisibility}
+                    disable={(intent === null && tagVisibility) || roomDone}
                     socket={socket}
                     audio={audio} 
                     intent={tagVisibility ? intent : null}
@@ -234,6 +239,7 @@ export default function AudioRecordingScreen(props) {
                   <ServantSendButton
                     audioName={audioName}
                     socket={socket}
+                    roomDone={roomDone}
                     turn={turn}
                     audio={audio} 
                     intent={tagVisibility ? intent : null}
@@ -254,7 +260,17 @@ export default function AudioRecordingScreen(props) {
             ) : ""
           } */}
           <Col span={6}>
-            <Checkbox onChange={toggleTagVisibility} disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}>Không có tag</Checkbox>
+            <Checkbox 
+              onChange={toggleTagVisibility} 
+              disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}>
+                {
+                  tagVisibility ? (
+                    "Không có tag"
+                  ) : (
+                    <b>Không có tag</b>
+                  )
+                }
+            </Checkbox>
           </Col>
         </Row>
       </Row>
