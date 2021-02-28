@@ -34,6 +34,12 @@ const audioSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
     default: false,
+  },
+
+  transcript: {
+    type: String,
+    required: true,
+    default: " ",
   }
 })
 

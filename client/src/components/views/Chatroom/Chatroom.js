@@ -274,9 +274,12 @@ export default function Chatroom(props) {
 
   const getPromptStatus = () => {
     let count = 0;
-    progress.map(item => {
-      return item[1] === 0 ? count++ : "";
-    })
+    if (progress.length !== 0) 
+    {
+      progress.map(item => {
+        return item[1] === 0 ? count++ : "";
+      })
+    }
 
     if (count !== 0) return true;
     else return false;

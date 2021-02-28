@@ -18,7 +18,7 @@ export default function Progress(props) {
   }, [progress])
 
   const renderProgress = (
-    progress.map(property => {
+    progress.length !== 0 ? progress.map(property => {
       if (property[1] >= 1) {
         return (
           <Col span={4} key={property[0]} style={{alignItems: "center"}}>
@@ -34,7 +34,7 @@ export default function Progress(props) {
       } else {
         return "";
       }
-    })
+    }) : ""
   );
 
   if (loading) {
