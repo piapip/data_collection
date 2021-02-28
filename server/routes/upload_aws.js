@@ -5,8 +5,7 @@ const multer = require('multer');
 const FileType = require('file-type');
 const AWS = require('aws-sdk');
 const { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, awsBucketName, awsRegion } = require('./../config/aws');
-const { exec, spawn } = require('child_process');
-var https = require('https');
+const { exec } = require('child_process');
 var fs = require('fs');
 const toWav = require('audiobuffer-to-wav');
 const ffmpegInstaller = require('@ffmpeg-installer/ffmpeg');
@@ -106,78 +105,6 @@ router.post('/', upload, async (req, res) => {
   
   // res.status(200).send("ok")
 
-  // // upload to aws
-  // const fileContent = fs.readFileSync(tempMonoFile);
-  // const userID = req.body.userID;
-  // const roomID = req.body.roomID;
-
-  // const params = {
-  //   Bucket: awsBucketName, 
-  //   Key: `${userID}_${roomID}.wav`,
-  //   Key: req.file.originalname,
-  //   Body: fileContent,
-  // }
-
-  // s3.upload(params, async (err, data) => {
-  //   if (err) throw err
-    
-  //   // const audioID = await saveAudioMongo(userID, data.Location, tempTranscript)
-  //   const audioID = await saveAudioMongo(userID, data.Location)
-  //   err = updateRoomInfo(roomID, audioID)
-  //   if (err) {
-  //     res.status(500).send(err)
-  //     throw err 
-  //   }
-
-  //   res.status(200).send({data, audioID: audioID})
-  // })
-
-  // ====================================================================================================================================
-
-  // let myFile = req.file.originalname.split(".");
-  // const sentFileType = myFile[myFile.length - 1];
-  // const fileName = req.file.originalname.replace("."+sentFileType, "");
-
-  // console.log(`fileName: ${fileName}`)
-
-  // const params = {
-  //   Bucket: awsBucketName, 
-  //   Key: `${fileName}.${sentFileType}`,
-  //   // Key: req.file.originalname,
-  //   Body: req.file.buffer,
-  // }
-
-  // const userID = req.body.userID;
-  // const roomID = req.body.roomID;
-
-  // s3.upload(params, async (err, data) => {
-  //   if (err) throw err
-  //   // console.log(`File uploaded successfully at ${data.Location}`)
-    
-  //   // // get the transcript for the audio
-  //   // const path = "./server/routes/audio_transcript";
-  //   // let tempTranscript = "";
-  //   // download(data.Location, path+"/tmp.wav", () => {
-  //   //   const { transcript, error } = getTranscript(path+"/main.py", path+"/tmp.wav")
-  //   //   if (error) {
-  //   //     res.status(500).send(err)
-  //   //     return
-  //   //   }
-
-  //   //   else tempTranscript = transcript;
-  //   // })
-
-  //   // save the audio information 
-  //   // const audioID = await saveAudioMongo(userID, data.Location, tempTranscript)
-  //   const audioID = await saveAudioMongo(userID, data.Location)
-  //   err = updateRoomInfo(roomID, audioID)
-  //   if (err) {
-  //     res.status(500).send(err)
-  //     throw err 
-  //   }
-
-  //   res.status(200).send({data, audioID: audioID})
-  // })
 })
 
 const { Audio } = require("./../models/Audio");
@@ -324,84 +251,6 @@ const getTranscript = async (audioFile, dest) => {
 //     if (cb) cb(err.message);
 //   });
 // };
-
-// var downsampleBuffer = function (buffer, sampleRate, outSampleRate) {
-//   if (outSampleRate == sampleRate) {
-//     return buffer;
-//   }
-//   if (outSampleRate > sampleRate) {
-//     throw "downsampling rate show be smaller than original sample rate";
-//   }
-//   var sampleRateRatio = sampleRate / outSampleRate;
-//   var newLength = Math.round(buffer.length / sampleRateRatio);
-//   var result = new Int16Array(newLength);
-//   var result = [];
-//   var offsetResult = 0;
-//   var offsetBuffer = 0;
-//   while (offsetResult < result.length) {
-//     var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
-//     var accum = 0, count = 0;
-//     for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
-//       accum += buffer[i];
-//       count++;
-//     }
-
-//     result[offsetResult] = Math.min(1, accum / count)*0x7FFF;
-//     offsetResult++;
-//     offsetBuffer = nextOffsetBuffer;
-//   }
-//   return result.buffer;
-// }
-
-// function downsampleBuffer(buffer) {
-//   // if (rate == sampleRate) {
-//   //   return buffer;
-//   // }
-//   // if (rate > sampleRate) {
-//   //   throw "downsampling rate show be smaller than original sample rate";
-//   // }
-//   // var sampleRateRatio = sampleRate / rate;
-//   var sampleRateRatio = 3;
-//   var newLength = Math.round(buffer.length / sampleRateRatio);
-//   var result = new Float32Array(newLength);
-//   var offsetResult = 0;
-//   var offsetBuffer = 0;
-//   while (offsetResult < result.length) {
-//     var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
-//       // Use average value of skipped samples
-//     var accum = 0, count = 0;
-//     for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
-//         accum += buffer[i];
-//         count++;
-//     }
-//     result[offsetResult] = accum / count;
-//     // Or you can simply get rid of the skipped samples:
-//     // result[offsetResult] = buffer[nextOffsetBuffer];
-//     offsetResult++;
-//     offsetBuffer = nextOffsetBuffer;
-//   }
-//   return result;
-// }
-
-// const convertMP3ToWAV = (path) => {
-//   ffmpeg(path)
-//   .toFormat('wav')
-//   .on('error', (err) => {
-//     console.log('An error occurred: ' + err.message);
-//   })
-//   .on('progress', (progress) => {
-//     // console.log(JSON.stringify(progress));
-//     console.log('Processing: ' + progress.targetSize + ' KB converted');
-//   })
-//   .on('end', () => {
-//     console.log('Processing finished !');
-//   })
-//   .save('./anothertmp.wav');
-
-//   (async () => {
-//     console.log(await FileType.fromFile("./anothertmp.wav"));
-//   })();
-// }
 
 // const mongoose = require("mongoose");
 
