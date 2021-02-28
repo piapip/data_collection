@@ -61,6 +61,7 @@ export default function ServantDropDown(props) {
 
   const intent = props ? props.intent : null;
   const turn = props ? props.turn : -1;
+  const tagVisible = props ? props.visible : true;
 
   const [ roomList, setRoomList ] = useState(roomData[deviceData[0]]);
   const [ selectedRoom, setSelectedRoom ] = useState(roomData[deviceData[0]][0]);
@@ -172,7 +173,7 @@ export default function ServantDropDown(props) {
               defaultValue={deviceData[0]} 
               style={{ width: 150 }} 
               onChange={handleDeviceChange}
-              disabled={turn !== 2}>
+              disabled={turn !== 2 || !tagVisible}>
               {
                 deviceData.map(device => (
                   <Option key={device}>{device}</Option>
@@ -185,7 +186,7 @@ export default function ServantDropDown(props) {
               value={selectedRoom}
               style={{ width: 150 }} 
               onChange={onSelectedRoomChange}
-              disabled={turn !== 2}>
+              disabled={turn !== 2  || !tagVisible}>
               {
                 roomList.map(room => (
                   <Option key={room}>{room}</Option>
@@ -198,7 +199,7 @@ export default function ServantDropDown(props) {
               value={selectedFloor}
               style={{ with: 100 }}
               onChange={onSelectedFloorChange}
-              disabled={turn !== 2}>
+              disabled={turn !== 2  || !tagVisible}>
               {
                 floorData.map(floor => (
                   <Option key={floor}>{floor}</Option>
@@ -211,7 +212,7 @@ export default function ServantDropDown(props) {
               value={selectedAction}
               style={{ width: 90 }}
               onChange={onSelectedActionChange}
-              disabled={turn !== 2}>
+              disabled={turn !== 2  || !tagVisible}>
               {
                 actionList.map(action => (
                   <Option key={action}>{action}</Option>
@@ -224,7 +225,7 @@ export default function ServantDropDown(props) {
               value={selectedScale}
               style={{ width: 150 }}
               onChange={onSelectedScaleChange}
-              disabled={turn !== 2}>
+              disabled={turn !== 2 || !tagVisible}>
               {
                 scaleList.map(scale => (
                   <Option key={scale}>{scale}</Option>
@@ -240,7 +241,7 @@ export default function ServantDropDown(props) {
                   placeholder="Chọn màu"
                   style={{ width: 120 }}
                   onChange={onSelectedLevelChange}
-                  disabled={turn !== 2}>
+                  disabled={turn !== 2 || !tagVisible}>
                   {
                     COLOR.map(color => (
                       <Option key={color}>{color}</Option>
@@ -254,7 +255,7 @@ export default function ServantDropDown(props) {
                   max={500}
                   placeholder="Nhập số"
                   onChange={onSelectedLevelChange}
-                  disabled={turn !== 2}
+                  disabled={turn !== 2 || !tagVisible}
                 />
               ) : (
                 <InputNumber 

@@ -4,7 +4,7 @@ import ReactRecord from 'react-record';
 
 import { StopIcon, MicIcon } from '../../../../ui/icons';
 
-export default function RecordButton(props) {
+export default function OldRecordButton() {
   const isRecording = props ? props.isRecording : false;
   const turn = props ? props.turn : false;
   const socket = props ? props.socket : null;

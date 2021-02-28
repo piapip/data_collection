@@ -18,13 +18,17 @@ export default function AudioList(props) {
         //   </audio>
         // </div>
         <div key={`audio_${index}`}>
-          <Row style={{marginTop: "3px", marginBottom: "3px"}}>
-            <Col span={2}>
-              {
-                index % 2 === 0 ? "C" : "S"
-              }
+          <Row 
+            type="flex"
+            style={{ alignItems: "center", marginTop: "7px", marginBottom: "7px" }}
+            justify="center"
+            gutter={10}>
+            <Col span={4} style={{textAlign: "center"}}>
+              <div>
+                {index % 2 === 0 ? "C" : "S"}
+              </div>
             </Col>
-            <Col span={22}>
+            <Col span={20}>
               <CustomAudioPlayer audioLink={audio} autoPlay={false}/>
             </Col>
           </Row>
@@ -39,8 +43,9 @@ export default function AudioList(props) {
   return (
       <div style={{display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%"}}>
        {/* <div style={{display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%"}}> */}
-        <Row style={{fontWeight: 'bold', border: "1px solid white", flexGrow: '1',backgroundColor:"white", alignItems: "left"}}>
-          <Col span={24} style={{textAlign: "center",fontsize:"18px"}}>Lịch sử hội thoại</Col>
+        {/* <Row style={{fontWeight: 'bold', border: "1px solid white", flexGrow: '1',backgroundColor:"white", alignItems: "left"}}> */}
+        <Row style={{fontWeight: 'bold', flexGrow: '1', alignItems: "left"}}>
+          <Col span={24} style={{textAlign: "center",fontsize:"18px", marginBottom: "10px"}}>Lịch sử hội thoại</Col>
           {/* <Row align="middle"> */}
             {showAudio}
           {/* </Row> */}

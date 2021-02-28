@@ -23,7 +23,9 @@ export default function ClientCheckbox(props) {
   if(list) {
     if(list[4]) {
       if(list[4][2].toLowerCase() === 'màu') {
-        list[5][1] = COLOR[list[5][2] + 1]
+        if (list[5]) {
+          list[5][1] = COLOR[list[5][2] + 1]
+        }
       }
     }
   }
@@ -58,11 +60,11 @@ export default function ClientCheckbox(props) {
     // item - 0 - key - 1 - label - 2 - value
     return list ? list.map((item, index) => {
       return (
-        <Col span={24/list.length} key={item[0]}>
+        <Col span={24/list.length} key={index}>
           {/* I was thinking of assigning object to the checkbox value, but then there's no way for me to manipulate the way it compares 2 objects 
           so it can't be done. */}
           {
-            progress === [] ? "" : progress[index][1] === 0 ? (
+            progress.length === 0 ? "" : progress[index][1] === 0 ? (
               <Checkbox value={item[0]} disabled={!visible} style={{color: "#eb2f96"}}>
                 {item[1]}
               </Checkbox>

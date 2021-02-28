@@ -2,14 +2,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSelector } from "react-redux";
 import { Redirect } from 'react-router-dom';
 
-import { Col, Row } from "antd";
+import { Col, Row, Popover, Button } from "antd";
 
 import RoomList from './Section/RoomList';
-import RandomRoomButton from './Section/RandomRoomButton';
 import ReadyButton from './Section/ReadyButton';
-// import ContentSelection from './Section/ContentSelection';
 import ConfirmModal from './Section/ConfirmModal';
 import LoadingPage from './../Loading/LoadingPage';
+import './LandingPage.css';
 
 function LandingPage(props) {
   const role = useRef("")
@@ -64,29 +63,6 @@ function LandingPage(props) {
       });
     }
   }, [socket, user.userData])
-
-  // useEffect(() => {
-  //   if (socket) {
-  //     socket.on('prompt successful', ({ roomID }) => {
-  //       let link = `/chatroom/${content_type.current === "audio" ? 0 : 1}/${roomID}`
-  //       setMatchFound(false)
-  //       setReadyStatus(false)
-  //       setRoomLink(link)
-  //       setRedirect(true)
-  //     })
-  //   }
-  // })
-
-  // useEffect(() => {
-  //   if (socket) {
-  //     // when the other user miss or doesn't accept the second prompt, get back to queueing
-  //     socket.on('requeue', () => {
-  //       setMatchFound(false)
-  //       setPromptStatus(0)
-  //       setPromptDuration(10)
-  //     })
-  //   }
-  // })
 
   const readySignal = () => {
     if (socket) {
@@ -149,6 +125,31 @@ function LandingPage(props) {
     }))
   }
 
+  const popoverMenu = (
+    <div style={{backgroundColor: "white", borderColor: "white", width: "500px", height: "400px", zIndex: "1000"}}>
+      <Row>
+        <Col style={{textAlign: "center"}}>
+          <ReadyButton 
+          isAuth={user.userData ? user.userData.isAuth : false}
+          readyStatus={readyStatus}
+          readySignal={readySignal}
+          cancelReadySignal={cancelReadySignal}/>
+        </Col>
+      </Row>
+      
+      <Row>
+        <Col>
+          <RoomList
+            readyStatus={readyStatus}
+            isAuth={user.userData ? user.userData.isAuth : false}
+            userID={user.userData ? user.userData._id : ""}
+            pageSize="2"/>
+        </Col>
+      </Row>
+      
+    </div>
+  )
+
   if (loading) {
     return (
       <LoadingPage />
@@ -160,56 +161,83 @@ function LandingPage(props) {
           redirect ? (<Redirect to={roomLink} userRole={role.current} />) : ""
         }
         <div>
-          <Row>
-            <Col span={8}>Client role guide</Col>
-            <Col span={8} style={{textAlign: "center"}}>
-              <ConfirmModal 
-                socket={socket}
-                visible={matchFound}
-                roomType={content_type.current}
-                promptStatus={promptStatus}
-                promptDuration={promptDuration}
-                setPromptStatus={setPromptStatus}
-                handleOk={handleConfirmPromptModal}
-                handleCancel={handleDenyPromptModal}/>
-            </Col>
-            <Col span={8}>Servant role guide</Col>
-          </Row>
-          {/* <Row style={{marginBottom: "10px", marginTop: "10px"}}>
-            <Col style={{textAlign: "center"}}>
-              <ContentSelection 
-                disabled={readyStatus}
-                setInputType={setInputType}/>
-            </Col>
-          </Row> */}
-          <Row style={{marginBottom: "10px", marginTop: "10px"}}>
-            <Col style={{textAlign: "center"}}>
-              <ReadyButton 
-                isAuth={user.userData ? user.userData.isAuth : false}
-                readyStatus={readyStatus}
-                readySignal={readySignal}
-                cancelReadySignal={cancelReadySignal}/>
-            </Col>
-          </Row>
-          <Row>
-            <Col style={{textAlign: "center"}}>
-              <p>{readyStatus}</p>
-            </Col>
-          </Row>
-          <Row>
-            <div className="app">
 
-              <RoomList 
-                userID={user.userData ? user.userData._id : ""}
-                pageSize="4"/>
-              <RandomRoomButton
-                isAuth={user.userData ? user.userData.isAuth : false}
-                userID={user.userData ? user.userData._id : ""}/>
+          <div className="container">
+            
+            <div className="box">
+              <div className="column-title">
+                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Client</h1>
+                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Người ra lệnh</h1>
+                <p className="content-hover">Mô tả ý muốn cho Smarthome để thực hiện những yêu cầu.<br/>
+                </p>
+                <a href="https://www.w3schools.com/" className="guide" target="_blank" rel="noopener noreferrer">Guide</a>
+              </div>
+              
+              {/* <div className="column-cta">
+                
+              </div> */}
             </div>
-          </Row>
+
+
+            <div className="box1">
+              <div className="column-title">
+                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Servant</h1>
+                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Smarthome nhận lệnh</h1>
+                <p className="content-hover">Hỏi Client cho đến khi xác định đúng yêu cầu thì thôi.<br/>
+                </p>
+                <a href="https://www.w3schools.com/" className="guide">Guide</a>
+              </div>
+
+              {/* <div className="column-cta">
+                
+              </div> */}
+            </div>
+
+          </div>
 
         </div>
 
+        <Row>
+          <Col span={8} style={{textAlign: "center"}}>
+            <ConfirmModal 
+              socket={socket}
+              visible={matchFound}
+              roomType={content_type.current}
+              promptStatus={promptStatus}
+              promptDuration={promptDuration}
+              setPromptStatus={setPromptStatus}
+              handleOk={handleConfirmPromptModal}
+              handleCancel={handleDenyPromptModal}/>
+          </Col>
+        </Row>
+
+        <Row style={{marginTop: "50px"}}>
+          <Col xl={12} xs={24} style={{
+            padding: "30px", 
+            // fontSize: "24px", 
+            fontFamily:'"Open Sans",sans-serif', 
+            }}>
+            <h1>Trang web này để làm gì?</h1>
+          </Col>
+          <Col xl={12} xs={24} style={{padding: "30px", fontSize: "16px"}}>
+          Mình cần data cho đồ án tốt nghiệp. Trang web này lấy giọng nói của các bạn làm dữ liệu phục vụ cho nghiên cứu của mình. Mình cảm ơn vì sự hợp tác của các bạn.<br/>
+          Giọng nói là tự nhiên, giọng nói là con người. Đó là lý do tại sao chúng tôi hứng thú với việc tạo ra công nghệ giọng nói có thể sử dụng được cho các phần mềm. Nhưng để tạo ra hệ thống này thì các nhà phát triển cần một lượng dữ liệu giọng nói rất lớn.<br/><br/>
+          Phần lớn các dữ liệu được sử dụng bởi các công ty lớn thì không có sẵn cho đa số mọi người. Chúng tôi nghĩ rằng điều này làm cản trở sự sáng tạo. Vì vậy chúng tôi ra mắt dự án Common Voice, một dự án giúp mọi người tiếp cận được công nghệ nhận dạng giọng nói.<br/><br/>
+          Giờ đây bạn có thể đóng góp giọng nói của mình để giúp chúng tôi xây dựng một cơ sở dữ liệu giọng nói nguồn mở mà bất kỳ ai cũng có thể dùng để tạo những ứng dụng sáng tạo cho các thiết bị và web. Đọc to một câu để giúp phần mềm học cách con người nói chuyện. Kiểm tra bài làm của những người đóng góp khác để cải thiện chất lượng. Rất là đơn giản!
+          </Col>
+        </Row>
+
+        <div className="landing-menu" 
+        style={{
+          position: "fixed", 
+          bottom: "0px", 
+          left: "50%",
+          transform: "translate(-50%, 0%)",
+          margin: "0 auto"}}>
+          <Popover content={popoverMenu} trigger="click" getPopupContainer={trigger => trigger.parentNode}>
+            <Button style={{border: "1px solid black", zIndex: "600"}}>Bắt đầu</Button>
+          </Popover>
+        </div>
       </>
     )
   }

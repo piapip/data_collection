@@ -28,13 +28,15 @@ export default function Chatroom(props) {
   let username = user.userData ? user.userData.name : "";
   const [ userRole, setUserRole ] = useState("");
   const [ audioHistory, setAudioHistory ] = useState([]);
-  const [ latestAudio, setLatestAudio ] = useState("");
+  const [ latestAudio, setLatestAudio ] = useState(null);
   const [ scenario, setScenario ] = useState([]);
   const [ progress, setProgress ] = useState([]);
   const [ turn, setTurn ] = useState(-1);
   const [ loading, setLoading ] = useState(true);
   const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
   const [ message, setMessage ] = useState("Loading");
+  const [ screenHeight, setScreenHeight ] = useState(2560);
+  const [ roomDone, setRoomDone ] = useState(false);
 
   const [ isModalVisible, setIsModalVisible ] = useState(false);
 
@@ -62,6 +64,10 @@ export default function Chatroom(props) {
     });
   };
   
+  useEffect(() => {
+    setScreenHeight(window.innerHeight + 90);
+  // eslint-disable-next-line
+  }, [window.innerHeight])
 
   useEffect(() => {
     if (userRole !== "" && socket !== null && user !== null) {
@@ -76,6 +82,7 @@ export default function Chatroom(props) {
     .then(async (response) => {
       if (userID === response.payload.roomFound.user1) setUserRole("client");
       if (userID === response.payload.roomFound.user2) setUserRole("servant");
+      setRoomDone(response.payload.roomFound.done);
       const intent = response.payload.roomFound.intent;
       let tempIntent = []
       for (const property in intent) {
@@ -108,7 +115,9 @@ export default function Chatroom(props) {
       } else setMessage(StatusMessage.TURN_SERVANT_START);
 
       setAudioHistory(tempAudioList);
-      setLatestAudio(audios[audios.length - 1].link);
+      if (audios.length > 0) {
+        setLatestAudio(audios[audios.length - 1].link);
+      }
       setLoading(false);
     })
   }
@@ -265,9 +274,12 @@ export default function Chatroom(props) {
 
   const getPromptStatus = () => {
     let count = 0;
-    progress.map(item => {
-      return item[1] === 0 ? count++ : "";
-    })
+    if (progress.length !== 0) 
+    {
+      progress.map(item => {
+        return item[1] === 0 ? count++ : "";
+      })
+    }
 
     if (count !== 0) return true;
     else return false;
@@ -275,6 +287,9 @@ export default function Chatroom(props) {
 
   const handleOk = () => {
     setIsModalVisible(false);
+    return (
+      <Redirect to={"/"} socket={socket} />
+    )
   };
 
   const handleCancel = () => {
@@ -283,7 +298,15 @@ export default function Chatroom(props) {
 
   if (redirect) {
     return (
-      <Redirect to={"/"} socket={socket} />
+      <Modal 
+        closable={false}
+        visible={isModalVisible} 
+        onOk={handleOk}
+        okText="Rời phòng"
+        onCancel={handleCancel}>
+        <p>Cảm ơn bạn đã hoàn thành xong nhiệm vụ này! Giờ bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác!</p>
+      </Modal>
+      // <Redirect to={"/"} socket={socket} />
     )
   }
 
@@ -303,19 +326,27 @@ export default function Chatroom(props) {
       <PromptLeaving 
         onLeave={handleLeaveChatroom}
         when={getPromptStatus()}/>
-      <Modal 
+      {/* <Modal 
         closable={false}
         visible={isModalVisible} 
         onOk={handleOk} 
         onCancel={handleCancel}>
         <p>Tới lượt của bạn</p>
-      </Modal>
-      <div className="chatroom">
+      </Modal> */}
+      <div className="chatroom"
+        style={{
+          height: `${screenHeight}px`,
+          backgroundImage: 
+          userRole === "client" ? 'url(https://img.freepik.com/free-vector/asbtract-sky-pastel-color_56745-107.jpg?size=626&ext=jpg)':
+          userRole === "servant" ? 'url(https://cdn.hipwallpaper.com/i/84/28/PZDy0L.jpg)' : 
+          'linear-gradient(0deg, #fff 20%, #f3f2f1)'}}
+        >
         <Row>
           <Col xs={24} xl={19}>
             {room_content_type === '0' ?
               <AudioRecordingScreen
                 audioName={`${chatroomID}_${userID}_${audioHistory.length}.wav`}
+                roomDone={roomDone}
                 progress={progress}
                 latestAudio={latestAudio}
                 message={message}
@@ -331,7 +362,7 @@ export default function Chatroom(props) {
               <ErrorNotFound />}
           </Col>
           <Col xs={24} xl={5}>
-            <Row>
+            <Row style={{marginRight: "10px"}}>
               {
                 userRole === "client" ? (
                 <Col><Scenario scenario={scenario} progress={progress}/></Col> ) : 

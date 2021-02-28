@@ -36,7 +36,7 @@ export default function CustomAudioPlayer(props) {
     return format;
   })
 
-  if (audioLink === undefined) return "";
+  if (audioLink === undefined || audioLink === null) return "";
 
   if (audioLink === "") {
     return <LoadingComponent />
