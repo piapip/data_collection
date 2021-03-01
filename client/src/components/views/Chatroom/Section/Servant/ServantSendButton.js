@@ -55,6 +55,7 @@ export default function ServantSendButton(props) {
           socket.emit('servant audio', {
             roomID,
             audioID,
+            key: res.data.key,
           });
         }
       })
