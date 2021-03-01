@@ -185,7 +185,7 @@ export default function AudioRecordingScreen(props) {
         {/* <Row style={{marginLeft: "15px", marginRight: "15px"}}> */}
         <Row>
           <Col>
-            <div style={{width: '100%', margin: '1rem auto'}}>
+            <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
               {userRole === "client" && progress !== [] ?
                 <ClientCheckbox
                   // visible={tagVisibility && audio !== null}

@@ -13,10 +13,10 @@ const ffmpeg = require('fluent-ffmpeg');
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 const AudioContext = require('web-audio-api').AudioContext;
 const audioContext = new AudioContext;
+const mongoose = require("mongoose");
 
-const tempWavFile = './server/tmp/tmp.wav';
-const tempMonoFile = './server/tmp/anothertmp.wav';
-const tempTranscriptFile = './server/tmp/transcript.txt';
+// const tempTranscriptFile = './server/tmp/transcript.txt';
+const tempFolder = './server/tmp';
 
 AWS.config.update({region: awsRegion});
 
@@ -39,8 +39,19 @@ const upload = multer({ storage }).single('soundBlob');
 // save those blob to the server
 router.post('/', upload, async (req, res) => {
 
-  // get the soundData 
+  // get the soundData and relevant data
   const soundData = req.file.buffer;
+  let myFile = req.file.originalname.split(".");
+  const key = uuidv4();
+  const fileType = myFile[myFile.length - 1];
+  const filename = req.file.originalname.replace(`.${fileType}`, "") + `_${key}`;
+  const userID = req.body.userID;
+  const roomID = req.body.roomID;  
+
+  // RENAME THESE SHIT
+  const tempWavFile = `${tempFolder}/tmp_${key}.wav`;
+  const tempMonoFile = `${tempFolder}/anothertmp_${key}.wav`;
+  
   
   // check it if it's wap or mp3
   let tempFileType = (await FileType.fromBuffer(soundData)).ext;
@@ -61,47 +72,56 @@ router.post('/', upload, async (req, res) => {
       }
     })
   }
+
+  // if(!fs.existsSync(tempWavFile)) {
+  //   throw "Can't convert to wav file fast enough! So sorry!"
+  //   // return res.status(500).send("Can't convert to wav file fast enough! So sorry!");
+  // }
   
   // convert wav to 48kHz mono channel file, store that file in ./server/tmp/anothertmp.wav
-  convertToMonoChannel(tempWavFile, tempMonoFile);
+  convertToMonoChannel(tempWavFile, tempMonoFile, () => {
+    // downsampling to 16kHz
+    // downsample(tempMonoFile);
+    // if(!fs.existsSync(tempMonoFile)) {
+    //   // return res.status(500).send("Can't convert to mono channel fast enough! So sorry!");
+    //   throw "Can't convert to wav file fast enough! So sorry!"
+    // }
+    downsample(tempMonoFile, () => {
+      // upload to aws
+      const fileContent = fs.readFileSync(tempMonoFile);
   
-  // downsampling to 16kHz
-  // downsample(tempMonoFile);
-  downsample(tempMonoFile, () => {
-    // upload to aws
-    const fileContent = fs.readFileSync(tempMonoFile);
-    const userID = req.body.userID;
-    const roomID = req.body.roomID;
-
-    const params = {
-      Bucket: awsBucketName, 
-      Key: `${userID}_${roomID}.wav`,
-      Key: req.file.originalname,
-      Body: fileContent,
-    }
-
-    s3.upload(params, async (err, data) => {
-      if (err) throw err
-      
-      // const audioID = await saveAudioMongo(userID, data.Location, tempTranscript)
-      const audioID = await saveAudioMongo(userID, data.Location)
-      err = updateRoomInfo(roomID, audioID)
-      if (err) {
-        res.status(500).send(err)
-        throw err 
+      const params = {
+        Bucket: awsBucketName, 
+        Key: `${filename}.wav`,
+        // Key: req.file.originalname,
+        Body: fileContent,
       }
-
-      // fs.rmdir('./server/tmp', { recursive: true });
-      // fs.rmdirSync('./server/tmp', { recursive: true });
-      deleteAllFiles('./server/tmp');
-
-
-      res.status(200).send({data, audioID: audioID})
-    })
-  });
   
-  // // extract the trascript (read it from the file) (something's wrong with the code, can exec test.wav, can run python with pushed audio but can't exec pushed audio)
-  // await getTranscript(tempMonoFile, tempTranscriptFile);
+      s3.upload(params, async (err, data) => {
+        if (err) throw err
+        
+        // const audioID = await saveAudioMongo(userID, data.Location, tempTranscript)
+        const audioID = await saveAudioMongo(userID, data.Location)
+        err = updateRoomInfo(roomID, audioID)
+        if (err) {
+          res.status(500).send(err)
+          throw err 
+        }
+  
+        // DON'T DO THIS HERE!!!!
+        // then delete all file in tmp so they won't trash the server.
+        // deleteAllFiles('./server/tmp');
+  
+  
+        res.status(200).send({data, audioID: audioID, key: key})
+      })
+    });
+  });
+
+  // ====================================================================================================
+  
+  // extract the trascript (read it from the file) (something's wrong with the code, can exec test.wav, can run python with pushed audio but can't exec pushed audio)
+  // getTranscript(tempMonoFile, tempTranscriptFile);
   
   // res.status(200).send("ok")
 
@@ -185,7 +205,8 @@ const deleteAllFiles = (folder) => {
 }
 
 // convert file wav to 48kHz mono channel
-const convertToMonoChannel = (originalFile, dest) => {
+// cb is to down sample it to 16kHz
+const convertToMonoChannel = (originalFile, dest, cb) => {
   // make it mono
   ffmpeg(originalFile)
   .addOption('-ac', 1)
@@ -193,13 +214,15 @@ const convertToMonoChannel = (originalFile, dest) => {
   //   // console.log(JSON.stringify(progress));
   //   console.log('Processing: ' + progress.targetSize + ' KB converted');
   // })
-  // .on('end', () => {
-  //   console.log('Processing finished !');
-  // })
+  .on('end', () => {
+    console.log('Processing finished!');
+    if(cb) cb();
+  })
   .save(dest);
 }
 
 // downsample to 16kHz
+// all done, cb is now waiting for uploading to the server
 const downsample = (originalFile, cb) => {
   exec(
     `python ./server/routes/audio_transcript/downsample.py ${originalFile}`,
@@ -215,28 +238,28 @@ const downsample = (originalFile, cb) => {
   })
 }
 
-const getTranscript = async (audioFile, dest) => {
+// const getTranscript = async (audioFile, dest) => {
 
-  // console.log(`Here's the command: python ./server/routes/audio_transcript/main.py ${audioFile} ${dest}`)
-  await exec(
-    `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest}`,
-    // `python ./server/routes/audio_transcript/main.py ./server/routes/audio_transcript/test.wav ${dest}`,
-    (err, stdout, stderr) => {
-      if (err) {
-        console.error(`transcript error: ${err}`);
-        return;
-      }
+//   // console.log(`Here's the command: python ./server/routes/audio_transcript/main.py ${audioFile} ${dest}`)
+//   await exec(
+//     `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest}`,
+//     // `python ./server/routes/audio_transcript/main.py ./server/routes/audio_transcript/test.wav ${dest}`,
+//     (err, stdout, stderr) => {
+//       if (err) {
+//         console.error(`transcript error: ${err}`);
+//         return;
+//       }
 
-      if (stdout !== "") console.log(`stdout: ${stdout}`);
-      if (stderr !== "") console.log(`stderr: ${stderr}`);
-    }
-  )
-    .on('exit', () => {
-      const transcript = fs.readFileSync(tempTranscriptFile);
-      console.log(`Transcript: ${transcript}`);
-      return transcript;
-    });
-}
+//       if (stdout !== "") console.log(`stdout: ${stdout}`);
+//       if (stderr !== "") console.log(`stderr: ${stderr}`);
+//     }
+//   )
+//     // .on('exit', () => {
+//     //   const transcript = fs.readFileSync(tempTranscriptFile);
+//     //   console.log(`Transcript: ${transcript}`);
+//     //   return transcript;
+//     // });
+// }
 
 // const download = function(url, dest, cb) {
 //   var file = fs.createWriteStream(dest);
@@ -255,8 +278,8 @@ const getTranscript = async (audioFile, dest) => {
 // const mongoose = require("mongoose");
 
 // Generate random ID
-// function uuidv4() {
-//   return mongoose.Types.ObjectId();
-// }
+function uuidv4() {
+  return mongoose.Types.ObjectId();
+}
 
 module.exports = router;

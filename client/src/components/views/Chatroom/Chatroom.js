@@ -342,10 +342,10 @@ export default function Chatroom(props) {
           'linear-gradient(0deg, #fff 20%, #f3f2f1)'}}
         >
         <Row>
-          <Col xs={24} xl={19}>
+          <Col xs={24} xl={16}>
             {room_content_type === '0' ?
               <AudioRecordingScreen
-                audioName={`${chatroomID}_${userID}_${audioHistory.length}.wav`}
+                audioName={`${chatroomID}/${audioHistory.length}_${userID}.wav`}
                 roomDone={roomDone}
                 progress={progress}
                 latestAudio={latestAudio}
@@ -361,7 +361,7 @@ export default function Chatroom(props) {
               /> :
               <ErrorNotFound />}
           </Col>
-          <Col xs={24} xl={5}>
+          <Col xs={24} xl={8}>
             <Row style={{marginRight: "10px"}}>
               {
                 userRole === "client" ? (

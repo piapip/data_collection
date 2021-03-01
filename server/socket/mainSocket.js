@@ -1,6 +1,38 @@
 var sockets = {}
+const fs = require('fs');
+const path = require('path');
+const { exec } = require('child_process');
 const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
+
+const tempFolder = './server/tmp';
+const TRANSCRIPT_FOLDER = './server/transcript';
+
+// cb is to clean up all the file in the folder that contains dest
+const getTranscript = async (audioFile, dest, key, cb) => {
+
+  // console.log(`Here's the command: python ./server/routes/audio_transcript/main.py ${audioFile} ${dest}`)
+  await exec(
+    `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key}`,
+    // `python ./server/routes/audio_transcript/main.py ./server/routes/audio_transcript/test.wav ${dest}`,
+    (err, stdout, stderr) => {
+      if (err) {
+        console.error(`transcript error: ${err}`);
+        return;
+      }
+
+      if (stdout !== "") console.log(`stdout: ${stdout}`);
+      if (stderr !== "") console.log(`stderr: ${stderr}`);
+    }
+  )
+  // .on('exit', () => {
+  //   const transcript = fs.readFileSync(dest);
+  //   console.log(`Transcript: ${transcript}`);
+  //   return transcript;
+  // });
+
+  if (cb) cb();
+}
 
 sockets.init = function(server) {
   // socket.io setup
@@ -229,8 +261,10 @@ sockets.init = function(server) {
       console.log("Receive audio in chatroom " + chatroomID + " from " + sender + ". Here's the audio link: " +  link)
     });
 
-    socket.on('client intent', async ({ roomID, audioID, intent }) => {
-      console.log("Receive client intent: " + JSON.stringify(intent) + " of audio " + audioID + " from room " + roomID)
+    socket.on('client intent', async ({ roomID, audioID, key, intent }) => {
+
+      const FILE_MONO = `${tempFolder}/anothertmp_${key}.wav`;
+      console.log("Receive client intent: " + JSON.stringify(intent) + " of audio " + audioID + " from room " + roomID);
 
       // check turn of the room. Throw a fit if it's not 1. If it's 1 then: 
       Chatroom.findById(roomID)
@@ -296,6 +330,15 @@ sockets.init = function(server) {
         // IMPLEMENT SOME KIND OF ERROR!!!
         console.log(err);
       })
+
+      // doing exec audio here
+      if(fs.existsSync(FILE_MONO)) {
+        getTranscript(FILE_MONO, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, () => {
+          console.log("done")
+        })
+      } else {
+        console.log("File is not ready to be transcripted!");
+      }
     });
 
     socket.on('servant intent', async ({ roomID, intent }) => {
@@ -430,7 +473,10 @@ sockets.init = function(server) {
       }
     });
 
-    socket.on('servant audio', async ({ roomID, audioID }) => {
+    socket.on('servant audio', async ({ roomID, audioID, key }) => {
+      
+      const FILE_MONO = `${tempFolder}/anothertmp_${key}.wav`;
+      
       // update room turn
       Chatroom.findById(roomID)
       .then(async (roomFound) => {
@@ -475,6 +521,15 @@ sockets.init = function(server) {
         // IMPLEMENT SOME KIND OF ERROR!!!
         console.log(err);
       })
+
+      // doing exec audio here
+      if(fs.existsSync(FILE_MONO)) {
+        getTranscript(FILE_MONO, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, () => {
+          console.log("done")
+        })
+      } else {
+        console.log("File is not ready to be transcripted!");
+      }
     });
 
     socket.on("remove audio", ({ roomID }) => {

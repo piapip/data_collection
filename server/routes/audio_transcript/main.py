@@ -78,6 +78,7 @@ def start_asr(export_file_name):
                     f.close()
                     # print(text)
                     # print(text.encode("utf8").decode("utf8"))
+                    # !!!!DELETE DOWN THERE!!!!
                     return response.results[0].is_final
 
 def handler(signum, frame):
@@ -91,7 +92,22 @@ def downsample():
 
 if __name__ == "__main__":
     export_file_name = sys.argv[2]
+    key = sys.argv[3]
     # print(export_file_name)
     signal.signal(signal.SIGINT, handler)
     start_asr(export_file_name)
     # start_asr()
+    
+    # !!!!DELETE TMP FILE HERE!!!!
+    tempWavFile = './server/tmp/tmp_' + key + '.wav'
+    tempMonoFile = './server/tmp/anothertmp_' + key + '.wav'
+
+    if os.path.exists(tempWavFile):
+        os.remove(tempWavFile)
+    else:
+        print(tempWavFile+" does not exist!")
+
+    if os.path.exists(tempMonoFile):
+        os.remove(tempMonoFile)
+    else:
+        print(tempMonoFile+" does not exist!")
