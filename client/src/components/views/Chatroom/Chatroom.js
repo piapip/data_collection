@@ -223,7 +223,7 @@ export default function Chatroom(props) {
     if (socket) {
       socket.on('audio removed', () => {
         let newHistory = [...audioHistory];
-        newHistory.shift();
+        newHistory.pop();
         setAudioHistory(newHistory);
         if (newHistory.length === 0) setLatestAudio(null);
         else setLatestAudio(newHistory[0]);
