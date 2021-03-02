@@ -1,6 +1,7 @@
 import React, {useRef, useEffect, useState} from 'react';
 
-import { Row, Col, Tooltip, Checkbox } from 'antd';
+// import { Row, Col, Tooltip, Checkbox } from 'antd';
+import { Row, Col, Tooltip } from 'antd';
 import {/*ShareIcon,*/ RedoIcon, PlayOutlineIcon, StopIcon} from '../../../../ui/icons';
 
 import Wave from '../Shared/Wave';

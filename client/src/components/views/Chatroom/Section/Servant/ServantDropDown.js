@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Collapse, Select, InputNumber, Row, Col } from 'antd';
+// import { Collapse, Select, InputNumber, Row, Col, Radio } from 'antd';
+import { Select, InputNumber, Row, Col, Radio } from 'antd';
 
 import { COLOR } from '../../../../Config';
 
-const {Panel} = Collapse;
+// const {Panel} = Collapse;
 const {Option} = Select;
 
 const deviceData = ['Không có', 'Bình nóng lạnh', 'Bếp', 'Cổng', 'Đèn cầu thang', 'Đèn bàn', 'Đèn trần', 'Điều hòa', 'Loa', 'Lò nướng', 'Lò sưởi', 'Quạt', 'Quạt thông gió', 'Tivi'];
@@ -62,6 +63,7 @@ export default function ServantDropDown(props) {
   const intent = props ? props.intent : null;
   const turn = props ? props.turn : -1;
   const tagVisible = props ? props.visible : true;
+  const [ radioValue, setRadioValue ] = useState(1);
 
   const [ roomList, setRoomList ] = useState(roomData[deviceData[0]]);
   const [ selectedRoom, setSelectedRoom ] = useState(roomData[deviceData[0]][0]);
@@ -154,121 +156,198 @@ export default function ServantDropDown(props) {
     props.setIntent({...intent, level: ((value  === "Không có" || value === '') ? null : value)});
   }
 
-  // const marginRight = "5px";
+  const radioStyle = {
+    // display: 'block',
+    width: '100%',
+    marginTop: '0',
+  };
+
+  const radioContextStyle = {
+    display: 'inline-block',
+    border: '1px solid black',
+    height: '100%',
+    width: "100%",
+    borderRadius: "20px",
+    backgroundColor: "white",
+    paddingLeft: "10px",
+    paddingRight: "10px",
+    verticalAlign: 'middle',
+  };
+
+  const onRadioGroupChange = (e) => {
+    if(e.target.value === 1) props.toggleTagVisibility(true);
+    else props.toggleTagVisibility(false);
+    setRadioValue(e.target.value);
+  }
 
   return (
-    <Collapse defaultActiveKey={['information']}>
-      <Panel header="Thông tin nghe được trong câu nói của Client: " key="information">
-        <Row>
-          <Col span={5}>Thiết bị</Col>
-          <Col span={5}>Phòng</Col>
-          <Col span={3}>Tầng</Col>
-          <Col span={3}>Hành động</Col>
-          <Col span={5}></Col>
-          <Col span={3}></Col>
-        </Row>
-        <Row>
-          <Col span={5}>
-            <Select 
-              defaultValue={deviceData[0]} 
-              style={{ width: 150 }} 
-              onChange={handleDeviceChange}
-              disabled={turn !== 2 || !tagVisible}>
-              {
-                deviceData.map(device => (
-                  <Option key={device}>{device}</Option>
-                ))
-              }
-            </Select>
-          </Col>
-          <Col span={5}>
-            <Select 
-              value={selectedRoom}
-              style={{ width: 150 }} 
-              onChange={onSelectedRoomChange}
-              disabled={turn !== 2  || !tagVisible}>
-              {
-                roomList.map(room => (
-                  <Option key={room}>{room}</Option>
-                ))
-              }
-            </Select>
-          </Col>
-          <Col span={3}>
-            <Select
-              value={selectedFloor}
-              style={{ with: 100 }}
-              onChange={onSelectedFloorChange}
-              disabled={turn !== 2  || !tagVisible}>
-              {
-                floorData.map(floor => (
-                  <Option key={floor}>{floor}</Option>
-                ))
-              }
-            </Select>
-          </Col>
-          <Col span={3}>
-            <Select
-              value={selectedAction}
-              style={{ width: 90 }}
-              onChange={onSelectedActionChange}
-              disabled={turn !== 2  || !tagVisible}>
-              {
-                actionList.map(action => (
-                  <Option key={action}>{action}</Option>
-                ))
-              }
-            </Select>
-          </Col>
-          <Col span={5}>
-            <Select
-              value={selectedScale}
-              style={{ width: 150 }}
-              onChange={onSelectedScaleChange}
-              disabled={turn !== 2 || !tagVisible}>
-              {
-                scaleList.map(scale => (
-                  <Option key={scale}>{scale}</Option>
-                ))
-              }
-            </Select>
-          </Col>
-          <Col span={3}>
-            {
-              selectedScale === "Màu" ? (
-                <Select
-                  value={level}
-                  placeholder="Chọn màu"
-                  style={{ width: 120 }}
-                  onChange={onSelectedLevelChange}
-                  disabled={turn !== 2 || !tagVisible}>
+    <Radio.Group onChange={onRadioGroupChange} value={radioValue} 
+      style={{width: '95%', marginTop: '0px', verticalAlign: 'middle'}}>
+      <div style={{marginTop: '0px', verticalAlign: 'middle'}}>
+        
+      <Radio style={radioStyle} value={1}>
+        <div style={radioContextStyle}>
+          <Row>
+            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+              <Row>
+                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                  Thiết bị
+                </Col>
+                <Col span={24} style={{paddingBottom: "15px"}}>
+                  <Select 
+                    defaultValue={deviceData[0]} 
+                    style={{ width: "100%" }}
+                    onChange={handleDeviceChange}
+                    disabled={turn !== 2 || !tagVisible}>
+                    {
+                      deviceData.map(device => (
+                        <Option key={device}><p style={{width: "100%", whiteSpace: "normal"}}>{device}</p></Option>
+                      ))
+                    }
+                  </Select>
+                </Col>
+              </Row>
+            </Col>
+
+            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+              <Row>
+                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                  Phòng
+                </Col>
+                <Col span={24} style={{paddingBottom: "15px"}}>
+                  <Select 
+                    value={selectedRoom}
+                    style={{ width: "100%" }}
+                    onChange={onSelectedRoomChange}
+                    disabled={turn !== 2  || !tagVisible}>
+                    {
+                      roomList.map(room => (
+                        <Option key={room}><p style={{width: "100%", whiteSpace: "normal"}}>{room}</p></Option>
+                      ))
+                    }
+                  </Select>
+                </Col>
+              </Row>
+            </Col>
+
+            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+              <Row>
+                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                  Tầng
+                </Col>
+                <Col span={24} style={{paddingBottom: "15px"}}>
+                  <Select
+                    value={selectedFloor}
+                    style={{ width: "100%" }}
+                    onChange={onSelectedFloorChange}
+                    disabled={turn !== 2  || !tagVisible}>
+                    {
+                      floorData.map(floor => (
+                        <Option key={floor}><p style={{width: "100%", whiteSpace: "normal"}}>{floor}</p></Option>
+                      ))
+                    }
+                  </Select>
+                </Col>
+              </Row>
+            </Col>
+
+            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+              <Row>
+                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                  Hành động
+                </Col>
+                <Col span={24} style={{paddingBottom: "15px"}}>
+                  <Select
+                    value={selectedAction}
+                    style={{ width: "100%" }}
+                    onChange={onSelectedActionChange}
+                    disabled={turn !== 2  || !tagVisible}>
+                    {
+                      actionList.map(action => (
+                        <Option key={action}><p style={{width: "100%", whiteSpace: "normal"}}>{action}</p></Option>
+                      ))
+                    }
+                  </Select>
+                </Col>
+              </Row>
+            </Col>
+
+            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+              <Row>
+                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                  Scale
+                </Col>
+                <Col span={24} style={{paddingBottom: "15px"}}>
+                  <Select
+                    value={selectedScale}
+                    style={{ width: "100%" }}
+                    onChange={onSelectedScaleChange}
+                    disabled={turn !== 2 || !tagVisible}>
+                    {
+                      scaleList.map(scale => (
+                        <Option key={scale}><p style={{width: "100%", whiteSpace: "normal"}}>{scale}</p></Option>
+                      ))
+                    }
+                  </Select>
+                </Col>
+              </Row>
+            </Col>
+
+            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+              <Row>
+                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                  Level
+                </Col>
+                <Col span={24} style={{paddingBottom: "15px"}}>
                   {
-                    COLOR.map(color => (
-                      <Option key={color}>{color}</Option>
-                    ))
+                    selectedScale === "Màu" ? (
+                      <Select
+                        value={level}
+                        placeholder="Chọn màu"
+                        style={{ width: "100%" }}
+                        onChange={onSelectedLevelChange}
+                        disabled={turn !== 2 || !tagVisible}>
+                        {
+                          COLOR.map(color => (
+                            <Option key={color}><p style={{width: "100%", whiteSpace: "normal"}}>{color}</p></Option>
+                          ))
+                        }
+                      </Select>
+                    ) : selectedScale !== "Không có" ? (
+                      <InputNumber 
+                        value={level}
+                        min={0}
+                        max={500}
+                        style={{ width: "100%" }}
+                        placeholder="Nhập số"
+                        onChange={onSelectedLevelChange}
+                        disabled={turn !== 2 || !tagVisible}
+                      />
+                    ) : (
+                      <InputNumber 
+                        value={level}
+                        min={0}
+                        max={500}
+                        style={{ width: "100%" }}
+                        placeholder="Nhập số"
+                        disabled={true} />
+                    )
                   }
-                </Select>
-              ) : selectedScale !== "Không có" ? (
-                <InputNumber 
-                  value={level}
-                  min={0}
-                  max={500}
-                  placeholder="Nhập số"
-                  onChange={onSelectedLevelChange}
-                  disabled={turn !== 2 || !tagVisible}
-                />
-              ) : (
-                <InputNumber 
-                  value={level}
-                  min={0}
-                  max={500}
-                  placeholder="Nhập số"
-                  disabled={true} />
-              )
-            }
-          </Col>
-        </Row>
-      </Panel>
-    </Collapse>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </div>
+      </Radio>
+      
+      <Radio style={{
+        display: "block",
+        height: "48px",
+        lineHeight: "48px",
+      }} value={2}><b style={{paddingLeft: "10px", color: "black"}}>Không có tag</b>
+      </Radio>
+      
+    </div>
+  </Radio.Group>
   )
 }

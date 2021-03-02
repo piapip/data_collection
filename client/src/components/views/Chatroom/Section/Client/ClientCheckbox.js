@@ -4,6 +4,7 @@ import { Checkbox, Radio, Row, Col } from 'antd';
 
 import LoadingComponent from './../../../Loading/LoadingComponent';
 import { COLOR } from './../../../../Config';
+import './ClientCheckbox.css'
 
 // const {Panel} = Collapse
 
@@ -63,7 +64,7 @@ export default function ClientCheckbox(props) {
     // item - 0 - key - 1 - label - 2 - value
     return list ? list.map((item, index) => {
       return (
-        <Col xs={48/list.length} xl={24/list.length} key={index} style={{textAlign: "center"}}>
+        <Col xs={48/list.length} xl={16/list.length} key={index} style={{textAlign: "center"}}>
           {/* I was thinking of assigning object to the checkbox value, but then there's no way for me to manipulate the way it compares 2 objects 
           so it can't be done. */}
           {
@@ -85,15 +86,20 @@ export default function ClientCheckbox(props) {
   const radioStyle = {
     display: 'block',
     width: '100%',
-    height: '75px',
-    lineHeight: '75px',
+    // height: '75px',
+    // lineHeight: '75px',
   };
 
   const radioContextStyle = {
     display: 'inline-block',
     border: '1px solid black',
+    borderRadius: "20px",
+    height: '100%',
     width: "100%",
+    paddingTop: "15px",
+    paddingBottom: "15px",
     backgroundColor: "white",
+    verticalAlign: 'middle',
   };
 
   const onRadioGroupChange = (e) => {
@@ -110,10 +116,11 @@ export default function ClientCheckbox(props) {
   return (
     <>
       <Radio.Group onChange={onRadioGroupChange} value={radioValue} style={{width: '95%'}}>
-        <Radio style={radioStyle} value={1}>
+        <Radio style={radioStyle} value={1} disabled={disabled}>
           <div style={radioContextStyle}>
-            <Checkbox.Group onChange={onChange} style={{width: '100%'}}>
-              <Row justify="space-around">
+            <Checkbox.Group onChange={onChange}>
+              <Row>
+                <Col xs={24} xl={4}><b style={{paddingLeft: "10px", color: disabled ? "grey" : "black"}}>Thông tin nghe được: </b></Col>
                 {renderList(list)}
               </Row>
             </Checkbox.Group>
@@ -130,8 +137,7 @@ export default function ClientCheckbox(props) {
           display: "block",
           height: "48px",
           lineHeight: "48px",
-          fontSize: "20px",
-        }} value={2} disabled={disabled}><b>Không có tag</b></Radio>
+        }} value={2} disabled={disabled}><b style={{paddingLeft: "10px", color: disabled ? "grey" : "black"}}>Không có tag</b></Radio>
       </Radio.Group>
 
 
