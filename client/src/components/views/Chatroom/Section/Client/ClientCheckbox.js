@@ -70,11 +70,11 @@ export default function ClientCheckbox(props) {
           {
             progress.length === 0 ? "" : progress[index][1] === 0 ? (
               <Checkbox value={item[0]} disabled={!visible || disabled} style={{color: "#eb2f96"}}>
-                {item[1]}
+                <b>{item[1]}</b>
               </Checkbox>
             ) : (
               <Checkbox value={item[0]} disabled={!visible || disabled} style={{color: "#52c41a"}}>
-                {item[1]}
+                <b>{item[1]}</b>
               </Checkbox>
             )
           }
