@@ -18,6 +18,7 @@ import LoadingComponent from '../Loading/LoadingComponent';
 import PromptLeaving from './Section/Shared/PromptLeaving';
 import ClientBG from './../LandingPage/Section/images/speak.svg';
 import ServantBG from './../LandingPage/Section/images/listen.svg';
+import Guide from './Section/Shared/Guide';
 // import SwitchingTurn from './Section/Shared/SwitchingTurn';
 
 export default function Chatroom(props) {
@@ -365,8 +366,9 @@ export default function Chatroom(props) {
               /> :
               <ErrorNotFound />}
           </Col>
-          <Col xs={24} xl={8}>
-            <Row style={{marginRight: "10px"}}>
+          <Col xs={24} xl={8} style={{paddingRight: "10px"}}>
+
+            <Row>
               {
                 userRole === "client" ? (
                 <Col><Scenario scenario={scenario} progress={progress}/></Col> ) : 
@@ -378,6 +380,12 @@ export default function Chatroom(props) {
                   </Col>
                 )
               }
+            </Row>
+
+            <Row style={{marginTop: "20px", marginBottom: "20px"}}>
+              <Col>
+                <Guide turn={turn}/>
+              </Col>
             </Row>
 
             <Row>

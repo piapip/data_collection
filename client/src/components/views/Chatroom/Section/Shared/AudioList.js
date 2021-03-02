@@ -45,10 +45,10 @@ export default function AudioList(props) {
        {/* <div style={{display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%"}}> */}
         {/* <Row style={{fontWeight: 'bold', border: "1px solid white", flexGrow: '1',backgroundColor:"white", alignItems: "left"}}> */}
         <Row style={{fontWeight: 'bold', flexGrow: '1', alignItems: "left"}}>
-          <Col span={24} style={{textAlign: "center",fontsize:"18px", marginBottom: "10px"}}>Lịch sử hội thoại</Col>
-          {/* <Row align="middle"> */}
+          {/* <Col span={24} style={{textAlign: "center",fontsize:"18px", marginBottom: "10px"}}>Lịch sử hội thoại</Col> */}
+          <div style={{border: "1px solid black"}}>
             {showAudio}
-          {/* </Row> */}
+          </div>
         </Row>
       </div>
   )
