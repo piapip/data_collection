@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import { Checkbox, Collapse, Row, Col } from 'antd';
+// import { Checkbox, Collapse, Row, Col } from 'antd';
+import { Checkbox, Radio, Row, Col } from 'antd';
 
 import LoadingComponent from './../../../Loading/LoadingComponent';
 import { COLOR } from './../../../../Config';
 
-const {Panel} = Collapse
+// const {Panel} = Collapse
 
 export default function ClientCheckbox(props) {
 
   const list = props ? props.list : []
   const progress = props ? props.progress : [];
   const visible = props ? props.visible : true;
+  const disabled = props ? props.disabled : false;
   const [ loading, setLoading ] = useState(true);
+  const [ radioValue, setRadioValue ] = useState(1);
 
   useEffect(() => {
     if (list !== [] && progress !== []) {
@@ -60,16 +63,16 @@ export default function ClientCheckbox(props) {
     // item - 0 - key - 1 - label - 2 - value
     return list ? list.map((item, index) => {
       return (
-        <Col span={24/list.length} key={index}>
+        <Col xs={48/list.length} xl={24/list.length} key={index} style={{textAlign: "center"}}>
           {/* I was thinking of assigning object to the checkbox value, but then there's no way for me to manipulate the way it compares 2 objects 
           so it can't be done. */}
           {
             progress.length === 0 ? "" : progress[index][1] === 0 ? (
-              <Checkbox value={item[0]} disabled={!visible} style={{color: "#eb2f96"}}>
+              <Checkbox value={item[0]} disabled={!visible || disabled} style={{color: "#eb2f96"}}>
                 {item[1]}
               </Checkbox>
             ) : (
-              <Checkbox value={item[0]} disabled={!visible} style={{color: "#52c41a"}}>
+              <Checkbox value={item[0]} disabled={!visible || disabled} style={{color: "#52c41a"}}>
                 {item[1]}
               </Checkbox>
             )
@@ -79,13 +82,62 @@ export default function ClientCheckbox(props) {
     }) : ""
   }
 
+  const radioStyle = {
+    display: 'block',
+    width: '100%',
+    height: '75px',
+    lineHeight: '75px',
+  };
+
+  const radioContextStyle = {
+    display: 'inline-block',
+    border: '1px solid black',
+    width: "100%",
+    backgroundColor: "white",
+  };
+
+  const onRadioGroupChange = (e) => {
+    if(e.target.value === 1) props.toggleTagVisibility(true);
+    else props.toggleTagVisibility(false);
+    setRadioValue(e.target.value);
+  }
+
+
   if (loading) {
     return <LoadingComponent />
   }
 
   return (
     <>
-      <Collapse defaultActiveKey={['commandConfirm']}>
+      <Radio.Group onChange={onRadioGroupChange} value={radioValue} style={{width: '95%'}}>
+        <Radio style={radioStyle} value={1}>
+          <div style={radioContextStyle}>
+            <Checkbox.Group onChange={onChange} style={{width: '100%'}}>
+              <Row justify="space-around">
+                {renderList(list)}
+              </Row>
+            </Checkbox.Group>
+          </div>
+        </Radio>
+        {/* <Radio style={radioStyle} value={2}>
+          <div style={radioContextStyle}>
+            <div style={{textAlign: "center", width: `${100/list.length}%`}}>
+              <p>Không có tag</p>  
+            </div>
+          </div>
+        </Radio> */}
+        <Radio style={{
+          display: "block",
+          height: "48px",
+          lineHeight: "48px",
+          fontSize: "20px",
+        }} value={2} disabled={disabled}><b>Không có tag</b></Radio>
+      </Radio.Group>
+
+
+
+
+      {/* <Collapse defaultActiveKey={['commandConfirm']}>
         <Panel header="Xác nhận câu lệnh: " key="commandConfirm">
           <Checkbox.Group style={{ width: '100%' }} onChange={onChange}>
             <Row>
@@ -93,7 +145,7 @@ export default function ClientCheckbox(props) {
             </Row>
           </Checkbox.Group>
         </Panel>
-      </Collapse>
+      </Collapse> */}
     </>
   )
 }

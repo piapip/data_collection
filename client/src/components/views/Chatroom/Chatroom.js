@@ -16,6 +16,8 @@ import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
 import LoadingComponent from '../Loading/LoadingComponent';
 import PromptLeaving from './Section/Shared/PromptLeaving';
+import ClientBG from './../LandingPage/Section/images/speak.svg';
+import ServantBG from './../LandingPage/Section/images/listen.svg';
 // import SwitchingTurn from './Section/Shared/SwitchingTurn';
 
 export default function Chatroom(props) {
@@ -337,8 +339,10 @@ export default function Chatroom(props) {
         style={{
           height: `${screenHeight}px`,
           backgroundImage: 
-          userRole === "client" ? 'url(https://img.freepik.com/free-vector/asbtract-sky-pastel-color_56745-107.jpg?size=626&ext=jpg)':
-          userRole === "servant" ? 'url(https://cdn.hipwallpaper.com/i/84/28/PZDy0L.jpg)' : 
+          // userRole === "client" ? 'url(https://img.freepik.com/free-vector/asbtract-sky-pastel-color_56745-107.jpg?size=626&ext=jpg)':
+          // userRole === "servant" ? 'url(https://cdn.hipwallpaper.com/i/84/28/PZDy0L.jpg)' : 
+          userRole === "client" ? `url(${ClientBG})`:
+          userRole === "servant" ? `url(${ServantBG})` : 
           'linear-gradient(0deg, #fff 20%, #f3f2f1)'}}
         >
         <Row>
