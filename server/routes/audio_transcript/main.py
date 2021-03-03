@@ -123,6 +123,8 @@ if __name__ == "__main__":
     print(export_file_name)
     with open(export_file_name, 'r', encoding='utf-8') as f:
         transcript = f.read()
+        if len(transcript) == 0:
+            transcript = " "
         api = BACKEND_URL + "/api/audio/" + audioID
         r = requests.put(api, data = {'transcript': transcript})
         success = r.status_code

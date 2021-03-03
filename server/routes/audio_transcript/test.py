@@ -13,8 +13,10 @@ for filename in os.listdir(TRANSCRIPT_FOLDER):
     with open(path, 'r', encoding='utf-8') as f:
         transcript = f.read()
         api = BACKEND_URL + "/api/audio/" + audioID
+        if len(transcript) == 0:
+            transcript = " "
         r = requests.put(api, data = {'transcript': transcript})
-        print(r.status_code == 200)
+        # print(r.status_code == 200)
         success = r.status_code
 
     # if 200 delete the transcript with that audioID given up there
@@ -26,4 +28,4 @@ for filename in os.listdir(TRANSCRIPT_FOLDER):
         print("..Can't find audio..")
     # if 500 say sorry, hold the transcript.
     if r.status_code == 500:
-        print("..Sorry, internal problem, can't update transcript for some reasons idk.")
+        print("..Sorry, internal problem, can't update transcript for audio {} for some reasons idk.".format(audioID))
