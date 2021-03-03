@@ -12,6 +12,7 @@ import time
 import sys
 import signal, os
 from ftfy import fix_encoding
+from Naked.toolshed.shell import execute_js
 
 
 def connectivity_callback(c):
