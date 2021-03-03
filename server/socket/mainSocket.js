@@ -21,8 +21,8 @@ const getTranscript = async (audioFile, dest, key, cb) => {
         return;
       }
 
-      if (stdout !== "") console.log(`stdout: ${stdout}`);
-      if (stderr !== "") console.log(`stderr: ${stderr}`);
+      // if (stdout !== "") console.log(`stdout: ${stdout}`);
+      // if (stderr !== "") console.log(`stderr: ${stderr}`);
     }
   )
   // .on('exit', () => {

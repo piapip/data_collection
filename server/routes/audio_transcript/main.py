@@ -13,6 +13,7 @@ import sys
 import signal, os
 from ftfy import fix_encoding
 from Naked.toolshed.shell import execute_js
+import requests
 
 
 def connectivity_callback(c):
@@ -112,3 +113,53 @@ if __name__ == "__main__":
         os.remove(tempMonoFile)
     else:
         print(tempMonoFile+" does not exist!")
+    
+    # now call Nodejs API to upload the transcript
+    BACKEND_URL = 'http://localhost:5000'
+    TRANSCRIPT_FOLDER = './server/transcript'
+    success = 500
+
+    audioID = export_file_name.replace("./", "").split("/")[-1].replace(".txt", "")
+    print(export_file_name)
+    with open(export_file_name, 'r', encoding='utf-8') as f:
+        transcript = f.read()
+        api = BACKEND_URL + "/api/audio/" + audioID
+        r = requests.put(api, data = {'transcript': transcript})
+        success = r.status_code
+    
+    print(success)
+    if success == 200:
+        if os.path.exists(export_file_name):
+            # print("Removing file...")
+            os.remove(export_file_name)
+    # # if 404 say not found, hold the transcript.
+    # if success == 404:
+    #     print("..Can't find audio..")
+    # # if 500 say sorry, hold the transcript.
+    # if success == 500:
+    #     print("..Sorry, internal problem, can't update transcript for some reasons idk.")
+
+    # backup for some weird reasons if I have to upload the entire folder
+
+    # for filename in os.listdir(TRANSCRIPT_FOLDER):
+    #     audioID = filename.replace(".txt", "")
+    #     path = os.path.join(TRANSCRIPT_FOLDER, filename)
+    #     success = 500
+
+    #     with open(path, 'r', encoding='utf-8') as f:
+    #         transcript = f.read()
+    #         api = BACKEND_URL + "/api/audio/" + audioID
+    #         r = requests.put(api, data = {'transcript': transcript})
+    #         print(r.status_code == 200)
+    #         success = r.status_code
+
+    #     # if 200 delete the transcript with that audioID given up there
+    #     if r.status_code == 200:
+    #         if os.path.exists(path):
+    #             os.remove(path)
+    #     # if 404 say not found, hold the transcript.
+    #     if r.status_code == 404:
+    #         print("..Can't find audio..")
+    #     # if 500 say sorry, hold the transcript.
+    #     if r.status_code == 500:
+    #         print("..Sorry, internal problem, can't update transcript for some reasons idk.")

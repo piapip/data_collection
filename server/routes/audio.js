@@ -14,7 +14,6 @@ router.put("/:audioID", (req, res) => {
       res.status(404).send({ success: false, message: "Audio not found" });
       throw "Can't find audio"
     } else {
-      console.log("Here's the audio: ", audioFound);
       audioFound.transcript = transcript;
       return audioFound.save();
     }
