@@ -63,6 +63,8 @@ export default function ServantDropDown(props) {
   const intent = props ? props.intent : null;
   const turn = props ? props.turn : -1;
   const tagVisible = props ? props.visible : true;
+  const disabled = props ? props.disabled : false;
+
   const [ radioValue, setRadioValue ] = useState(1);
 
   const [ roomList, setRoomList ] = useState(roomData[deviceData[0]]);
@@ -182,7 +184,7 @@ export default function ServantDropDown(props) {
 
   return (
     <Radio.Group onChange={onRadioGroupChange} value={radioValue} 
-      style={{width: '95%', marginTop: '0px', verticalAlign: 'middle'}}>
+      style={{width: '95%', marginTop: '0px', verticalAlign: 'middle'}} disabled={disabled}>
       <div style={{marginTop: '0px', verticalAlign: 'middle'}}>
         
       <Radio style={radioStyle} value={1}>
@@ -344,7 +346,7 @@ export default function ServantDropDown(props) {
         display: "block",
         height: "48px",
         lineHeight: "48px",
-      }} value={2}><b style={{paddingLeft: "10px", color: "black"}}>Không có tag</b>
+      }} value={2}><b style={{paddingLeft: "10px", color: disabled ? "grey" : "black"}}>Không có tag</b>
       </Radio>
       
     </div>

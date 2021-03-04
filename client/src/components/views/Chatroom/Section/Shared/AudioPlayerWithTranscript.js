@@ -12,7 +12,7 @@ export default function AudioPlayerWithTranscript(props) {
   const autoPlay = props ? props.autoPlay : false;
   let transcript = props ? props.transcript : {};
 
-  if (transcript.content === "" || transcript.content === " ") transcript.content = "...";
+  if (transcript && (transcript.content === "" || transcript.content === " ")) transcript.content = "...";
 
   const audioRef = useRef(null);
   const [ isPlaying, setIsPlaying ] = useState(false);
@@ -41,14 +41,14 @@ export default function AudioPlayerWithTranscript(props) {
 
   if (audioLink === undefined || audioLink === null) return "";
 
-  if (audioLink === "") {
+  if (audioLink === "" && audioRole === "Loading..." && transcript === {}) {
     return <LoadingComponent />
   }
 
   return (
     <>
       <Comment
-        author={transcript.yours ? <p>You</p> : <p>{audioRole}</p>}
+        author={(transcript && transcript.yours) ? <p>Bạn</p> : <p>{audioRole}</p>}
         avatar={
           <>
             <audio 
@@ -82,7 +82,7 @@ export default function AudioPlayerWithTranscript(props) {
           </>
         }
         content={
-          <p>{transcript.content}</p>
+          <p>{transcript ? transcript.content : "..."}</p>
         }/>
     </>
   )

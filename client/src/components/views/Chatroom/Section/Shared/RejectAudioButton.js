@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from "react-redux";
 
+import { Popconfirm } from 'antd';
 import { removeLatestAudio } from '../../../../../_actions/chatroom_actions';
 
 export default function RejectAudioButton(props) {
@@ -34,10 +35,20 @@ export default function RejectAudioButton(props) {
     //  -1 - khong co audio nao de xoa.
     //   0 - chua toi luot xoa.
     //   1 - xoa thanh cong.
-  } 
+  }
 
   const insertButton = (
-    <button className="reject-buttons" onClick={onReject} disabled={buttonState}>Không hiểu audio</button>  
+    <Popconfirm 
+      title="Bạn sẽ xóa audio mà bên kia vừa gửi tới cho bạn, bạn chắc chắn là sẽ xóa không?"
+      onConfirm={onReject}
+      okText="Xóa"
+      okButtonProps={{
+        disabled: buttonState
+      }}
+      cancelText="Không xóa">
+      {/* <button className="reject-buttons" onClick={onReject} disabled={buttonState}>Không hiểu audio</button> */}
+      <button className="reject-buttons">Không hiểu audio</button>
+    </Popconfirm>
   )
 
   return (

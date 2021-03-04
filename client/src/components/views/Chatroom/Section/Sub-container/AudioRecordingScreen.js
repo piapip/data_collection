@@ -200,7 +200,7 @@ export default function AudioRecordingScreen(props) {
                   progress={progress}
                   intent={tagVisibility ? intent : null}
                   visible={tagVisibility}
-                  disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
+                  disabled={!(turn === 1 && userRole === "client")}
                   setIntent={setIntent}
                   list={scenario}  
                 /> : 
@@ -211,6 +211,7 @@ export default function AudioRecordingScreen(props) {
                   turn={turn}
                   intent={intent}
                   visible={tagVisibility}
+                  disabled={!(turn === 2 && userRole === "servant")}
                   setIntent={setIntent}/>
               ) : (
                 <div style={{textAlign: "center"}}>

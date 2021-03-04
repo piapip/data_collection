@@ -34,7 +34,7 @@ export default function AudioList(props) {
         height: "300px", 
         overflowX: "hidden", 
         overflowY: "scroll", 
-        border: "1px solid black"}}
+        border: "1px solid #dedede"}}
     >
       <Row style={{marginLeft: "10px", marginRight: "10px"}}>
         <Col>
@@ -47,7 +47,7 @@ export default function AudioList(props) {
                   <Row style={{
                     fontWeight: 'bold',
                     flexGrow: '1'}}>
-                    <Col span={12} offset={((userRole === "client" && index % 2 !== 0) || (userRole === "servant" && index % 2 === 1)) ? 12 : 0}>
+                    <Col span={12} offset={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? 12 : 0}>
                       <AudioPlayerWithTranscript
                         audioRole={index % 2 === 0 ? "Client" : "Servant"}
                         audioLink={audio}
