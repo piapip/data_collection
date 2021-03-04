@@ -30,7 +30,7 @@ export default function Status(props) {
 
   return (
     <>
-      <Affix offsetTop={10}>
+      <Affix offsetTop={69}>
         <div style={{paddingTop: "10px", paddingRight: "20px", paddingLeft: "20px", zIndex: "1000"}}>
           <Row>
             <Col style={{textAlign: "center"}}>

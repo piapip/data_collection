@@ -185,7 +185,7 @@ export default function AudioRecordingScreen(props) {
           turn={turn}
           userrole={userRole}
           // remember to change this to true 
-          autoPlay={false}/>
+          autoPlay={true}/>
       </Row>
 
       <Row>

@@ -3,6 +3,7 @@ import axios from 'axios';
 
 // import { Popover } from 'antd';
 import RejectAudioButton from '../Shared/RejectAudioButton';
+import LoadingComponent from '../../../Loading/LoadingComponent';
 
 import { BACKEND_URL } from '../../../../Config';
 
@@ -70,9 +71,13 @@ export default function ClientSendButton(props) {
   const insertButton = (data !== null && turn === 1) ? (
     buttonDisable ? (
       // Can put an alert instead of a Popover but it looks stupid as fuck
-      <button className="buttons" style={{cursor: 'not-allowed'}} disabled>Gửi</button>  
+      <button className="buttons" style={{cursor: 'not-allowed'}} disabled>Gửi</button>
     ) : (
-      <button className="buttons" onClick={uploadAudioAWS} disabled={buttonState}>Gửi</button>  
+      buttonState ? (
+        <button className="buttons" style={{cursor: 'not-allowed'}} disabled><LoadingComponent /></button>
+      ) : (
+        <button className="buttons" onClick={uploadAudioAWS}>Gửi</button>  
+      )
     )
   ) : (
     (turn === 1) ? (

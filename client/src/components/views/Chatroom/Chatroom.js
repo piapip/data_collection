@@ -31,6 +31,7 @@ export default function Chatroom(props) {
   let username = user.userData ? user.userData.name : "";
   const [ userRole, setUserRole ] = useState("");
   const [ audioHistory, setAudioHistory ] = useState([]);
+  const [ transcriptHistory, setTranscriptHistory ] = useState([]);
   const [ latestAudio, setLatestAudio ] = useState(null);
   const [ scenario, setScenario ] = useState([]);
   const [ progress, setProgress ] = useState([]);
@@ -107,7 +108,12 @@ export default function Chatroom(props) {
 
       const audios = response.payload.roomFound.audioList;
       let tempAudioList = [];
+      let tempTranscriptList = [];
       audios.map(audio => {
+        tempTranscriptList.push({
+          content: audio.transcript,
+          yours: userID === audio.user,
+        });
         return tempAudioList.push(audio.link);
         // return tempAudioList = [audio.link, ...tempAudioList];
       })
@@ -117,6 +123,7 @@ export default function Chatroom(props) {
         setMessage(StatusMessage.TURN_CLIENT_START);
       } else setMessage(StatusMessage.TURN_SERVANT_START);
 
+      setTranscriptHistory(tempTranscriptList);
       setAudioHistory(tempAudioList);
       if (audios.length > 0) {
         setLatestAudio(audios[audios.length - 1].link);
@@ -390,7 +397,10 @@ export default function Chatroom(props) {
 
             <Row>
               <Col>
-                <AudioList audioList={audioHistory}/>
+                <AudioList
+                  userRole={userRole}
+                  transcript={transcriptHistory}
+                  audioList={audioHistory}/>
               </Col> 
             </Row>
           </Col>

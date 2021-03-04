@@ -191,7 +191,7 @@ export default function ServantDropDown(props) {
             <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
               <Row>
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
-                  Thiết bị
+                  <b>Thiết bị</b>
                 </Col>
                 <Col span={24} style={{paddingBottom: "15px"}}>
                   <Select 
@@ -212,7 +212,7 @@ export default function ServantDropDown(props) {
             <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
               <Row>
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
-                  Phòng
+                  <b>Phòng</b>
                 </Col>
                 <Col span={24} style={{paddingBottom: "15px"}}>
                   <Select 
@@ -233,7 +233,7 @@ export default function ServantDropDown(props) {
             <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
               <Row>
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
-                  Tầng
+                  <b>Tầng</b>
                 </Col>
                 <Col span={24} style={{paddingBottom: "15px"}}>
                   <Select
@@ -254,7 +254,7 @@ export default function ServantDropDown(props) {
             <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
               <Row>
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
-                  Hành động
+                  <b>Hành động</b>
                 </Col>
                 <Col span={24} style={{paddingBottom: "15px"}}>
                   <Select
@@ -275,7 +275,7 @@ export default function ServantDropDown(props) {
             <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
               <Row>
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
-                  Scale
+                  <b>Scale</b>
                 </Col>
                 <Col span={24} style={{paddingBottom: "15px"}}>
                   <Select
@@ -296,7 +296,7 @@ export default function ServantDropDown(props) {
             <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
               <Row>
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
-                  Level
+                  <b>Level</b>
                 </Col>
                 <Col span={24} style={{paddingBottom: "15px"}}>
                   {

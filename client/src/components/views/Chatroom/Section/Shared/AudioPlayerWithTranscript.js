@@ -1,18 +1,21 @@
 import React, { useState, useRef } from 'react';
 
-import { Tooltip } from 'antd';
+import { Comment } from 'antd';
 
 import LoadingComponent from './../../../Loading/LoadingComponent';
 import { PlayOutlineIcon, StopIcon } from '../../../../ui/icons';
 
-export default function CustomAudioPlayer(props) {
+export default function AudioPlayerWithTranscript(props) {
 
-  const audioLink = props ? props.audioLink : "";  
+  const audioLink = props ? props.audioLink : "";
+  const audioRole = props ? props.audioRole : "Loading..."; 
   const autoPlay = props ? props.autoPlay : false;
+  let transcript = props ? props.transcript : {};
+
+  if (transcript.content === "" || transcript.content === " ") transcript.content = "...";
+
   const audioRef = useRef(null);
   const [ isPlaying, setIsPlaying ] = useState(false);
-
-  const tooltipPlay = <span>Play</span>;
 
   const toggleIsPlaying = () => {
     const {current: audio} = audioRef;
@@ -44,9 +47,10 @@ export default function CustomAudioPlayer(props) {
 
   return (
     <>
-      <div className="pill">
-        <div className="pill done">
-          <div className="pill done contents">
+      <Comment
+        author={transcript.yours ? <p>You</p> : <p>{audioRole}</p>}
+        avatar={
+          <>
             <audio 
               key={audioLink}
               autoPlay={autoPlay}
@@ -55,27 +59,31 @@ export default function CustomAudioPlayer(props) {
               ref={audioRef}>
               <source src={audioLink} type={getAudioFormat()}/>
             </audio>
-            <Tooltip
-              title={tooltipPlay}
-              arrow
-              open={isPlaying}
-              theme="grey-tooltip">
-              <button
-                className="play"
-                type="button"
-                onClick={toggleIsPlaying}
-              >
-                <span className="padder">
-                  {isPlaying ? <StopIcon/> : <PlayOutlineIcon/>}
-                </span>
-              </button>
-            </Tooltip>
-            
-          </div>
-        </div>
-      </div>
-      
+            <button
+              style={{
+                display: "inline-block",
+                backgroundColor: "white",
+                borderRadius: "50%",
+                height: "50px",
+                width: "50px",
+                lineHeight: "0px",
+                justifyContent: "center",
+                boxSizing: "border-box",
+                border: '1px solid #dedede',
+                alignItems: "center",
+              }}
+              // type="button"
+              onClick={toggleIsPlaying}
+            >
+              <div>
+                {isPlaying ? <StopIcon/> : <PlayOutlineIcon/>}
+              </div>
+            </button>
+          </>
+        }
+        content={
+          <p>{transcript.content}</p>
+        }/>
     </>
-    
   )
 }
