@@ -373,7 +373,7 @@ export default function Chatroom(props) {
               /> :
               <ErrorNotFound />}
           </Col>
-          <Col xs={24} xl={8} style={{paddingRight: "10px"}}>
+          <Col xs={24} xl={8} style={{paddingRight: "10px", paddingTop: "10px"}}>
 
             <Row>
               {

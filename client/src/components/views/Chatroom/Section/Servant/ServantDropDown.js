@@ -214,6 +214,27 @@ export default function ServantDropDown(props) {
             <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
               <Row>
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                  <b>Hành động</b>
+                </Col>
+                <Col span={24} style={{paddingBottom: "15px"}}>
+                  <Select
+                    value={selectedAction}
+                    style={{ width: "100%" }}
+                    onChange={onSelectedActionChange}
+                    disabled={turn !== 2  || !tagVisible}>
+                    {
+                      actionList.map(action => (
+                        <Option key={action}><p style={{width: "100%", whiteSpace: "normal"}}>{action}</p></Option>
+                      ))
+                    }
+                  </Select>
+                </Col>
+              </Row>
+            </Col>
+
+            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+              <Row>
+                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
                   <b>Phòng</b>
                 </Col>
                 <Col span={24} style={{paddingBottom: "15px"}}>
@@ -246,27 +267,6 @@ export default function ServantDropDown(props) {
                     {
                       floorData.map(floor => (
                         <Option key={floor}><p style={{width: "100%", whiteSpace: "normal"}}>{floor}</p></Option>
-                      ))
-                    }
-                  </Select>
-                </Col>
-              </Row>
-            </Col>
-
-            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
-              <Row>
-                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
-                  <b>Hành động</b>
-                </Col>
-                <Col span={24} style={{paddingBottom: "15px"}}>
-                  <Select
-                    value={selectedAction}
-                    style={{ width: "100%" }}
-                    onChange={onSelectedActionChange}
-                    disabled={turn !== 2  || !tagVisible}>
-                    {
-                      actionList.map(action => (
-                        <Option key={action}><p style={{width: "100%", whiteSpace: "normal"}}>{action}</p></Option>
                       ))
                     }
                   </Select>

@@ -240,13 +240,6 @@ export default function AudioRecordingScreen(props) {
                     roomID={chatroomID}
                     sendAudioSignal={sendAudioSignal}/>
                 ) : (
-                  // <SendButton 
-                  //   audio={audio} 
-                  //   intent={tagVisibility ? intent : null}
-                  //   userID={user.userData ? user.userData._id : ""}
-                  //   roomID={chatroomID}
-                  //   sendAudioSignal={sendAudioSignal}/>
-
                   <ServantSendButton
                     audioName={audioName}
                     socket={socket}
@@ -263,19 +256,6 @@ export default function AudioRecordingScreen(props) {
               
             </div>
           </Col>
-          {/* <Col span={6}>
-            <Checkbox 
-              onChange={toggleTagVisibility} 
-              disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}>
-                {
-                  tagVisibility ? (
-                    "Không có tag"
-                  ) : (
-                    <b>Không có tag</b>
-                  )
-                }
-            </Checkbox>
-          </Col> */}
         </Row>
       </Row>
     </>
