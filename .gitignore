@@ -14,7 +14,8 @@ yarn-error.log*
 .vscode
 /public/
 /server/public
-/server/transcript
+/server/transcript/*
+/server/tmp/*
 
 Lib
 Scripts

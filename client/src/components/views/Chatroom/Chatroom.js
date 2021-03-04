@@ -16,6 +16,9 @@ import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
 import LoadingComponent from '../Loading/LoadingComponent';
 import PromptLeaving from './Section/Shared/PromptLeaving';
+import ClientBG from './../LandingPage/Section/images/speak.svg';
+import ServantBG from './../LandingPage/Section/images/listen.svg';
+import Guide from './Section/Shared/Guide';
 // import SwitchingTurn from './Section/Shared/SwitchingTurn';
 
 export default function Chatroom(props) {
@@ -28,6 +31,7 @@ export default function Chatroom(props) {
   let username = user.userData ? user.userData.name : "";
   const [ userRole, setUserRole ] = useState("");
   const [ audioHistory, setAudioHistory ] = useState([]);
+  const [ transcriptHistory, setTranscriptHistory ] = useState([]);
   const [ latestAudio, setLatestAudio ] = useState(null);
   const [ scenario, setScenario ] = useState([]);
   const [ progress, setProgress ] = useState([]);
@@ -104,7 +108,12 @@ export default function Chatroom(props) {
 
       const audios = response.payload.roomFound.audioList;
       let tempAudioList = [];
+      let tempTranscriptList = [];
       audios.map(audio => {
+        tempTranscriptList.push({
+          content: audio.transcript,
+          yours: userID === audio.user,
+        });
         return tempAudioList.push(audio.link);
         // return tempAudioList = [audio.link, ...tempAudioList];
       })
@@ -114,6 +123,7 @@ export default function Chatroom(props) {
         setMessage(StatusMessage.TURN_CLIENT_START);
       } else setMessage(StatusMessage.TURN_SERVANT_START);
 
+      setTranscriptHistory(tempTranscriptList);
       setAudioHistory(tempAudioList);
       if (audios.length > 0) {
         setLatestAudio(audios[audios.length - 1].link);
@@ -337,8 +347,10 @@ export default function Chatroom(props) {
         style={{
           height: `${screenHeight}px`,
           backgroundImage: 
-          userRole === "client" ? 'url(https://img.freepik.com/free-vector/asbtract-sky-pastel-color_56745-107.jpg?size=626&ext=jpg)':
-          userRole === "servant" ? 'url(https://cdn.hipwallpaper.com/i/84/28/PZDy0L.jpg)' : 
+          // userRole === "client" ? 'url(https://img.freepik.com/free-vector/asbtract-sky-pastel-color_56745-107.jpg?size=626&ext=jpg)':
+          // userRole === "servant" ? 'url(https://cdn.hipwallpaper.com/i/84/28/PZDy0L.jpg)' : 
+          userRole === "client" ? `url(${ClientBG})`:
+          userRole === "servant" ? `url(${ServantBG})` : 
           'linear-gradient(0deg, #fff 20%, #f3f2f1)'}}
         >
         <Row>
@@ -361,8 +373,9 @@ export default function Chatroom(props) {
               /> :
               <ErrorNotFound />}
           </Col>
-          <Col xs={24} xl={8}>
-            <Row style={{marginRight: "10px"}}>
+          <Col xs={24} xl={8} style={{paddingRight: "10px"}}>
+
+            <Row>
               {
                 userRole === "client" ? (
                 <Col><Scenario scenario={scenario} progress={progress}/></Col> ) : 
@@ -376,9 +389,18 @@ export default function Chatroom(props) {
               }
             </Row>
 
+            <Row style={{marginTop: "20px", marginBottom: "20px"}}>
+              <Col>
+                <Guide turn={turn}/>
+              </Col>
+            </Row>
+
             <Row>
               <Col>
-                <AudioList audioList={audioHistory}/>
+                <AudioList
+                  userRole={userRole}
+                  transcript={transcriptHistory}
+                  audioList={audioHistory}/>
               </Col> 
             </Row>
           </Col>

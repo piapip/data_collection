@@ -170,7 +170,7 @@ function LandingPage(props) {
                 <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Người ra lệnh</h1>
                 <p className="content-hover">Mô tả ý muốn cho Smarthome để thực hiện những yêu cầu.<br/>
                 </p>
-                <a href="https://www.w3schools.com/" className="guide" target="_blank" rel="noopener noreferrer">Guide</a>
+                {/* <a href="https://www.w3schools.com/" className="guide" target="_blank" rel="noopener noreferrer">Guide</a> */}
               </div>
               
               {/* <div className="column-cta">
@@ -185,7 +185,7 @@ function LandingPage(props) {
                 <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Smarthome nhận lệnh</h1>
                 <p className="content-hover">Hỏi Client cho đến khi xác định đúng yêu cầu thì thôi.<br/>
                 </p>
-                <a href="https://www.w3schools.com/" className="guide">Guide</a>
+                {/* <a href="https://www.w3schools.com/" className="guide">Guide</a> */}
               </div>
 
               {/* <div className="column-cta">
@@ -221,11 +221,10 @@ function LandingPage(props) {
           </Col>
           <Col xl={12} xs={24} style={{padding: "30px", fontSize: "16px"}}>
           Mình cần data cho đồ án tốt nghiệp. Trang web này lấy giọng nói của các bạn làm dữ liệu phục vụ cho nghiên cứu của mình. Mình cảm ơn vì sự hợp tác của các bạn.<br/>
-          Giọng nói là tự nhiên, giọng nói là con người. Đó là lý do tại sao chúng tôi hứng thú với việc tạo ra công nghệ giọng nói có thể sử dụng được cho các phần mềm. Nhưng để tạo ra hệ thống này thì các nhà phát triển cần một lượng dữ liệu giọng nói rất lớn.<br/><br/>
-          Phần lớn các dữ liệu được sử dụng bởi các công ty lớn thì không có sẵn cho đa số mọi người. Chúng tôi nghĩ rằng điều này làm cản trở sự sáng tạo. Vì vậy chúng tôi ra mắt dự án Common Voice, một dự án giúp mọi người tiếp cận được công nghệ nhận dạng giọng nói.<br/><br/>
-          Giờ đây bạn có thể đóng góp giọng nói của mình để giúp chúng tôi xây dựng một cơ sở dữ liệu giọng nói nguồn mở mà bất kỳ ai cũng có thể dùng để tạo những ứng dụng sáng tạo cho các thiết bị và web. Đọc to một câu để giúp phần mềm học cách con người nói chuyện. Kiểm tra bài làm của những người đóng góp khác để cải thiện chất lượng. Rất là đơn giản!
           </Col>
         </Row>
+
+        {/* Add some statistic down here! And some credits. */}
 
         <div className="landing-menu" 
         style={{

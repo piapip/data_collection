@@ -178,9 +178,16 @@ function RoomList(props) {
                           </Link> */}
                         </Popover>
                       ) : (
-                        <Link to={`/chatroom/${updateIndex()}`}>
-                          Join
-                        </Link>
+                        isAuth ? (
+                          <Link to={`/chatroom/${updateIndex()}`}>
+                            Join
+                          </Link>
+                        ) : (
+                          <Link to={`/login`}>
+                            Join
+                          </Link>
+                        )
+                        
                       )
                     }
                     {/* <Link to={`/chatroom/${updateIndex()}`}>

@@ -1,6 +1,7 @@
 import React, {useRef, useEffect, useState} from 'react';
 
-import { Row, Col, Tooltip, Checkbox } from 'antd';
+// import { Row, Col, Tooltip, Checkbox } from 'antd';
+import { Row, Col, Tooltip } from 'antd';
 import {/*ShareIcon,*/ RedoIcon, PlayOutlineIcon, StopIcon} from '../../../../ui/icons';
 
 import Wave from '../Shared/Wave';
@@ -98,8 +99,12 @@ export default function AudioRecordingScreen(props) {
   //   console.log("Shared");
   // }
 
-  const toggleTagVisibility = (e) => {
-    setTagVisibility(!e.target.checked)
+  // const toggleTagVisibility = (e) => {
+  //   setTagVisibility(!e.target.checked)
+  // }
+
+  const toggleTagVisibility = (value) => {
+    setTagVisibility(value)
   }
 
   const renderAudio = (audio) => {
@@ -155,7 +160,8 @@ export default function AudioRecordingScreen(props) {
 
   return (
     <>
-      <Status 
+      <Status
+        userRole={userRole}
         message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message}
         turn={turn} />
       <Row style={{textAlign: "center"}}>
@@ -178,6 +184,7 @@ export default function AudioRecordingScreen(props) {
           audioLink={latestAudio}
           turn={turn}
           userrole={userRole}
+          // remember to change this to true 
           autoPlay={true}/>
       </Row>
 
@@ -189,18 +196,22 @@ export default function AudioRecordingScreen(props) {
               {userRole === "client" && progress !== [] ?
                 <ClientCheckbox
                   // visible={tagVisibility && audio !== null}
+                  toggleTagVisibility={toggleTagVisibility}
                   progress={progress}
                   intent={tagVisibility ? intent : null}
                   visible={tagVisibility}
+                  disabled={!(turn === 1 && userRole === "client")}
                   setIntent={setIntent}
                   list={scenario}  
                 /> : 
               userRole === "servant" ? (
                 // <Dropdown list={dropdowns}/>
                 <ServantDropDown
+                  toggleTagVisibility={toggleTagVisibility}
                   turn={turn}
                   intent={intent}
                   visible={tagVisibility}
+                  disabled={!(turn === 2 && userRole === "servant")}
                   setIntent={setIntent}/>
               ) : (
                 <div style={{textAlign: "center"}}>
@@ -212,7 +223,7 @@ export default function AudioRecordingScreen(props) {
           </Col>
         </Row>
         <Row justify="center" style={{display: 'flex', alignItems: 'center'}}>
-          <Col span={12} offset={3}>
+          <Col span={24}>
             <div className="submit-button">
               {renderAudio(audio)}
               {
@@ -252,14 +263,7 @@ export default function AudioRecordingScreen(props) {
               
             </div>
           </Col>
-          {/* {
-            audio !== null ? (
-              <Col span={6}>
-                <Checkbox onChange={toggleTagVisibility}>Không có tag</Checkbox>
-              </Col>
-            ) : ""
-          } */}
-          <Col span={6}>
+          {/* <Col span={6}>
             <Checkbox 
               onChange={toggleTagVisibility} 
               disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}>
@@ -271,7 +275,7 @@ export default function AudioRecordingScreen(props) {
                   )
                 }
             </Checkbox>
-          </Col>
+          </Col> */}
         </Row>
       </Row>
     </>
