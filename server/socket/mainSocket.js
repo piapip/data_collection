@@ -544,8 +544,18 @@ sockets.init = function(server) {
     socket.on("Done Recording", ({ roomID }) => {
       io.to(roomID).emit("user done recording", {});
     })
-    // when room intent is finished. Lock the room. Log the record to a txt file.
-    // The record will consist of the room information. (Doesn't matter who's servant, who's client.)
+    
+    socket.on("fix transcript", ({ roomID, username, editContent, index }) => {
+      if (index !== -1) {
+        io.to(roomID).emit("update transcript", {
+          username: username,
+          transcript: editContent,
+          index: index,
+        });
+      } else {
+        // DO I need to put a update transcript fail here?
+      }
+    })
 
     // when receive a message
     socket.on("Input Chat message", msg => {

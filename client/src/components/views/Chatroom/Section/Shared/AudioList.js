@@ -4,7 +4,7 @@ import { Col, Row, List } from "antd";
 // import InfiniteScroll from 'react-infinite-scroller';
 // import CustomAudioPlayer from './CustomAudioPlayer';
 import AudioPlayerWithTranscript from './AudioPlayerWithTranscript';
-import LoadingComponent from './../../../Loading/LoadingComponent';
+// import LoadingComponent from './../../../Loading/LoadingComponent';
 
 export default function AudioList(props) {
 
@@ -12,6 +12,11 @@ export default function AudioList(props) {
   const audioList = props ? props.audioList : [];
   const userRole = props ? props.userRole : "";
   const audioEndRef = useRef(null);
+
+  let socket = props ? props.socket : null;
+  const roomID = props ? props.roomID : "";
+  const userID = props ? props.userID : "";
+  const username = props ? props.username : "";
   
   const scrollToBottom = () => {
     audioEndRef.current.scrollIntoView({ behaviour: "smooth", block: 'nearest', inline: 'start' })
@@ -21,9 +26,14 @@ export default function AudioList(props) {
     scrollToBottom()
   }, [audioList.length]);
 
-  if (!props && userRole === "" && transcript.length !== audioList.length) {
-    return <LoadingComponent />
-  }
+  // if (!props || userRole === "" ||
+  //   socket === null ||
+  //   transcript.length !== audioList.length ||
+  //   roomID === "" ||
+  //   userID === "" ||
+  //   username === "") {
+  //   return <LoadingComponent />
+  // }
 
   return (
     <div
@@ -49,6 +59,11 @@ export default function AudioList(props) {
                     flexGrow: '1'}}>
                     <Col span={12} offset={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? 12 : 0}>
                       <AudioPlayerWithTranscript
+                        index={index}
+                        socket={socket}
+                        roomID={roomID}
+                        userID={userID}
+                        username={username}
                         audioRole={index % 2 === 0 ? "Client" : "Servant"}
                         audioLink={audio}
                         autoPlay={false}

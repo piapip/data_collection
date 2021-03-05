@@ -111,8 +111,10 @@ export default function Chatroom(props) {
       let tempTranscriptList = [];
       audios.map(audio => {
         tempTranscriptList.push({
+          audioID: audio._id,
           content: audio.transcript,
           yours: userID === audio.user,
+          fixBy: audio.fixBy ? audio.fixBy.name : "ASR Bot"
         });
         return tempAudioList.push(audio.link);
         // return tempAudioList = [audio.link, ...tempAudioList];
@@ -228,6 +230,20 @@ export default function Chatroom(props) {
     // Idk about this... it may cause problem later...
   }, [turn, socket, audioHistory, userRole]);
   // }, [])
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('update transcript', ({username, transcript, index}) => {
+        if (transcriptHistory.length !== 0) {
+          let tempTranscriptList = [...transcriptHistory];
+          tempTranscriptList[index].content = transcript;
+          tempTranscriptList[index].fixBy = username;
+          console.log(index)
+          setTranscriptHistory(tempTranscriptList);
+        }
+      })
+    }
+  }, [transcriptHistory, socket])
 
   useEffect(() => {
     if (socket) {
@@ -398,6 +414,10 @@ export default function Chatroom(props) {
             <Row>
               <Col>
                 <AudioList
+                  socket={socket}
+                  roomID={chatroomID}
+                  userID={userID}
+                  username={username}
                   userRole={userRole}
                   transcript={transcriptHistory}
                   audioList={audioHistory}/>

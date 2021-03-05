@@ -40,6 +40,12 @@ const audioSchema = new mongoose.Schema({
     type: String,
     required: true,
     default: " ",
+  },
+
+  fixBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null,
   }
 })
 
