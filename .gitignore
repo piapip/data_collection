@@ -2,8 +2,8 @@
 /build
 /.idea
 
-dev.js
-aws.js
+# dev.js
+# aws.js
 
 .DS_Store
 
