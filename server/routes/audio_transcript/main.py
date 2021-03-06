@@ -115,7 +115,7 @@ if __name__ == "__main__":
         print(tempMonoFile+" does not exist!")
     
     # now call Nodejs API to upload the transcript
-    BACKEND_URL = 'http://localhost:5000'
+    BACKEND_URL = sys.argv[4]
     TRANSCRIPT_FOLDER = './server/transcript'
     success = 500
 

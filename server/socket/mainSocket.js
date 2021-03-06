@@ -7,29 +7,21 @@ const { Intent } = require("./../models/Intent");
 
 const tempFolder = './server/tmp';
 const TRANSCRIPT_FOLDER = './server/transcript';
+import { BACKEND_URL } from './Config';
 
 // cb is to clean up all the file in the folder that contains dest
 const getTranscript = async (audioFile, dest, key, cb) => {
 
-  // console.log(`Here's the command: python ./server/routes/audio_transcript/main.py ${audioFile} ${dest}`)
   await exec(
-    `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key}`,
-    // `python ./server/routes/audio_transcript/main.py ./server/routes/audio_transcript/test.wav ${dest}`,
+    `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key} ${BACKEND_URL} `,
     (err, stdout, stderr) => {
       if (err) {
         console.error(`transcript error: ${err}`);
         return;
       }
 
-      // if (stdout !== "") console.log(`stdout: ${stdout}`);
-      // if (stderr !== "") console.log(`stderr: ${stderr}`);
     }
   )
-  // .on('exit', () => {
-  //   const transcript = fs.readFileSync(dest);
-  //   console.log(`Transcript: ${transcript}`);
-  //   return transcript;
-  // });
 
   if (cb) cb();
 }

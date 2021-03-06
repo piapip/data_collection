@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const uploadService = require('../services/upload')
-const multer = require('multer')
+const uploadService = require('../services/upload');
+const multer = require('multer');
 
-const DOMAIN_NAME = "http://localhost:5000/public/audio"
+import { BACKEND_URL } from './Config';
+
+const DOMAIN_NAME = `${BACKEND_URL}/public/audio`
 
 router.post('/file', uploadService.upload.single('soundBlob'), (req, res, err ) => {
 

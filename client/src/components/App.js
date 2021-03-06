@@ -10,7 +10,7 @@ import RegisterPage from "./views/RegisterPage/RegisterPage.js";
 import NavBar from "./views/NavBar/NavBar";
 // import Footer from "./views/Footer/Footer";
 
-import { BACKEND_URL } from './Config'
+import { BACKEND_URL } from './Config';
 // import Servant from "./views/Chatroom/Servant";
 
 // Second parameter for route:

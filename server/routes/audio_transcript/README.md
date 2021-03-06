@@ -8,5 +8,5 @@ pip install -r req.txt
 
 # Run
 ```
-python main.py audio.wav
+python main.py audio.wav destination.txt 578a2iijfdsalk2iw92 http://localhost:5000
 ```
