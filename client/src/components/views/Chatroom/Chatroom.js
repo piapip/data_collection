@@ -235,11 +235,13 @@ export default function Chatroom(props) {
     if (socket) {
       socket.on('update transcript', ({username, transcript, index}) => {
         if (transcriptHistory.length !== 0) {
-          let tempTranscriptList = [...transcriptHistory];
-          tempTranscriptList[index].content = transcript;
-          tempTranscriptList[index].fixBy = username;
-          console.log(index)
-          setTranscriptHistory(tempTranscriptList);
+          if (tempTranscriptList[index]) {
+            let tempTranscriptList = [...transcriptHistory];
+            tempTranscriptList[index].content = transcript;
+            tempTranscriptList[index].fixBy = username;
+            console.log(index)
+            setTranscriptHistory(tempTranscriptList);
+          }
         }
       })
     }

@@ -44,6 +44,7 @@
     "saslprep": "^1.0.3",
     "socket.io": "^3.0.4",
     "socket.io-client": "^3.0.4",
+    "speaker": "^0.5.2",
     "supports-color": "^7.1.0",
     "tmp": "^0.2.1",
     "wav-file-info": "0.0.10",
