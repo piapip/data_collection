@@ -7,7 +7,7 @@ const { Intent } = require("./../models/Intent");
 
 const tempFolder = './server/tmp';
 const TRANSCRIPT_FOLDER = './server/transcript';
-import { BACKEND_URL } from './Config';
+const BACKEND_URL = 'http://localhost:5000';
 
 // cb is to clean up all the file in the folder that contains dest
 const getTranscript = async (audioFile, dest, key, cb) => {
