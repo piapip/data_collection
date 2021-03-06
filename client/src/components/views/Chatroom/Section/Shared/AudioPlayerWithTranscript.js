@@ -71,7 +71,6 @@ export default function AudioPlayerWithTranscript(props) {
         }
       })
     } else {
-      alert("Can't update transcript for now. Please wait for a bit.")
       setEditMode(false);
     }
 

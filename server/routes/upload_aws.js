@@ -4,7 +4,7 @@ const path = require('path');
 const multer = require('multer');
 const FileType = require('file-type');
 const AWS = require('aws-sdk');
-const { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, awsBucketName, awsRegion } = require('./../config/aws');
+const config = require("./../config/key");
 const { exec } = require('child_process');
 var fs = require('fs');
 const toWav = require('audiobuffer-to-wav');
@@ -18,13 +18,13 @@ const mongoose = require("mongoose");
 // const tempTranscriptFile = './server/tmp/transcript.txt';
 const tempFolder = './server/tmp';
 
-AWS.config.update({region: awsRegion});
+AWS.config.update({region: config.awsRegion});
 
 const s3 = new AWS.S3({
   credentials: {
-    accessKeyId: awsAccessKeyId,
-    secretAccessKey: awsSecretAccessKey,
-    sessionToken: awsSessionToken,
+    accessKeyId: config.awsAccessKeyId,
+    secretAccessKey: config.awsSecretAccessKey,
+    sessionToken: config.awsSessionToken,
   }
 })
 
@@ -91,7 +91,7 @@ router.post('/', upload, async (req, res) => {
       const fileContent = fs.readFileSync(tempMonoFile);
   
       const params = {
-        Bucket: awsBucketName, 
+        Bucket: config.awsBucketName, 
         Key: `${filename}.wav`,
         // Key: req.file.originalname,
         Body: fileContent,
