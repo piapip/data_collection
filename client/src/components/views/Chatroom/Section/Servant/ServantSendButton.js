@@ -4,6 +4,7 @@ import axios from 'axios';
 import { BACKEND_URL } from '../../../../Config';
 
 import RejectAudioButton from './../Shared/RejectAudioButton';
+import LoadingComponent from './../../../Loading/LoadingComponent';
 
 export default function ServantSendButton(props) {
 
@@ -80,7 +81,16 @@ export default function ServantSendButton(props) {
   // const insertSendIntentButton = 
 
   const insertSendButton = (turn === 3 && data !== null) ? (
-    <button className="buttons" onClick={uploadAudioAWS} disabled={roomDone || buttonState}>Gửi</button>
+    buttonState ? (
+      <button className="buttons" style={{cursor: 'not-allowed'}} disabled><LoadingComponent /></button>
+    ) : (
+      roomDone ? (
+        <button className="buttons" disabled={roomDone || buttonState}>Gửi</button>
+      ) : (
+        <button className="buttons" onClick={uploadAudioAWS} disabled={roomDone || buttonState}>Gửi</button>
+      )
+    )
+    
   ) : (turn === 2 ? (
     <div>
       <RejectAudioButton

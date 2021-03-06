@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {Col, Row} from "antd";
 
-// import Progress from "./Progress";
+import Progress from "./Progress";
 import LoadingComponent from './../../../Loading/LoadingComponent';
 import { COLOR } from './../../../../Config';
 
@@ -93,8 +93,9 @@ export default function Scenario(props) {
             }
           </Col>
           <Col span={24}>
-            {/* <Progress 
-              progress={progress}/> */}
+            <Progress
+              scenario={scenario}
+              progress={progress}/>
             {/* <Checkbox2
               list={scenario}
               progress={progress}

@@ -12,3 +12,6 @@ export const DELETE_AUDIO = 'remove_latest_audio';
 //for message
 export const GET_MESSAGES = 'get_message';
 export const AFTER_POST_MESSAGE = 'after_post_message';
+
+// FOR AUDIO
+export const FIX_TRANSCRIPT = 'fix_transcript';
