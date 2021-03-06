@@ -2,14 +2,15 @@
 /build
 /.idea
 
-# dev.js
-# aws.js
+dev.js
+aws.js
 
 .DS_Store
 
 npm-debug.log*
 yarn-debug.kog*
 yarn-error.log*
+
 
 .vscode
 /public/
