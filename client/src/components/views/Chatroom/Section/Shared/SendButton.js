@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 
-import { BACKEND_URL } from '../../../../Config'
+// import { BACKEND_URL } from '../../../../Config'
 
 export default function Test(props) {
 
@@ -29,7 +29,7 @@ export default function Test(props) {
     try {
       setButtonState(true);
       await axios.post(
-        `${BACKEND_URL}/api/upload/file`,
+        '/api/upload/file',
         formdata,
         requestConfig,
       ).then(res => {

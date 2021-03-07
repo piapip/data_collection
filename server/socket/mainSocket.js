@@ -4,31 +4,59 @@ const path = require('path');
 const { exec } = require('child_process');
 const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
+const { Audio } = require("./../models/Audio");
 
 const tempFolder = './server/tmp';
 const TRANSCRIPT_FOLDER = './server/transcript';
-const BACKEND_URL = 'http://localhost:5000';
+
+// const BACKEND_URL = (process.env.NODE_ENV === 'production') ? process.env.PUBLIC_URL : 'http://localhost:5000';
 
 // cb is to clean up all the file in the folder that contains dest
-const getTranscript = async (audioFile, dest, key, cb) => {
+// const getTranscript = async (audioFile, dest, key, cb) => {
+const getTranscript = async (audioFile, audioID, dest, key, cb) => {
 
   await exec(
-    `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key} ${BACKEND_URL} `,
+    // `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key} ${BACKEND_URL} `,
+    `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key}`,
+    // `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key}`,
     (err, stdout, stderr) => {
       if (err) {
         console.error(`transcript error: ${err}`);
         return;
       }
 
+      if (stdout !== "") console.log(`stdout: ${stdout}`);
+      if (stderr !== "") console.log(`stderr: ${stderr}`);
+
+      const transcript = stdout;
+      Audio.findById(audioID)
+      .then(audioFound => {
+    
+        if(!audioFound) {
+          console.log("Can't find audio for transcript!");
+          return null
+        } else {
+          audioFound.transcript = transcript;
+          return audioFound.save();
+        }
+      })
+      .then(audioUpdated => {
+        if (cb) cb(audioUpdated.transcript)
+      })
+      .catch(err => {
+        console.log(`Error while updating audio ${audioID} transcript... ${err}`)
+      })
     }
   )
-
-  if (cb) cb();
 }
 
 sockets.init = function(server) {
   // socket.io setup
   const io = require('socket.io')(server, {cors: {origin: "http://localhost:3000"}});
+  // const io = require('socket.io')(server, {
+  //   path: '/socket',
+  // });
+
   const jwt = require('jsonwebtoken');
 
   // socket logic go here
@@ -325,8 +353,13 @@ sockets.init = function(server) {
 
       // doing exec audio here
       if(fs.existsSync(FILE_MONO)) {
-        getTranscript(FILE_MONO, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, () => {
-          console.log("done")
+        getTranscript(FILE_MONO, audioID, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, (transcript) => {
+          io.to(roomID).emit("update transcript", {
+            // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
+            username: audioID,
+            transcript: transcript,
+            index: -1,
+          });
         })
       } else {
         console.log("File is not ready to be transcripted!");
@@ -516,8 +549,13 @@ sockets.init = function(server) {
 
       // doing exec audio here
       if(fs.existsSync(FILE_MONO)) {
-        getTranscript(FILE_MONO, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, () => {
-          console.log("done")
+        getTranscript(FILE_MONO, audioID, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, (transcript) => {
+          io.to(roomID).emit("update transcript", {
+            // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
+            username: audioID,
+            transcript: transcript,
+            index: -1,
+          });
         })
       } else {
         console.log("File is not ready to be transcripted!");
@@ -642,7 +680,6 @@ const compareObject = (obj1, obj2) => {
 }
 
 const { Chatroom } = require("./../models/Chatroom");
-const { Audio } = require("./../models/Audio");
 
 const createRoom = async (userID1, userID2, roomType) => {
   // user1 - client, user2 - servant

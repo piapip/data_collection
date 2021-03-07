@@ -5,7 +5,7 @@ import axios from 'axios';
 import RejectAudioButton from '../Shared/RejectAudioButton';
 import LoadingComponent from '../../../Loading/LoadingComponent';
 
-import { BACKEND_URL } from '../../../../Config';
+// import { BACKEND_URL } from '../../../../Config';
 
 export default function ClientSendButton(props) {
 
@@ -47,7 +47,8 @@ export default function ClientSendButton(props) {
     try {
       setButtonState(true);
       await axios.post(
-        `${BACKEND_URL}/api/aws/upload`,
+        // `${BACKEND_URL}/api/aws/upload`,
+        '/api/aws/upload',
         formdata,
         requestConfig,
       ).then(res => {

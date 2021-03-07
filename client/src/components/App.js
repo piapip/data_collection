@@ -8,10 +8,8 @@ import LandingPage from "./views/LandingPage/LandingPage.js";
 import LoginPage from "./views/LoginPage/LoginPage.js";
 import RegisterPage from "./views/RegisterPage/RegisterPage.js";
 import NavBar from "./views/NavBar/NavBar";
-// import Footer from "./views/Footer/Footer";
 
 import { BACKEND_URL } from './Config';
-// import Servant from "./views/Chatroom/Servant";
 
 // Second parameter for route:
 //null   Anyone Can go inside

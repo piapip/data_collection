@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-import { BACKEND_URL } from '../../../../Config';
+// import { BACKEND_URL } from '../../../../Config';
 
 import RejectAudioButton from './../Shared/RejectAudioButton';
 import LoadingComponent from './../../../Loading/LoadingComponent';
@@ -45,7 +45,8 @@ export default function ServantSendButton(props) {
     try {
       setButtonState(true);
       await axios.post(
-        `${BACKEND_URL}/api/aws/upload`,
+        // `${BACKEND_URL}/api/aws/upload`,
+        '/api/aws/upload',
         formdata,
         requestConfig,
       ).then(res => {

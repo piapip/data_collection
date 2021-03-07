@@ -64,7 +64,7 @@ export default function ClientCheckbox(props) {
     // item - 0 - key - 1 - label - 2 - value
     return list ? list.map((item, index) => {
       return (
-        <Col xs={48/list.length} xl={16/list.length} key={index} style={{textAlign: "center"}}>
+        <Col xs={10} xl={Math.floor(18/list.length)} key={index} style={{textAlign: "center"}}>
           {/* I was thinking of assigning object to the checkbox value, but then there's no way for me to manipulate the way it compares 2 objects 
           so it can't be done. */}
           {

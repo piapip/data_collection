@@ -63,7 +63,7 @@ router.post('/', upload, async (req, res) => {
 
   // if it's mp3, convert mp3 buffer to wav, store that file in ./server/tmp/tmp.wav
   if (tempFileType === "mp3") {
-    convertBufferToWav(soundData, tempWavFile);
+    await convertBufferToWav(soundData, tempWavFile);
   } else {
     // otherwise, save it
     fs.appendFile(tempWavFile, soundData, (err) => {
@@ -72,11 +72,6 @@ router.post('/', upload, async (req, res) => {
       }
     })
   }
-
-  // if(!fs.existsSync(tempWavFile)) {
-  //   throw "Can't convert to wav file fast enough! So sorry!"
-  //   // return res.status(500).send("Can't convert to wav file fast enough! So sorry!");
-  // }
   
   // convert wav to 48kHz mono channel file, store that file in ./server/tmp/anothertmp.wav
   convertToMonoChannel(tempWavFile, tempMonoFile, () => {
@@ -184,41 +179,51 @@ const convertBufferToWav = (audioData, dest) => {
         console.log("Can't convert buffer to wav ", err);
       }
     });
-
-    // (async () => {
-    //   console.log("After: ")
-    //   // console.log(await FileType.fromFile(dest));
-    //   console.log(await FileType.fromFile(dest));
-    // })();
   })
 }
 
-const deleteAllFiles = (folder) => {
-  fs.readdir(folder, (err, files) => {
-    if (err) console.log(err);
-    for (const file of files) {
-      fs.unlink(path.join(folder, file), err => {
-        if (err) console.log(err);
-      });
-    }
-  });
-}
+// const deleteAllFiles = (folder) => {
+//   fs.readdir(folder, (err, files) => {
+//     if (err) console.log(err);
+//     for (const file of files) {
+//       fs.unlink(path.join(folder, file), err => {
+//         if (err) console.log(err);
+//       });
+//     }
+//   });
+// }
 
 // convert file wav to 48kHz mono channel
 // cb is to down sample it to 16kHz
 const convertToMonoChannel = (originalFile, dest, cb) => {
   // make it mono
-  ffmpeg(originalFile)
-  .addOption('-ac', 1)
-  // .on('progress', (progress) => {
-  //   // console.log(JSON.stringify(progress));
-  //   console.log('Processing: ' + progress.targetSize + ' KB converted');
-  // })
-  .on('end', () => {
-    console.log('Processing finished!');
-    if(cb) cb();
-  })
-  .save(dest);
+  if(fs.existsSync(originalFile)) {
+    ffmpeg(originalFile)
+    .addOption('-ac', 1)
+    .on('end', () => {
+      // console.log('Processing finished!');
+      if(cb) cb();
+    })
+    .save(dest);
+  } else {
+    setTimeout(() => { 
+      if(fs.existsSync(originalFile)) {
+        ffmpeg(originalFile)
+        .addOption('-ac', 1)
+        .on('end', () => {
+          // console.log('Processing finished!');
+          if(cb) cb();
+        })
+        .save(dest);
+      } else {
+        fs.copyFile(originalFile, dest, (err) => {
+          if (err) throw err;
+          console.log(`${originalFile} was copied to ${dest}`);
+        })
+      }
+    }, 500);
+  }
+  
 }
 
 // downsample to 16kHz

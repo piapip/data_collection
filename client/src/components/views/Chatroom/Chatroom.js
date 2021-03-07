@@ -235,7 +235,18 @@ export default function Chatroom(props) {
     if (socket) {
       socket.on('update transcript', ({username, transcript, index}) => {
         if (transcriptHistory.length !== 0) {
-          if (transcriptHistory[index]) {
+          if (index === -1) {
+            let tempTranscriptList = [...transcriptHistory];
+            let newTranscript = {
+              // special case, username now becomes audioID
+              audioID: username,
+              content: transcript,
+              yours: false,
+              fixBy: "ASR Bot"
+            }
+            tempTranscriptList.push(newTranscript);
+            setTranscriptHistory(tempTranscriptList)
+          } else if (transcriptHistory[index]) {
             let tempTranscriptList = [...transcriptHistory];
             tempTranscriptList[index].content = transcript;
             tempTranscriptList[index].fixBy = username;
@@ -256,6 +267,10 @@ export default function Chatroom(props) {
         if (newHistory.length === 0) setLatestAudio(null);
         else setLatestAudio(newHistory[0]);
 
+        let tempTranscriptList = [...transcriptHistory];
+        tempTranscriptList.pop();
+        setTranscriptHistory(tempTranscriptList);
+
         if (turn === 1) {
           setTurn(3);
           setMessage(StatusMessage.AUDIO_REMOVED_CLIENT);
@@ -265,7 +280,7 @@ export default function Chatroom(props) {
         }
       });
     }
-  }, [audioHistory, socket, turn]);
+  }, [audioHistory, transcriptHistory, socket, turn]);
 
   useEffect(() => {
     if (socket) {
