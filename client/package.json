@@ -20,6 +20,7 @@
     "react-loading-dot": "^1.0.6",
     "react-media-recorder": "^1.4.0",
     "react-mic": "^12.4.6",
+    "react-record": "^1.0.5",
     "react-redux": "^7.1.0-rc.1",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.4.1",
