@@ -1,6 +1,5 @@
 var sockets = {}
 const fs = require('fs');
-const path = require('path');
 const { exec } = require('child_process');
 const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
