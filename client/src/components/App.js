@@ -19,7 +19,7 @@ import { BACKEND_URL } from './Config';
 let socket
 
 function App(props) {
-
+  console.log(process.env.NODE_ENV)
   const setupSocket =  async () => {
     var w_auth
     document.cookie.split(";").map(info => {
