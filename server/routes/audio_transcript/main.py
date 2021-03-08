@@ -11,9 +11,7 @@ import wave
 import time
 import sys
 import signal, os
-from ftfy import fix_encoding
-from Naked.toolshed.shell import execute_js
-import requests
+
 
 
 def connectivity_callback(c):
@@ -63,7 +61,6 @@ def generate_message():
         request = cloud_speech_pb2.StreamingRecognizeRequest(audio_content=audio)
         yield request
 
-# def start_asr(export_file_name):
 def start_asr():
     global IS_STOP
     stub = cloud_speech_pb2_grpc.SpeechStub(channel)
@@ -77,7 +74,6 @@ def start_asr():
                     # f = open(export_file_name, "w", encoding="utf8")
                     # f.write(text)
                     # f.close()
-
                     sys.stdout.buffer.write(text.encode('utf8'))
                     return response.results[0].is_final
 
@@ -85,52 +81,6 @@ def handler(signum, frame):
     global IS_STOP
     IS_STOP = True
 
-def downsample():
-    filename = sys.argv[1]
-    print('args: '+ sys.argv[1])
-
-
 if __name__ == "__main__":
-    export_file_name = sys.argv[2]
-    key = sys.argv[3]
     signal.signal(signal.SIGINT, handler)
-    # start_asr(export_file_name)
     start_asr()
-    
-    # !!!!DELETE TMP FILE HERE!!!!
-    tempWavFile = './server/tmp/tmp_' + key + '.wav'
-    tempMonoFile = './server/tmp/anothertmp_' + key + '.wav'
-
-    if os.path.exists(tempWavFile):
-        os.remove(tempWavFile)
-    else:
-        print(tempWavFile+" does not exist!")
-
-    if os.path.exists(tempMonoFile):
-        os.remove(tempMonoFile)
-    else:
-        print(tempMonoFile+" does not exist!")
-    
-
-
-    # # now call Nodejs API to upload the transcript
-    # BACKEND_URL = sys.argv[4]
-    # TRANSCRIPT_FOLDER = './server/transcript'
-    # success = 500
-
-    # audioID = export_file_name.replace("./", "").split("/")[-1].replace(".txt", "")
-    # print(export_file_name)
-    # with open(export_file_name, 'r', encoding='utf-8') as f:
-    #     transcript = f.read()
-    #     if len(transcript) == 0:
-    #         transcript = " "
-    #     api = BACKEND_URL + "/api/audio/" + audioID
-    #     # api = "/api/audio/" + audioID
-    #     r = requests.put(api, data = {'transcript': transcript})
-    #     success = r.status_code
-    
-    # print(success)
-    # if success == 200:
-    #     if os.path.exists(export_file_name):
-    #         # print("Removing file...")
-    #         os.remove(export_file_name)

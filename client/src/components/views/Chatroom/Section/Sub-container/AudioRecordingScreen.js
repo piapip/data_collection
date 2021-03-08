@@ -5,7 +5,8 @@ import { Row, Col, Tooltip } from 'antd';
 import {/*ShareIcon,*/ RedoIcon, PlayOutlineIcon, StopIcon} from '../../../../ui/icons';
 
 import Wave from '../Shared/Wave';
-import RecordButton from '../Shared/RecordButton';
+// import RecordButton from '../Shared/RecordButton';
+import RecordButton from '../../../CustomRecorder/Recorder';
 import Status from '../Shared/Status';
 import CustomAudioPlayer from '../Shared/CustomAudioPlayer';
 

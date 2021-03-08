@@ -1,6 +1,6 @@
 const express = require('express');
 const { spawn, exec } = require('child_process');
-const wavFileInfo = require('wav-file-info');
+// const wavFileInfo = require('wav-file-info');
 
 const router = express.Router();
 // const tmp = require('tmp');
@@ -53,12 +53,12 @@ const getTranscript = (mainFile, audioFile) => {
   }
 }
 
-const checkFileType = (path) => {
-  wavFileInfo.infoByFilename(path, (err, info) => {
-    if (err) throw err;
-    console.log(info);
-  })
-}
+// const checkFileType = (path) => {
+//   wavFileInfo.infoByFilename(path, (err, info) => {
+//     if (err) throw err;
+//     console.log(info);
+//   })
+// }
 
 router.get("/", async (req, res) => {
   

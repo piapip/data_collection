@@ -59,7 +59,6 @@ export default function ClientSendButton(props) {
           socket.emit('client intent', {
             roomID,
             audioID,
-            key: res.data.key,
             intent,
           });
         }

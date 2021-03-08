@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const { request } = require('express');
 // const request = require('request');
-// const FileType = require('file-type');
 
 const DESTINATION = 'public';
 const AUDIO_FOLDER = 'audio';

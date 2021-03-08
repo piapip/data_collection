@@ -5,49 +5,7 @@ const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
 const { Audio } = require("./../models/Audio");
 
-const tempFolder = './server/tmp';
-const TRANSCRIPT_FOLDER = './server/transcript';
-
 // const BACKEND_URL = (process.env.NODE_ENV === 'production') ? process.env.PUBLIC_URL : 'http://localhost:5000';
-
-// cb is to clean up all the file in the folder that contains dest
-// const getTranscript = async (audioFile, dest, key, cb) => {
-const getTranscript = async (audioFile, audioID, dest, key, cb) => {
-
-  await exec(
-    // `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key} ${BACKEND_URL} `,
-    `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key}`,
-    // `python ./server/routes/audio_transcript/main.py ${audioFile} ${dest} ${key}`,
-    (err, stdout, stderr) => {
-      if (err) {
-        console.error(`transcript error: ${err}`);
-        return;
-      }
-
-      if (stdout !== "") console.log(`stdout: ${stdout}`);
-      if (stderr !== "") console.log(`stderr: ${stderr}`);
-
-      const transcript = stdout;
-      Audio.findById(audioID)
-      .then(audioFound => {
-    
-        if(!audioFound) {
-          console.log("Can't find audio for transcript!");
-          return null
-        } else {
-          audioFound.transcript = transcript;
-          return audioFound.save();
-        }
-      })
-      .then(audioUpdated => {
-        if (cb) cb(audioUpdated.transcript)
-      })
-      .catch(err => {
-        console.log(`Error while updating audio ${audioID} transcript... ${err}`)
-      })
-    }
-  )
-}
 
 sockets.init = function(server) {
   // socket.io setup
@@ -280,9 +238,9 @@ sockets.init = function(server) {
       console.log("Receive audio in chatroom " + chatroomID + " from " + sender + ". Here's the audio link: " +  link)
     });
 
-    socket.on('client intent', async ({ roomID, audioID, key, intent }) => {
+    socket.on('client intent', async ({ roomID, audioID, intent }) => {
 
-      const FILE_MONO = `${tempFolder}/anothertmp_${key}.wav`;
+      
       console.log("Receive client intent: " + JSON.stringify(intent) + " of audio " + audioID + " from room " + roomID);
 
       // check turn of the room. Throw a fit if it's not 1. If it's 1 then: 
@@ -332,6 +290,14 @@ sockets.init = function(server) {
                 return null;
               } else {
                 audioFound.intent = newIntent._id;
+                
+                io.to(roomID).emit("update transcript", {
+                // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
+                username: audioID,
+                transcript: audioFound.transcript,
+                index: -1,
+                });
+
                 return audioFound.save();
               }
             })
@@ -351,18 +317,18 @@ sockets.init = function(server) {
       })
 
       // doing exec audio here
-      if(fs.existsSync(FILE_MONO)) {
-        getTranscript(FILE_MONO, audioID, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, (transcript) => {
-          io.to(roomID).emit("update transcript", {
-            // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
-            username: audioID,
-            transcript: transcript,
-            index: -1,
-          });
-        })
-      } else {
-        console.log("File is not ready to be transcripted!");
-      }
+      // if(fs.existsSync(FILE_MONO)) {
+      //   getTranscript(FILE_MONO, audioID, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, (transcript) => {
+      //     io.to(roomID).emit("update transcript", {
+      //       // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
+      //       username: audioID,
+      //       transcript: transcript,
+      //       index: -1,
+      //     });
+      //   })
+      // } else {
+      //   console.log("File is not ready to be transcripted!");
+      // }
     });
 
     socket.on('servant intent', async ({ roomID, intent }) => {
@@ -497,10 +463,7 @@ sockets.init = function(server) {
       }
     });
 
-    socket.on('servant audio', async ({ roomID, audioID, key }) => {
-      
-      const FILE_MONO = `${tempFolder}/anothertmp_${key}.wav`;
-      
+    socket.on('servant audio', async ({ roomID, audioID }) => {      
       // update room turn
       Chatroom.findById(roomID)
       .then(async (roomFound) => {
@@ -529,6 +492,14 @@ sockets.init = function(server) {
               return null;
             } else {
               audioFound.intent = newIntent._id;
+
+              io.to(roomID).emit("update transcript", {
+              // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
+              username: audioID,
+              transcript: audioFound.transcript,
+              index: -1,
+              });
+
               return audioFound.save();
             }
           })
@@ -545,20 +516,6 @@ sockets.init = function(server) {
         // IMPLEMENT SOME KIND OF ERROR!!!
         console.log(err);
       })
-
-      // doing exec audio here
-      if(fs.existsSync(FILE_MONO)) {
-        getTranscript(FILE_MONO, audioID, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, (transcript) => {
-          io.to(roomID).emit("update transcript", {
-            // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
-            username: audioID,
-            transcript: transcript,
-            index: -1,
-          });
-        })
-      } else {
-        console.log("File is not ready to be transcripted!");
-      }
     });
 
     socket.on("remove audio", ({ roomID }) => {

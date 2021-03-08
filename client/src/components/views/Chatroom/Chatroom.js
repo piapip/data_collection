@@ -81,57 +81,61 @@ export default function Chatroom(props) {
  
   // as they say, there's some problem with setState that I need to clean up so I'll just drop a bomb here as a mark
   // vvvvv Flood gate to make sure dispatch is fired only once. But like this, it won't get refired even if another component of the page is re-rendered.
-  if(userRole === "") {
-    dispatch(getRoom(chatroomID))
-    .then(async (response) => {
-      if (userID === response.payload.roomFound.user1) setUserRole("client");
-      if (userID === response.payload.roomFound.user2) setUserRole("servant");
-      setRoomDone(response.payload.roomFound.done);
-      const intent = response.payload.roomFound.intent;
-      let tempIntent = []
-      for (const property in intent) {
-        if (property !== '_id' && property !== '__v' && intent[property] !== null) {
-          tempIntent.push([
-            property,
-            (property === 'floor' ? 'Tầng ' + intent[property] : intent[property]),
-            intent[property],
-            // key: property,
-            // label: intent[property],
-            // value: intent[property],
-          ])
+  // useEffect(() => {
+  if (userRole === "") {
+    if (chatroomID.length !== 0 && userID !== "") {
+      dispatch(getRoom(chatroomID))
+      .then(async (response) => {
+        if (userID === response.payload.roomFound.user1) setUserRole("client");
+        if (userID === response.payload.roomFound.user2) setUserRole("servant");
+        setRoomDone(response.payload.roomFound.done);
+        const intent = response.payload.roomFound.intent;
+        let tempIntent = []
+        for (const property in intent) {
+          if (property !== '_id' && property !== '__v' && intent[property] !== null) {
+            tempIntent.push([
+              property,
+              (property === 'floor' ? 'Tầng ' + intent[property] : intent[property]),
+              intent[property],
+              // key: property,
+              // label: intent[property],
+              // value: intent[property],
+            ])
+          }
         }
-      }
-      setScenario(tempIntent);
+        setScenario(tempIntent);
 
-      const progress = response.payload.roomFound.progress;
-      updateProgress(progress)
+        const progress = response.payload.roomFound.progress;
+        updateProgress(progress)
 
-      const audios = response.payload.roomFound.audioList;
-      let tempAudioList = [];
-      let tempTranscriptList = [];
-      audios.map(audio => {
-        tempTranscriptList.push({
-          audioID: audio._id,
-          content: audio.transcript,
-          yours: userID === audio.user,
-          fixBy: audio.fixBy ? audio.fixBy.name : "ASR Bot"
-        });
-        return tempAudioList.push(audio.link);
-        // return tempAudioList = [audio.link, ...tempAudioList];
+        const audios = response.payload.roomFound.audioList;
+        let tempAudioList = [];
+        let tempTranscriptList = [];
+        audios.map(audio => {
+          tempTranscriptList.push({
+            audioID: audio._id,
+            content: audio.transcript,
+            yours: userID === audio.user,
+            fixBy: audio.fixBy ? audio.fixBy.name : "ASR Bot"
+          });
+          return tempAudioList.push(audio.link);
+          // return tempAudioList = [audio.link, ...tempAudioList];
+        })
+
+        setTurn(response.payload.roomFound.turn);
+        if (response.payload.roomFound.turn === 1) {
+          setMessage(StatusMessage.TURN_CLIENT_START);
+        } else setMessage(StatusMessage.TURN_SERVANT_START);
+
+        setTranscriptHistory(tempTranscriptList);
+        setAudioHistory(tempAudioList);
+        if (audios.length > 0) {
+          setLatestAudio(audios[audios.length - 1].link);
+        }
+        setLoading(false);
       })
-
-      setTurn(response.payload.roomFound.turn);
-      if (response.payload.roomFound.turn === 1) {
-        setMessage(StatusMessage.TURN_CLIENT_START);
-      } else setMessage(StatusMessage.TURN_SERVANT_START);
-
-      setTranscriptHistory(tempTranscriptList);
-      setAudioHistory(tempAudioList);
-      if (audios.length > 0) {
-        setLatestAudio(audios[audios.length - 1].link);
-      }
-      setLoading(false);
-    })
+    }
+  // }, [dispatch, chatroomID, userID])
   }
 
   useEffect(() => {
@@ -390,7 +394,7 @@ export default function Chatroom(props) {
           <Col xs={24} xl={16}>
             {room_content_type === '0' ?
               <AudioRecordingScreen
-                audioName={`${chatroomID}/${audioHistory.length}_${userID}.wav`}
+                audioName={`${chatroomID}_${audioHistory.length}_${userID}.wav`}
                 roomDone={roomDone}
                 progress={progress}
                 latestAudio={latestAudio}

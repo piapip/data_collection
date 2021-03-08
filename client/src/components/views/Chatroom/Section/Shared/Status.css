@@ -30,7 +30,7 @@
 .glow_client {
     /* font-family: cursive; */
     font-family: 'Pangolin';
-    font-size: 60px;
+    font-size: 40px;
     color: black;
     text-align: center;
     -webkit-animation: glow_client 1s ease-in-out infinite alternate;
