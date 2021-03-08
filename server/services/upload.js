@@ -1,7 +1,6 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { request } = require('express');
 // const request = require('request');
 
 const DESTINATION = 'public';
@@ -42,7 +41,7 @@ const storage = multer.diskStorage({
     return cb(null, path.join(__dirname, '../', destination))
   },
   filename: (req, file, cb) => {
-    const filename = `${generateRandomString(16)}${path.extname(
+    const filename = `${path.parse(file.originalname).name}_${generateRandomString(16)}${path.extname(
       file.originalname,
     )}`;
     return cb(null, filename)

@@ -41,6 +41,7 @@ export default function Chatroom(props) {
   const [ message, setMessage ] = useState("Loading");
   const [ screenHeight, setScreenHeight ] = useState(2560);
   const [ roomDone, setRoomDone ] = useState(false);
+  const [ roomName, setRoomName ] = useState("");
 
   const [ isModalVisible, setIsModalVisible ] = useState(false);
 
@@ -89,6 +90,7 @@ export default function Chatroom(props) {
         if (userID === response.payload.roomFound.user1) setUserRole("client");
         if (userID === response.payload.roomFound.user2) setUserRole("servant");
         setRoomDone(response.payload.roomFound.done);
+        setRoomName(response.payload.roomFound.name);
         const intent = response.payload.roomFound.intent;
         let tempIntent = []
         for (const property in intent) {
@@ -139,7 +141,7 @@ export default function Chatroom(props) {
   }
 
   useEffect(() => {
-    if (socket) {
+    if (socket && userID !== "" && username !== "") {
       let socketID = socket.id;
       socket.emit("joinRoom", {
         socketID,
@@ -187,7 +189,7 @@ export default function Chatroom(props) {
   }, [socket]);
 
   useEffect(() => {
-    if (socket) {
+    if (socket && progress.length !== 0) {
       socket.on('intent correct', ({ newProgress }) => {
         // console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
         setMessage(StatusMessage.INTENT_CORRECT)
@@ -202,7 +204,7 @@ export default function Chatroom(props) {
   }, [progress, socket]);
 
   useEffect(() => {
-    if (socket) {
+    if (socket && turn !== -1 && userRole !== "") {
       socket.on('newAudioURL', async ({ userID, sender, audioLink }) => {
         console.log(`Receive signal from ${sender} with the ID of ${userID}. Here's the link: ${audioLink}`)
         let newHistory = [...audioHistory];
@@ -236,34 +238,33 @@ export default function Chatroom(props) {
   // }, [])
 
   useEffect(() => {
-    if (socket) {
+    if (socket && transcriptHistory.length !== 0) {
       socket.on('update transcript', ({username, transcript, index}) => {
-        if (transcriptHistory.length !== 0) {
-          if (index === -1) {
-            let tempTranscriptList = [...transcriptHistory];
-            let newTranscript = {
-              // special case, username now becomes audioID
-              audioID: username,
-              content: transcript,
-              yours: false,
-              fixBy: "ASR Bot"
-            }
-            tempTranscriptList.push(newTranscript);
-            setTranscriptHistory(tempTranscriptList)
-          } else if (transcriptHistory[index]) {
-            let tempTranscriptList = [...transcriptHistory];
-            tempTranscriptList[index].content = transcript;
-            tempTranscriptList[index].fixBy = username;
-            console.log(index)
-            setTranscriptHistory(tempTranscriptList);
+        if (index === -1) {
+          console.log(transcript);
+          let tempTranscriptList = [...transcriptHistory];
+          let newTranscript = {
+            // special case, username now becomes audioID
+            audioID: username,
+            content: transcript,
+            yours: false,
+            fixBy: "ASR Bot"
           }
+          tempTranscriptList.push(newTranscript);
+          setTranscriptHistory(tempTranscriptList)
+        } else if (transcriptHistory[index]) {
+          let tempTranscriptList = [...transcriptHistory];
+          tempTranscriptList[index].content = transcript;
+          tempTranscriptList[index].fixBy = username;
+          console.log(index)
+          setTranscriptHistory(tempTranscriptList);
         }
       })
     }
   }, [transcriptHistory, socket])
 
   useEffect(() => {
-    if (socket) {
+    if (socket && transcriptHistory.length !== 0 && audioHistory.length !== 0) {
       socket.on('audio removed', () => {
         let newHistory = [...audioHistory];
         newHistory.pop();
@@ -287,7 +288,7 @@ export default function Chatroom(props) {
   }, [audioHistory, transcriptHistory, socket, turn]);
 
   useEffect(() => {
-    if (socket) {
+    if (socket && turn !== -1) {
       socket.on('user recording', () => {
         if (turn === 1) {
           setMessage(StatusMessage.USER_RECORDING_CLIENT);
@@ -384,8 +385,6 @@ export default function Chatroom(props) {
         style={{
           height: `${screenHeight}px`,
           backgroundImage: 
-          // userRole === "client" ? 'url(https://img.freepik.com/free-vector/asbtract-sky-pastel-color_56745-107.jpg?size=626&ext=jpg)':
-          // userRole === "servant" ? 'url(https://cdn.hipwallpaper.com/i/84/28/PZDy0L.jpg)' : 
           userRole === "client" ? `url(${ClientBG})`:
           userRole === "servant" ? `url(${ServantBG})` : 
           'linear-gradient(0deg, #fff 20%, #f3f2f1)'}}
@@ -394,7 +393,8 @@ export default function Chatroom(props) {
           <Col xs={24} xl={16}>
             {room_content_type === '0' ?
               <AudioRecordingScreen
-                audioName={`${chatroomID}_${audioHistory.length}_${userID}.wav`}
+                audioName={`${audioHistory.length}_${userID}.wav`}
+                roomName={roomName}
                 roomDone={roomDone}
                 progress={progress}
                 latestAudio={latestAudio}

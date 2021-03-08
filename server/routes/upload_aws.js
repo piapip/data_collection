@@ -56,7 +56,7 @@ router.post('/', upload, async (req, res) => {
       throw err 
     }
 
-    res.status(200).send({data, audioID: audioID, key: key})
+    res.status(200).send({data, audioID: audioID})
   })
 })
 

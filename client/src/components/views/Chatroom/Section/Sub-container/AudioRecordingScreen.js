@@ -27,6 +27,7 @@ export default function AudioRecordingScreen(props) {
   const progress = props ? props.progress : [];
   const audioName = props ? props.audioName : "";
   const chatroomID = props ? props.chatroomID : "";
+  const roomName = props ? props.roomName : "";
   const user = props ? props.user : null;
   const userRole = props ? props.userRole : "";
   const turn = props ? props.turn : false;
@@ -229,7 +230,8 @@ export default function AudioRecordingScreen(props) {
               {renderAudio(audio)}
               {
                 userRole === "client" ? (
-                  <ClientSendButton 
+                  <ClientSendButton
+                    roomName={roomName}
                     audioName={audioName}
                     turn={turn}
                     disable={(intent === null && tagVisibility) || roomDone}
@@ -242,6 +244,7 @@ export default function AudioRecordingScreen(props) {
                     sendAudioSignal={sendAudioSignal}/>
                 ) : (
                   <ServantSendButton
+                    roomName={roomName}
                     audioName={audioName}
                     socket={socket}
                     roomDone={roomDone}

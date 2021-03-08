@@ -31,7 +31,8 @@ export default function ServantSendButton(props) {
   const uploadAudioAWS = async (e) => {
 
     // create data
-    let formdata = new FormData()
+    let formdata = new FormData();
+    formdata.append('destination', roomID);
     formdata.append('soundBlob', data.blob, audioName)
     formdata.append('userID', userID)
     formdata.append('roomID', roomID)
@@ -46,11 +47,13 @@ export default function ServantSendButton(props) {
       setButtonState(true);
       await axios.post(
         // `${BACKEND_URL}/api/aws/upload`,
-        '/api/aws/upload',
+        // '/api/aws/upload',
+        '/api/upload/file',
         formdata,
         requestConfig,
       ).then(res => {
-        props.sendAudioSignal(res.data.data.Location);
+        // props.sendAudioSignal(res.data.data.Location);
+        props.sendAudioSignal(res.data.link);
         setButtonState(false);
         const audioID = res.data.audioID;
         if (socket) {

@@ -13,6 +13,7 @@ export default function ClientSendButton(props) {
   const userRole = props ? props.userRole : "";
   const userID = props ? props.userID : "";
   const roomID = props ? props.roomID : "";
+  const roomName = props ? props.roomName : "";
   const intent = props ? props.intent : null;
   const socket = props ? props.socket : null;
   const buttonDisable = props ? props.disable : true;
@@ -33,6 +34,7 @@ export default function ClientSendButton(props) {
 
     // create data
     let formdata = new FormData();
+    formdata.append('destination', roomName);
     formdata.append('soundBlob', data.blob, audioName);
     formdata.append('userID', userID);
     formdata.append('roomID', roomID);
@@ -48,11 +50,13 @@ export default function ClientSendButton(props) {
       setButtonState(true);
       await axios.post(
         // `${BACKEND_URL}/api/aws/upload`,
-        '/api/aws/upload',
+        // '/api/aws/upload',
+        '/api/upload/file',
         formdata,
         requestConfig,
       ).then(res => {
-        props.sendAudioSignal(res.data.data.Location);
+        // props.sendAudioSignal(res.data.data.Location);
+        props.sendAudioSignal(res.data.link);
         setButtonState(false);
         const audioID = res.data.audioID;
         if (socket) {

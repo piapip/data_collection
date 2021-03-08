@@ -1,6 +1,4 @@
 var sockets = {}
-const fs = require('fs');
-const { exec } = require('child_process');
 const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
 const { Audio } = require("./../models/Audio");
@@ -239,12 +237,11 @@ sockets.init = function(server) {
     });
 
     socket.on('client intent', async ({ roomID, audioID, intent }) => {
-
       
       console.log("Receive client intent: " + JSON.stringify(intent) + " of audio " + audioID + " from room " + roomID);
 
       // check turn of the room. Throw a fit if it's not 1. If it's 1 then: 
-      Chatroom.findById(roomID)
+      await Chatroom.findById(roomID)
       .then(async (roomFound) => {
         if (!roomFound) {
           console.log("... Some shenanigan.. Room doesn't even exist.");
@@ -290,13 +287,6 @@ sockets.init = function(server) {
                 return null;
               } else {
                 audioFound.intent = newIntent._id;
-                
-                io.to(roomID).emit("update transcript", {
-                // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
-                username: audioID,
-                transcript: audioFound.transcript,
-                index: -1,
-                });
 
                 return audioFound.save();
               }
@@ -316,19 +306,25 @@ sockets.init = function(server) {
         console.log(err);
       })
 
-      // doing exec audio here
-      // if(fs.existsSync(FILE_MONO)) {
-      //   getTranscript(FILE_MONO, audioID, `${TRANSCRIPT_FOLDER}/${audioID}.txt`, key, (transcript) => {
-      //     io.to(roomID).emit("update transcript", {
-      //       // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
-      //       username: audioID,
-      //       transcript: transcript,
-      //       index: -1,
-      //     });
-      //   })
-      // } else {
-      //   console.log("File is not ready to be transcripted!");
-      // }
+      setTimeout(async () => {
+        let transcript = await Audio.findById(audioID)
+        .then(audioFound => {
+          if (!audioFound) {
+            console.log("... Some shenanigan.. Audio doesn't even exist.");
+            // IMPLEMENT SOME KIND OF ERROR!!!
+            return null;
+          } 
+          
+          return audioFound.transcript;
+        })
+
+        io.to(roomID).emit("update transcript", {
+          // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
+        username: audioID,
+        transcript: transcript,
+        index: -1,
+        });
+      }, 3500);
     });
 
     socket.on('servant intent', async ({ roomID, intent }) => {
@@ -493,13 +489,6 @@ sockets.init = function(server) {
             } else {
               audioFound.intent = newIntent._id;
 
-              io.to(roomID).emit("update transcript", {
-              // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
-              username: audioID,
-              transcript: audioFound.transcript,
-              index: -1,
-              });
-
               return audioFound.save();
             }
           })
@@ -516,6 +505,27 @@ sockets.init = function(server) {
         // IMPLEMENT SOME KIND OF ERROR!!!
         console.log(err);
       })
+
+      setTimeout(async () => {
+        let transcript = await Audio.findById(audioID)
+        .then(audioFound => {
+          if (!audioFound) {
+            console.log("... Some shenanigan.. Audio doesn't even exist.");
+            // IMPLEMENT SOME KIND OF ERROR!!!
+            return null;
+          } 
+          
+          return audioFound.transcript;
+        })
+        console.log('transcript: ', transcript)
+
+        io.to(roomID).emit("update transcript", {
+          // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
+        username: audioID,
+        transcript: transcript,
+        index: -1,
+        });
+      }, 2500);
     });
 
     socket.on("remove audio", ({ roomID }) => {
@@ -667,8 +677,10 @@ const createRoom = async (userID1, userID2, roomType) => {
   return chatroom._id
 }
 
+let count = 0;
 const randomGenerator = () => {
-  return Math.floor(Math.random() * 1000);
+  // return Math.floor(Math.random() * 100000);
+  return count++;
 }
 
 const generateName = () => {
