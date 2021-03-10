@@ -55,7 +55,6 @@ function App(props) {
   const LandingPageWithSocket = () => (<LandingPage socket={socket} />)
   const LoginPageWithSocket = () => (<LoginPage setupSocket={setupSocket} />)
   const ChatroomWithSocket = () => (<Chatroom socket={socket} />)
-  // const ServantWithSocket = ()=>(<Servant socket={socket}/>)
 
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
@@ -68,7 +67,6 @@ function App(props) {
           <Route exact path="/register" component={Auth(RegisterPage, false)} />
           {/* content-type: 0 - audio, 1 - text message */}
           <Route exact path="/chatroom/:content_type/:id" component={Auth(ChatroomWithSocket, true)} />
-          {/* <Route exact path="/servant/:id" component={Auth(ServantWithSocket, true)} /> */}
 
         </Switch>
       </div>

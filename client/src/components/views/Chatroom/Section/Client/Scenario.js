@@ -17,14 +17,6 @@ export default function Scenario(props) {
     } else setLoading(true);
   }, [scenario, progress])
 
-  // const generateScript = () => {
-  //   if (scenario && scenario.length >= 4) { 
-  //     return `Bạn muốn ${scenario[0][2].toLowerCase()} ${scenario[1][2].toLowerCase()} trong ${scenario[3][2].toLowerCase()} ở tầng ${scenario[2][2]} ${generateAction()}. Bạn hãy mô tả yêu cầu trên bằng tiếng Việt ( có thể bằng 1 hoặc nhiều lần nói).`
-  //   }
-    
-  //   return ''
-  // }
-
   const generateAction = () => {
     if (scenario) {
       if (scenario.length > 4) {
@@ -39,7 +31,7 @@ export default function Scenario(props) {
           return `với ${scenario[4][2].toLowerCase()} ở mức ${scenario[5][2]}%`
         }
         case "màu":
-          return `với ${scenario[4][2].toLowerCase()} ${COLOR[scenario[5][2]].toLowerCase()}`
+          return `với ${scenario[4][2].toLowerCase()} ${COLOR[scenario[5][2]+1].toLowerCase()}`
         case "kênh":
         case "mức":
           if (scenario[0][2].toLowerCase() === "tăng") {
@@ -87,7 +79,6 @@ export default function Scenario(props) {
               loading ? (
                 <LoadingComponent />
               ) : (
-                // <p>{generateScript()}</p>
                 generateScript
               )
             }
@@ -96,11 +87,6 @@ export default function Scenario(props) {
             <Progress
               scenario={scenario}
               progress={progress}/>
-            {/* <Checkbox2
-              list={scenario}
-              progress={progress}
-              handleFilters={filters => handleFilters(filters, "locations")}
-            /> */}
           </Col>
         </Row>
       </div>

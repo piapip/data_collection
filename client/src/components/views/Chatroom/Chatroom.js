@@ -472,19 +472,6 @@ export default function Chatroom(props) {
                 </Row>
               </TabPane>
             </Tabs>
-
-            {/* <Row> 
-              <Col>
-                <AudioList
-                  socket={socket}
-                  roomID={chatroomID}
-                  userID={userID}
-                  username={username}
-                  userRole={userRole}
-                  transcript={transcriptHistory}
-                  audioList={audioHistory}/>
-              </Col> 
-            </Row> */}
           </Col>
         </Row>
       </div>

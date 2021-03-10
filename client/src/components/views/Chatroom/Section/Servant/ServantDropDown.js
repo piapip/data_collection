@@ -182,6 +182,21 @@ export default function ServantDropDown(props) {
     setRadioValue(e.target.value);
   }
 
+  const outerColStyle = {
+    paddingLeft: "5px", 
+    paddingRight: "5px",
+  }
+
+  const innerCol1Style = {
+    paddingTop: "15px", 
+    paddingBottom: "5px",
+  }
+
+  const innerCol2Style = {
+    // paddingBottom: "15px",
+    paddingBottom: "5px",
+  }
+
   return (
     <Radio.Group onChange={onRadioGroupChange} value={radioValue} 
       style={{width: '95%', marginTop: '0px', verticalAlign: 'middle'}} disabled={disabled}>
@@ -190,13 +205,13 @@ export default function ServantDropDown(props) {
       <Radio style={radioStyle} value={1}>
         <div style={radioContextStyle}>
           <Row>
-            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+            <Col xl={4} xs={24} style={outerColStyle}>
               <Row>
-                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol1Style}>
                   <b>Thiết bị</b>
                 </Col>
                 {/* <Col span={24} style={{paddingBottom: "15px"}}>*/}
-                <Col span={24} style={{paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol2Style}>
                   <Select 
                     defaultValue={deviceData[0]} 
                     style={{ width: "100%" }}
@@ -212,12 +227,12 @@ export default function ServantDropDown(props) {
               </Row>
             </Col>
 
-            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+            <Col xl={4} xs={24} style={outerColStyle}>
               <Row>
-                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol1Style}>
                   <b>Hành động</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol2Style}>
                   <Select
                     value={selectedAction}
                     style={{ width: "100%" }}
@@ -233,12 +248,12 @@ export default function ServantDropDown(props) {
               </Row>
             </Col>
 
-            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+            <Col xl={4} xs={24} style={outerColStyle}>
               <Row>
-                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol1Style}>
                   <b>Phòng</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol2Style}>
                   <Select 
                     value={selectedRoom}
                     style={{ width: "100%" }}
@@ -254,12 +269,12 @@ export default function ServantDropDown(props) {
               </Row>
             </Col>
 
-            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+            <Col xl={4} xs={24} style={outerColStyle}>
               <Row>
-                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol1Style}>
                   <b>Tầng</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol2Style}>
                   <Select
                     value={selectedFloor}
                     style={{ width: "100%" }}
@@ -275,12 +290,12 @@ export default function ServantDropDown(props) {
               </Row>
             </Col>
 
-            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+            <Col xl={4} xs={24} style={outerColStyle}>
               <Row>
-                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol1Style}>
                   <b>Scale</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol2Style}>
                   <Select
                     value={selectedScale}
                     style={{ width: "100%" }}
@@ -296,12 +311,12 @@ export default function ServantDropDown(props) {
               </Row>
             </Col>
 
-            <Col xl={4} xs={24} style={{paddingLeft: "5px", paddingRight: "5px"}}>
+            <Col xl={4} xs={24} style={outerColStyle}>
               <Row>
-                <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol1Style}>
                   <b>Level</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "5px"}}>
+                <Col span={24} style={innerCol2Style}>
                   {
                     selectedScale === "Màu" ? (
                       <Select

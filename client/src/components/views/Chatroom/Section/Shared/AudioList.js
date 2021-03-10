@@ -1,10 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
 import { Col, Row, List } from "antd";
-// import InfiniteScroll from 'react-infinite-scroller';
-// import CustomAudioPlayer from './CustomAudioPlayer';
 import AudioPlayerWithTranscript from './AudioPlayerWithTranscript';
-// import LoadingComponent from './../../../Loading/LoadingComponent';
 
 export default function AudioList(props) {
 
@@ -35,18 +32,12 @@ export default function AudioList(props) {
         height: "calc(100vh - 140px)",
         backgroundColor: "white",
         overflowX: "hidden", 
-        overflowY: "scroll", 
-        // border: "1px solid #dedede"
+        overflowY: "scroll",
       }}
     >
       <Row style={{marginLeft: "10px", marginRight: "10px", paddingBottom: "10px"}}>
         <Col>
           <List
-            // style={{
-            //   height: "calc(100vh - 400px)", 
-            //   height: "100%"
-            //   flex: "1 1 auto",
-            // }}
             itemLayout="horizontal"
             dataSource={audioList}
             renderItem={(audio, index) => {
