@@ -162,10 +162,13 @@ export default function AudioRecordingScreen(props) {
 
   return (
     <>
-      <Status
-        userRole={userRole}
-        message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message}
-        turn={turn} />
+      <div style={{position: 'absolute', width: "100%"}}>
+        <Status
+          userRole={userRole}
+          message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message}
+          turn={turn} />
+      </div>
+
       <Row style={{textAlign: "center"}}>
         <div className="primary-buttons">
           <canvas className="primary-buttons canvas" ref={canvasRef}

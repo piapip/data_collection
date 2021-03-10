@@ -15,6 +15,7 @@ export default function ServantSendButton(props) {
   const userRole = props ? props.userRole : "";
   const userID = props ? props.userID : "";
   const roomID = props ? props.roomID : "";
+  const roomName = props ? props.roomName : "";
   const turn = props ? props.turn : -1;
   const socket = props ? props.socket : null;
   const intent = props ? props.intent : {
@@ -32,10 +33,10 @@ export default function ServantSendButton(props) {
 
     // create data
     let formdata = new FormData();
-    formdata.append('destination', roomID);
-    formdata.append('soundBlob', data.blob, audioName)
-    formdata.append('userID', userID)
-    formdata.append('roomID', roomID)
+    formdata.append('destination', roomName);
+    formdata.append('soundBlob', data.blob, audioName);
+    formdata.append('userID', userID);
+    formdata.append('roomID', roomID);
      
     const requestConfig = {     
       headers: new Headers({

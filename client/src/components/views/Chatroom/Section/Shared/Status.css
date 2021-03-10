@@ -9,10 +9,6 @@
 
 .glow_servant {
     /* font-family: cursive; */
-    font-family: 'Pangolin';
-    font-size: 40px;
-    color: black;
-    text-align: center;
     -webkit-animation: glow_servant 1s ease-in-out infinite alternate;
     -moz-animation: glow_servant 1s ease-in-out infinite alternate;
     animation: glow_servant 1s ease-in-out infinite alternate;
@@ -29,11 +25,14 @@
 
 .glow_client {
     /* font-family: cursive; */
+    -webkit-animation: glow_client 1s ease-in-out infinite alternate;
+    -moz-animation: glow_client 1s ease-in-out infinite alternate;
+    animation: glow_client 1s ease-in-out infinite alternate;
+}
+
+.glow {
     font-family: 'Pangolin';
     font-size: 40px;
     color: black;
     text-align: center;
-    -webkit-animation: glow_client 1s ease-in-out infinite alternate;
-    -moz-animation: glow_client 1s ease-in-out infinite alternate;
-    animation: glow_client 1s ease-in-out infinite alternate;
 }

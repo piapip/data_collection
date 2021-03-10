@@ -166,11 +166,11 @@ export default function ServantDropDown(props) {
 
   const radioContextStyle = {
     display: 'inline-block',
-    border: '1px solid black',
+    // border: '1px solid #dedede',
     height: '100%',
     width: "100%",
-    borderRadius: "20px",
-    backgroundColor: "white",
+    // borderRadius: "20px",
+    // backgroundColor: "white",
     paddingLeft: "10px",
     paddingRight: "10px",
     verticalAlign: 'middle',
@@ -195,7 +195,8 @@ export default function ServantDropDown(props) {
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
                   <b>Thiết bị</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "15px"}}>
+                {/* <Col span={24} style={{paddingBottom: "15px"}}>*/}
+                <Col span={24} style={{paddingBottom: "5px"}}>
                   <Select 
                     defaultValue={deviceData[0]} 
                     style={{ width: "100%" }}
@@ -216,7 +217,7 @@ export default function ServantDropDown(props) {
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
                   <b>Hành động</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "15px"}}>
+                <Col span={24} style={{paddingBottom: "5px"}}>
                   <Select
                     value={selectedAction}
                     style={{ width: "100%" }}
@@ -237,7 +238,7 @@ export default function ServantDropDown(props) {
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
                   <b>Phòng</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "15px"}}>
+                <Col span={24} style={{paddingBottom: "5px"}}>
                   <Select 
                     value={selectedRoom}
                     style={{ width: "100%" }}
@@ -258,7 +259,7 @@ export default function ServantDropDown(props) {
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
                   <b>Tầng</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "15px"}}>
+                <Col span={24} style={{paddingBottom: "5px"}}>
                   <Select
                     value={selectedFloor}
                     style={{ width: "100%" }}
@@ -279,7 +280,7 @@ export default function ServantDropDown(props) {
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
                   <b>Scale</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "15px"}}>
+                <Col span={24} style={{paddingBottom: "5px"}}>
                   <Select
                     value={selectedScale}
                     style={{ width: "100%" }}
@@ -300,7 +301,7 @@ export default function ServantDropDown(props) {
                 <Col span={24} style={{paddingTop: "15px", paddingBottom: "5px"}}>
                   <b>Level</b>
                 </Col>
-                <Col span={24} style={{paddingBottom: "15px"}}>
+                <Col span={24} style={{paddingBottom: "5px"}}>
                   {
                     selectedScale === "Màu" ? (
                       <Select

@@ -318,6 +318,8 @@ sockets.init = function(server) {
           return audioFound.transcript;
         })
 
+        console.log(`transcript: ${transcript}`)
+
         io.to(roomID).emit("update transcript", {
           // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
         username: audioID,

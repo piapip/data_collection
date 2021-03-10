@@ -23,13 +23,6 @@ export default function ClientSendButton(props) {
 
   const [ buttonState, setButtonState ] = useState(false);
 
-  // const popoverContent = (
-  //   <div>
-  //     <p>Content</p>
-  //     <p>Content</p>
-  //   </div>
-  // );
-
   const uploadAudioAWS = async (e) => {
 
     // create data
