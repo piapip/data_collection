@@ -115,7 +115,7 @@ export default function ClientCheckbox(props) {
 
   return (
     <>
-      <Radio.Group onChange={onRadioGroupChange} value={radioValue} style={{width: '95%'}}>
+      <Radio.Group onChange={onRadioGroupChange} value={radioValue} style={{width: '95%', marginTop: "10px"}}>
         <Radio style={radioStyle} value={1} disabled={disabled}>
           <div style={radioContextStyle}>
             <Checkbox.Group onChange={onChange}>
@@ -139,19 +139,6 @@ export default function ClientCheckbox(props) {
           lineHeight: "48px",
         }} value={2} disabled={disabled}><b style={{paddingLeft: "10px", color: disabled ? "grey" : "black"}}>Không có tag</b></Radio>
       </Radio.Group>
-
-
-
-
-      {/* <Collapse defaultActiveKey={['commandConfirm']}>
-        <Panel header="Xác nhận câu lệnh: " key="commandConfirm">
-          <Checkbox.Group style={{ width: '100%' }} onChange={onChange}>
-            <Row>
-              {renderList(list)}
-            </Row>
-          </Checkbox.Group>
-        </Panel>
-      </Collapse> */}
     </>
   )
 }

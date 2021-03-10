@@ -62,7 +62,7 @@ export default function ProgressNote(props) {
           value={renderProgress === "" ? "Chưa xác định được bất kì mục tiêu nào!" : renderProgress} />
         )
       } */}
-      <Row>
+      <Row style={{padding: "10px"}}>
         <Col xs={24} xl={15}>
           <Row style={{height: "50px", lineHeight: "50px"}}>
             <Col span={8}>

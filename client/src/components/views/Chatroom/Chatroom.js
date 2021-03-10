@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
-import { Row, Col, Modal, notification } from 'antd';
+import { Row, Col, Modal, notification, Tabs } from 'antd';
 
 import './Section/Shared/RecordButton.css';
 import './Chatroom.css';
@@ -11,7 +11,7 @@ import StatusMessage from './Section/Shared/StatusMessage';
 import AudioList from './Section/Shared/AudioList';
 import PromptLeaving from './Section/Shared/PromptLeaving';
 import Guide from './Section/Shared/Guide';
-import RoomStatus from './Section/Shared/RoomStatus';
+import RoomStatusPopover from './Section/Shared/RoomStatusPopover';
 
 import Scenario from './Section/Client/Scenario';
 
@@ -28,7 +28,7 @@ import LoadingComponent from '../Loading/LoadingComponent';
 import ClientBG from './../LandingPage/Section/images/speak.svg';
 import ServantBG from './../LandingPage/Section/images/listen.svg';
 
-// import SwitchingTurn from './Section/Shared/SwitchingTurn';
+const { TabPane } = Tabs;
 
 export default function Chatroom(props) {
   const canvasRef = useRef(null);
@@ -49,7 +49,7 @@ export default function Chatroom(props) {
   const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
   const [ message, setMessage ] = useState("Loading");
   const [ screenHeight, setScreenHeight ] = useState(0);
-  const [ screenWidth, setScreenWidth ] = useState(0);
+  // const [ screenWidth, setScreenWidth ] = useState(0);
   const [ roomDone, setRoomDone ] = useState(false);
   const [ roomName, setRoomName ] = useState("");
 
@@ -57,7 +57,7 @@ export default function Chatroom(props) {
 
   useEffect(() => {
     setScreenHeight(window.innerHeight);
-    setScreenWidth(window.innerWidth);
+    // setScreenWidth(window.innerWidth);
   }, [])
 
   const dispatch = useDispatch();
@@ -364,25 +364,21 @@ export default function Chatroom(props) {
         onCancel={handleCancel}>
         <p>Cảm ơn bạn đã hoàn thành xong nhiệm vụ này! Giờ bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác!</p>
       </Modal>
-      // <Redirect to={"/"} socket={socket} />
     )
   }
 
   const roomStatusContent = (
-    <div style={{width: "100vh"}}>
-      <Guide turn={turn} />
+    <>
       {
         userRole === "client" ? (
         <Scenario scenario={scenario} progress={progress}/>) : 
         userRole === "servant" ? (
         <ProgressNote progress={progress} scenario={scenario}/>) : 
         (
-          // <Col style={{textAlign: "center", height: "200px", lineHeight: "200px"}}>
           <LoadingComponent />
-          // </Col>
         )
       }
-    </div>
+    </>
   )
 
   if (loading) {
@@ -401,70 +397,83 @@ export default function Chatroom(props) {
       <PromptLeaving 
         onLeave={handleLeaveChatroom}
         when={getPromptStatus()}/>
-      {/* <Modal 
-        closable={false}
-        visible={isModalVisible} 
-        onOk={handleOk} 
-        onCancel={handleCancel}>
-        <p>Tới lượt của bạn</p>
-      </Modal> */}
       <div className="chatroom"
         style={{
           height: `${screenHeight-69}px`,
-          backgroundSize: `${screenHeight} ${screenWidth}`,
-          backgroundImage: 
-          userRole === "client" ? `url(${ClientBG})`:
-          userRole === "servant" ? `url(${ServantBG})` : 
-          'linear-gradient(0deg, #fff 20%, #f3f2f1)'}}
-        >
+        }}>
         <Row>
-          <Col xs={24} xl={16}>
+          <Col xs={24} xl={16} 
+            style={{
+              backgroundRepeat: "no-repeat",
+              height: `${screenHeight-69}px`,
+              backgroundSize: "cover",  
+              backgroundImage: 
+              userRole === "client" ? `url(${ClientBG})`:
+              userRole === "servant" ? `url(${ServantBG})` : 
+              'linear-gradient(0deg, #fff 20%, #f3f2f1)'
+            }}>
             <div style={{position: "absolute", zIndex: "1001"}}>
-              <RoomStatus 
-                content={roomStatusContent}/>
+              <RoomStatusPopover 
+                content={(
+                  <div style={{width: "100vh"}}>
+                    <Guide turn={turn} />
+                  </div>
+                )}/>
             </div>
-            {room_content_type === '0' ?
-              <AudioRecordingScreen
-                audioName={`${audioHistory.length}_${userID}.wav`}
-                roomName={roomName}
-                roomDone={roomDone}
-                progress={progress}
-                latestAudio={latestAudio}
-                message={message}
-                turn={turn}
-                canvasRef={canvasRef}
-                socket={socket}
-                user={user}
-                scenario={scenario}
-                roomContentType={room_content_type}
-                chatroomID={chatroomID}
-                userRole={userRole}
-              /> :
-              <ErrorNotFound />}
+            <div>
+              {room_content_type === '0' ?
+                <AudioRecordingScreen
+                  audioName={`${audioHistory.length}_${userID}.wav`}
+                  roomName={roomName}
+                  roomDone={roomDone}
+                  progress={progress}
+                  latestAudio={latestAudio}
+                  message={message}
+                  turn={turn}
+                  canvasRef={canvasRef}
+                  socket={socket}
+                  user={user}
+                  scenario={scenario}
+                  roomContentType={room_content_type}
+                  chatroomID={chatroomID}
+                  userRole={userRole}
+                /> :
+                <ErrorNotFound />}
+            </div>
           </Col>
-          <Col xs={24} xl={8} style={{paddingRight: "10px", paddingTop: "10px"}}>
+          <Col xs={24} xl={8} style={{
+            paddingRight: "10px", 
+            paddingTop: "10px",
+            borderLeft: "1px solid #dedede",
+          }}>
+            <Tabs defaultActiveKey="1" centered>
+              <TabPane tab="Trạng thái" key="1">
+                <Row>
+                  <div style={{
+                    height: "calc(100vh - 170px)",
+                    backgroundColor: "white",
+                  }}>
+                    {roomStatusContent}
+                  </div>
+                </Row>
+              </TabPane>
+              <TabPane tab="Lịch sử" key="2"> 
+                <Row> 
+                  <Col>
+                    <AudioList
+                      socket={socket}
+                      roomID={chatroomID}
+                      userID={userID}
+                      username={username}
+                      userRole={userRole}
+                      transcript={transcriptHistory}
+                      audioList={audioHistory}/>
+                  </Col> 
+                </Row>
+              </TabPane>
+            </Tabs>
 
-            {/* <Row>
-              {
-                userRole === "client" ? (
-                <Col><Scenario scenario={scenario} progress={progress}/></Col> ) : 
-                userRole === "servant" ? (
-                <Col><ProgressNote progress={progress} scenario={scenario}/></Col>) : 
-                (
-                  <Col style={{textAlign: "center", height: "200px", lineHeight: "200px"}}>
-                    <LoadingComponent />
-                  </Col>
-                )
-              }
-            </Row>
-
-            <Row style={{marginTop: "20px", marginBottom: "20px"}}>
-              <Col>
-                <Guide turn={turn}/>
-              </Col>
-            </Row> */}
-
-            <Row> 
+            {/* <Row> 
               <Col>
                 <AudioList
                   socket={socket}
@@ -475,7 +484,7 @@ export default function Chatroom(props) {
                   transcript={transcriptHistory}
                   audioList={audioHistory}/>
               </Col> 
-            </Row>
+            </Row> */}
           </Col>
         </Row>
       </div>

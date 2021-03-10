@@ -4,7 +4,7 @@ import { Affix, Popover, Button } from 'antd';
 
 import LoadingComponent from './../../../Loading/LoadingComponent';
 
-export default function RoomStatus(props) {
+export default function RoomStatusPopover(props) {
   
   const content = (
     <LoadingComponent />

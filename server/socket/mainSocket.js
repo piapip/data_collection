@@ -326,7 +326,7 @@ sockets.init = function(server) {
         transcript: transcript,
         index: -1,
         });
-      }, 2500);
+      }, 3500);
     });
 
     socket.on('servant intent', async ({ roomID, intent }) => {

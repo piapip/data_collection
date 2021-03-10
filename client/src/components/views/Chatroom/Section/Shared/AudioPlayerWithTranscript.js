@@ -114,7 +114,7 @@ export default function AudioPlayerWithTranscript(props) {
                 lineHeight: "0px",
                 justifyContent: "center",
                 boxSizing: "border-box",
-                border: '1px solid #dedede',
+                // border: '1px solid #dedede',
                 alignItems: "center",
               }}
               // type="button"

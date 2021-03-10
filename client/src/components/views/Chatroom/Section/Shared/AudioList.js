@@ -32,16 +32,21 @@ export default function AudioList(props) {
         display: "flex", 
         flexDirection: "column", 
         justifyContent: "space-between", 
-        // height: "300px", 
+        height: "calc(100vh - 140px)",
         backgroundColor: "white",
         overflowX: "hidden", 
         overflowY: "scroll", 
-        border: "1px solid #dedede"}}
+        // border: "1px solid #dedede"
+      }}
     >
       <Row style={{marginLeft: "10px", marginRight: "10px", paddingBottom: "10px"}}>
         <Col>
           <List
-            style={{height: "calc(100vh - 100px)", }}
+            // style={{
+            //   height: "calc(100vh - 400px)", 
+            //   height: "100%"
+            //   flex: "1 1 auto",
+            // }}
             itemLayout="horizontal"
             dataSource={audioList}
             renderItem={(audio, index) => {

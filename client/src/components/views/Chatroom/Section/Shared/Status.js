@@ -1,7 +1,6 @@
 import React from 'react';
 
-// import { Row, Col, Steps, Affix } from 'antd';
-import { Row, Col, Affix } from 'antd';
+import { Affix } from 'antd';
 import "./Status.css";
 
 // const { Step } = Steps;
@@ -31,19 +30,8 @@ export default function Status(props) {
   return (
     <>
       <Affix offsetTop={69}>
-        <div style={{paddingTop: "10px", paddingRight: "20px", paddingLeft: "20px", zIndex: "1000"}}>
-          <Row>
-            <Col style={{textAlign: "center"}}>
-              {/* <p className={`glow_${userRole}`}>{message}</p> */}
-              <p className={`glow_${userRole}`}>{convertMessage(message)}</p>
-            </Col>
-          </Row>
-
-          {/* <Steps current={turn}>
-            <Step title="Client" description="Client thu âm và gán tag cho audio rồi gửi." />
-            <Step title="Servant" description="Servant kiểm tra tag của audio từ Client." />
-            <Step title="Servant" description="Servant thu âm và gửi audio của mình." />
-          </Steps> */}
+        <div style={{paddingTop: "10px", paddingRight: "20px", paddingLeft: "20px", zIndex: "1000", textAlign: "center"}}>
+          <p className={`glow glow_${userRole}`}>{convertMessage(message)}</p>
         </div>
       </Affix>
     </>
