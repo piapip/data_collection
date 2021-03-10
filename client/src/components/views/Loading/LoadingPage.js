@@ -10,7 +10,7 @@ export default function LoadingPage() {
       justifyContent: 'center',
       alignItems: 'center',
       textAlign: 'center',
-      minHeight: '100vh',
+      minHeight: 'calc(100vh - 80px)',
     }}></Spin>
     // <Loading />
   )

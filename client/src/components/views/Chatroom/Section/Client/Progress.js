@@ -46,12 +46,22 @@ export default function Progress(props) {
     (scenario && progress) ? (progress.length !== 0 && scenario.length !== 0) ? (
       progress.map((property, index) => {
         return property[1] >= 1 ? (
-          <Col xl={12} xs={24} key={property[0]}>
-            <img src={CorrectSign} alt="done" style={{height: "50px"}}/> {scenario[index][1]}
+          <Col xl={4} xs={24} key={property[0]}>
+            <Row style={{textAlign: "center"}}>
+              <img src={CorrectSign} alt="done" style={{height: "50px"}}/>
+            </Row>
+            <Row style={{textAlign: "center"}}>
+              {scenario[index][1]}
+            </Row>
           </Col>
         ) : property[1] === 0 ? (
-          <Col xl={12} xs={24} key={property[0]}>
-            <img src={RedCrossSign} alt="not done" style={{height: "50px"}}/> {scenario[index][1]}
+          <Col xl={4} xs={24} key={property[0]}>
+            <Row style={{textAlign: "center"}}>
+              <img src={RedCrossSign} alt="not done" style={{height: "50px"}}/>
+            </Row>
+            <Row style={{textAlign: "center"}}>
+              {scenario[index][1]}
+            </Row>
           </Col>
         ) : ""
         

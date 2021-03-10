@@ -6,19 +6,28 @@ import { Row, Col, Modal, notification } from 'antd';
 
 import './Section/Shared/RecordButton.css';
 import './Chatroom.css';
+
 import StatusMessage from './Section/Shared/StatusMessage';
-import Scenario from './Section/Client/Scenario';
-import ProgressNote from './Section/Servant/ProgressNote';
 import AudioList from './Section/Shared/AudioList';
+import PromptLeaving from './Section/Shared/PromptLeaving';
+import Guide from './Section/Shared/Guide';
+import RoomStatus from './Section/Shared/RoomStatus';
+
+import Scenario from './Section/Client/Scenario';
+
+import ProgressNote from './Section/Servant/ProgressNote';
+
 import AudioRecordingScreen from './Section/Sub-container/AudioRecordingScreen';
+
 import {getRoom} from '../../../_actions/chatroom_actions';
+
 import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
 import LoadingComponent from '../Loading/LoadingComponent';
-import PromptLeaving from './Section/Shared/PromptLeaving';
+
 import ClientBG from './../LandingPage/Section/images/speak.svg';
 import ServantBG from './../LandingPage/Section/images/listen.svg';
-import Guide from './Section/Shared/Guide';
+
 // import SwitchingTurn from './Section/Shared/SwitchingTurn';
 
 export default function Chatroom(props) {
@@ -39,11 +48,17 @@ export default function Chatroom(props) {
   const [ loading, setLoading ] = useState(true);
   const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
   const [ message, setMessage ] = useState("Loading");
-  const [ screenHeight, setScreenHeight ] = useState(2560);
+  const [ screenHeight, setScreenHeight ] = useState(0);
+  const [ screenWidth, setScreenWidth ] = useState(0);
   const [ roomDone, setRoomDone ] = useState(false);
   const [ roomName, setRoomName ] = useState("");
 
   const [ isModalVisible, setIsModalVisible ] = useState(false);
+
+  useEffect(() => {
+    setScreenHeight(window.innerHeight);
+    setScreenWidth(window.innerWidth);
+  }, [])
 
   const dispatch = useDispatch();
 
@@ -68,11 +83,6 @@ export default function Chatroom(props) {
       description: description,
     });
   };
-  
-  useEffect(() => {
-    setScreenHeight(window.innerHeight + 90);
-  // eslint-disable-next-line
-  }, [window.innerHeight])
 
   useEffect(() => {
     if (userRole !== "" && socket !== null && user !== null) {
@@ -358,6 +368,23 @@ export default function Chatroom(props) {
     )
   }
 
+  const roomStatusContent = (
+    <div style={{width: "100vh"}}>
+      <Guide turn={turn} />
+      {
+        userRole === "client" ? (
+        <Scenario scenario={scenario} progress={progress}/>) : 
+        userRole === "servant" ? (
+        <ProgressNote progress={progress} scenario={scenario}/>) : 
+        (
+          // <Col style={{textAlign: "center", height: "200px", lineHeight: "200px"}}>
+          <LoadingComponent />
+          // </Col>
+        )
+      }
+    </div>
+  )
+
   if (loading) {
     return (
       <>
@@ -383,7 +410,8 @@ export default function Chatroom(props) {
       </Modal> */}
       <div className="chatroom"
         style={{
-          height: `${screenHeight}px`,
+          height: `${screenHeight-69}px`,
+          backgroundSize: `${screenHeight} ${screenWidth}`,
           backgroundImage: 
           userRole === "client" ? `url(${ClientBG})`:
           userRole === "servant" ? `url(${ServantBG})` : 
@@ -391,6 +419,10 @@ export default function Chatroom(props) {
         >
         <Row>
           <Col xs={24} xl={16}>
+            <div style={{position: "absolute", zIndex: "1001"}}>
+              <RoomStatus 
+                content={roomStatusContent}/>
+            </div>
             {room_content_type === '0' ?
               <AudioRecordingScreen
                 audioName={`${audioHistory.length}_${userID}.wav`}
@@ -412,7 +444,7 @@ export default function Chatroom(props) {
           </Col>
           <Col xs={24} xl={8} style={{paddingRight: "10px", paddingTop: "10px"}}>
 
-            <Row>
+            {/* <Row>
               {
                 userRole === "client" ? (
                 <Col><Scenario scenario={scenario} progress={progress}/></Col> ) : 
@@ -430,9 +462,9 @@ export default function Chatroom(props) {
               <Col>
                 <Guide turn={turn}/>
               </Col>
-            </Row>
+            </Row> */}
 
-            <Row>
+            <Row> 
               <Col>
                 <AudioList
                   socket={socket}

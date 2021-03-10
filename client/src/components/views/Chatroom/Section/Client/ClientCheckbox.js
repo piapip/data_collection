@@ -92,13 +92,13 @@ export default function ClientCheckbox(props) {
 
   const radioContextStyle = {
     display: 'inline-block',
-    border: '1px solid black',
-    borderRadius: "20px",
+    // border: '1px solid #dedede',
+    // borderRadius: "20px",
     height: '100%',
     width: "100%",
     paddingTop: "15px",
     paddingBottom: "15px",
-    backgroundColor: "white",
+    // backgroundColor: "white",
     verticalAlign: 'middle',
   };
 

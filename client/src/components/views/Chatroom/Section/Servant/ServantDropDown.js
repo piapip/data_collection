@@ -166,11 +166,11 @@ export default function ServantDropDown(props) {
 
   const radioContextStyle = {
     display: 'inline-block',
-    border: '1px solid black',
+    // border: '1px solid #dedede',
     height: '100%',
     width: "100%",
-    borderRadius: "20px",
-    backgroundColor: "white",
+    // borderRadius: "20px",
+    // backgroundColor: "white",
     paddingLeft: "10px",
     paddingRight: "10px",
     verticalAlign: 'middle',
