@@ -41,7 +41,7 @@ function LandingPage(props) {
         let yourRole = ""
         if (user.userData && client.userID === user.userData._id) yourRole = "client"
         if (user.userData && servant.userID === user.userData._id) yourRole = "servant"
-        console.log(`Found match! You are ${yourRole}. Your room type is ${roomType}`)
+        // console.log(`Found match! You are ${yourRole}. Your room type is ${roomType}`)
         role.current = yourRole
         content_type.current = roomType
         setMatchFound(true)

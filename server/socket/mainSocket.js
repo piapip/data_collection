@@ -35,23 +35,35 @@ sockets.init = function(server) {
   let audioQueue = [];    // ready for audio room
   let textQueue = [];     // ready for text room
   let promptQueue = [];   // ready to join room
+  let idle = [];          // not in queue
+  let inRoom = [];
   // ^^^^^ server socket
 
   // vvvvv client socket
   io.on('connection', (socket) => {
     // console.log("Connected: " + socket.id);
 
+    if (!idle.includes(socket.id)) idle.push(socket.id);
+    io.to(socket.id).emit("refresh status", {
+      idle: idle.length,
+      inQueue: audioQueue.length,
+      inRoom: inRoom.length,
+    })
+
     socket.on('disconnect', () => {
       // console.log("Disconnected: " + socket.id)
-      var index = audioQueue.findIndex(item => item.socketID === socket.id)
-      if (index !== -1) {
-        audioQueue.splice(index, 1);
+      let indexQueue = audioQueue.findIndex(item => item.socketID === socket.id)
+      if (indexQueue !== -1) {
+        audioQueue.splice(indexQueue, 1);
       } else {
-        index = textQueue.findIndex(item => item.socketID === socket.id)
-        if (index !== -1) {
-          textQueue.splice(index, 1);
+        indexQueue = textQueue.findIndex(item => item.socketID === socket.id)
+        if (indexQueue !== -1) {
+          textQueue.splice(indexQueue, 1);
         }
       }
+
+      const indexIdle = idle.findIndex((item) => { return item === socket.id })
+      if (indexIdle !== -1) idle.splice(indexIdle, 1);
     });
 
     // when receive ready signal from user
@@ -62,6 +74,9 @@ sockets.init = function(server) {
         username: username,
         inputType: inputType,
       }
+
+      const indexIdle = idle.findIndex((item) => { return item === socket.id })
+      if (indexIdle !== -1) idle.splice(indexIdle, 1);
 
       // put the user into the respective queue, "all" will put the user into both queues.
       if (inputType === "audio") {
@@ -575,10 +590,6 @@ sockets.init = function(server) {
   
   });
 
-  // Need to add a "I don't understand button, please say the line again" for both side. None of them can delete their own audios unless the other party does so.
-  // If the button is pressed, the last message that was sent out of the room will be deleted. (Of course, can't always press it). 
-  // This gonna be a problem since I have to update code for both amazon server and local server. Or I can cheat just by deleting the record of the room. 
-  // But since the policy of the website is that once the conversation is over, the room will be destroy along with its record... Maybe I should create a log for that.
   // Create a log for the record so deleting audio won't be a problem.
   // Also create a log for those deleted record. So can pluck em out and put them into a trash folder
 }

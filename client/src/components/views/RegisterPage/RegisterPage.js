@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 
 import {
   Form,
+  Radio,
   Input,
   Button,
 } from 'antd';
@@ -41,6 +42,7 @@ function RegisterPage(props) {
     <Formik
       initialValues={{
         email: '',
+        sex: 1,
         name: '',
         password: '',
         confirmPassword: ''
@@ -63,6 +65,7 @@ function RegisterPage(props) {
 
           let dataToSubmit = {
             email: values.email,
+            sex: values.sex,
             password: values.password,
             name: values.name,
             lastname: values.lastname,
@@ -114,6 +117,18 @@ function RegisterPage(props) {
                   <div className="input-feedback">{errors.name}</div>
                 )}
               </Form.Item>
+
+              <Form.Item required label="Sex">
+                <Radio.Group 
+                  id="sex"
+                  value={values.sex} 
+                  onChange={handleChange("sex")}
+                  onBlur={handleBlur}>
+                  <Radio value={1}>Man</Radio>
+                  <Radio value={2}>Female</Radio>
+                </Radio.Group>
+              </Form.Item>
+
               <Form.Item required label="Email" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
                 <Input
                   id="email"
@@ -151,7 +166,7 @@ function RegisterPage(props) {
               <Form.Item required label="Confirm" hasFeedback>
                 <Input
                   id="confirmPassword"
-                  placeholder="Enter your confirmPassword"
+                  placeholder="Enter your confirm password"
                   type="password"
                   value={values.confirmPassword}
                   onChange={handleChange}
