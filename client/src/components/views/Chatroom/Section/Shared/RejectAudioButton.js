@@ -7,16 +7,20 @@ import { removeLatestAudio } from '../../../../../_actions/chatroom_actions';
 export default function RejectAudioButton(props) {
 
   const [ buttonState, setButtonState ] = useState(false);
+  const [ buttonPhase, setButtonPhase ] = useState(0);
 
   const userRole = props ? props.userRole : "";
   const roomID = props ? props.roomID : "";
   const socket = props ? props.socket : null;
+  const disabled = props ? props.disabled : true;
   const dispatch = useDispatch();
 
   const onReject = async () => {
     await setButtonState(true);
+    await setButtonPhase(1);
     dispatch(removeLatestAudio(roomID, userRole))
     .then(async (response) => {
+      setButtonPhase(0);
       setButtonState(false);
       if (response.payload.success === 1) {
         if (socket) {
@@ -38,17 +42,30 @@ export default function RejectAudioButton(props) {
   }
 
   const insertButton = (
-    <Popconfirm 
-      title="Bạn sẽ xóa audio mà bên kia vừa gửi tới cho bạn, bạn chắc chắn là sẽ xóa không?"
-      onConfirm={onReject}
-      okText="Xóa"
-      okButtonProps={{
-        disabled: buttonState
-      }}
-      cancelText="Không xóa">
-      {/* <button className="reject-buttons" onClick={onReject} disabled={buttonState}>Không hiểu audio</button> */}
-      <button className="reject-buttons">Không hiểu audio</button>
-    </Popconfirm>
+    disabled ? (
+      <button className="reject-buttons" disabled>Không hiểu audio</button>
+    ) : (
+      buttonState ? (
+        <button className="reject-buttons" style={{cursor: 'not-allowed'}} disabled>{
+          buttonPhase === 0 ? "Không hiểu audio" :
+          buttonPhase === 1 ? "Đang xóa audio..." : "????HOWWWW???"
+        }</button>
+      ) : (
+        <Popconfirm 
+          title="Bạn sẽ xóa audio mà bên kia vừa gửi tới cho bạn, bạn chắc chắn là sẽ xóa không?"
+          onConfirm={onReject}
+          okText="Xóa"
+          okButtonProps={{
+            disabled: buttonState
+          }}
+          cancelText="Không xóa">
+          <button className="reject-buttons">{
+            buttonPhase === 0 ? "Không hiểu audio" :
+            buttonPhase === 1 ? "Đang xóa audio..." : "????HOWWWW???"
+          }</button>
+        </Popconfirm>
+      )
+    )
   )
 
   return (

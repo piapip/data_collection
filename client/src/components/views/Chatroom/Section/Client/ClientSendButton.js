@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 
-// import { Popover } from 'antd';
 import RejectAudioButton from '../Shared/RejectAudioButton';
 import LoadingComponent from '../../../Loading/LoadingComponent';
 
-// import { BACKEND_URL } from '../../../../Config';
+import { getTranscript } from '../../../../../_actions/audio_actions';
 
 export default function ClientSendButton(props) {
 
@@ -18,10 +18,13 @@ export default function ClientSendButton(props) {
   const socket = props ? props.socket : null;
   const buttonDisable = props ? props.disable : true;
   const turn = props ? props.turn : -1;
+  const rejectButtonDisabled = props ? props.rejectButtonDisabled : true;
+  const dispatch = useDispatch();
 
   const audioName = props ? props.audioName : "test.wav";
 
   const [ buttonState, setButtonState ] = useState(false);
+  const [ buttonPhase, setButtonPhase ] = useState(0);
 
   const uploadAudioAWS = async (e) => {
 
@@ -40,26 +43,33 @@ export default function ClientSendButton(props) {
     };
     
     try {
+      setButtonPhase(1);
       setButtonState(true);
       await axios.post(
-        // `${BACKEND_URL}/api/aws/upload`,
         // '/api/aws/upload',
         '/api/upload/file',
         formdata,
         requestConfig,
       ).then(res => {
-        // props.sendAudioSignal(res.data.data.Location);
-        props.sendAudioSignal(res.data.link);
-        setButtonState(false);
+        setButtonPhase(2);
+        const audioLink = res.data.link;
         const audioID = res.data.audioID;
-        if (socket) {
-          socket.emit('client intent', {
-            roomID,
-            audioID,
-            intent,
-          });
-        }
+        // props.sendAudioSignal(res.data.data.Location);
+        props.sendAudioSignal(audioLink);
+        dispatch(getTranscript(audioLink, audioID))
+        .then(() => {
+          setButtonState(false);
+          setButtonPhase(0);
+          if (socket) {
+            socket.emit('client intent', {
+              roomID,
+              audioID,
+              intent,
+            });
+          }
+        });
       })
+
     } catch(error){
       alert(error);
     }
@@ -71,9 +81,17 @@ export default function ClientSendButton(props) {
       <button className="buttons" style={{cursor: 'not-allowed'}} disabled>Gửi</button>
     ) : (
       buttonState ? (
-        <button className="buttons" style={{cursor: 'not-allowed'}} disabled><LoadingComponent /></button>
+        <button className="buttons" style={{cursor: 'not-allowed'}} disabled><LoadingComponent /> {
+          buttonPhase === 0 ? "Gửi" :
+          buttonPhase === 1 ? "Xử lý audio..." :
+          buttonPhase === 2 ? "Lấy transcript..." : "????HOWWWW???"
+        }</button>
       ) : (
-        <button className="buttons" onClick={uploadAudioAWS}>Gửi</button>  
+        <button className="buttons" onClick={uploadAudioAWS}>{
+          buttonPhase === 0 ? "Gửi" :
+          buttonPhase === 1 ? "Xử lý audio..." :
+          buttonPhase === 2 ? "Lấy transcript..." : "????HOWWWW???"
+        }</button>  
       )
     )
   ) : (
@@ -81,7 +99,8 @@ export default function ClientSendButton(props) {
       <RejectAudioButton 
         socket={socket}
         roomID={roomID}
-        userRole={userRole}/>
+        userRole={userRole}
+        disabled={rejectButtonDisabled}/>
     ) : ""
   )
 

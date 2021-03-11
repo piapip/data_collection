@@ -14,4 +14,5 @@ export const GET_MESSAGES = 'get_message';
 export const AFTER_POST_MESSAGE = 'after_post_message';
 
 // FOR AUDIO
+export const GET_TRANSCRIPT = 'get_transcript';
 export const FIX_TRANSCRIPT = 'fix_transcript';

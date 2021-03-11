@@ -27,7 +27,7 @@ export default function ProgressNote(props) {
     (progress.length !== 0 && scenario.length !== 0) ? (
       progress.map((property, index) => {
         return (
-          <Col xs={24} xl={12}>
+          <Col xs={24} xl={12} key={property[0]}>
             <Row style={{height: "50px", lineHeight: "50px"}}>
               <Col span={8}>
                 <b>{LABEL[index]}</b>:

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 
-// import { BACKEND_URL } from '../../../../Config';
+import { getTranscript } from '../../../../../_actions/audio_actions';
 
 import RejectAudioButton from './../Shared/RejectAudioButton';
 import LoadingComponent from './../../../Loading/LoadingComponent';
@@ -9,6 +10,7 @@ import LoadingComponent from './../../../Loading/LoadingComponent';
 export default function ServantSendButton(props) {
 
   const [ buttonState, setButtonState ] = useState(false);
+  const [ buttonPhase, setButtonPhase ] = useState(0);
 
   const data = props ? props.audio : null;
   const roomDone = props ? props.roomDone : null;
@@ -18,6 +20,7 @@ export default function ServantSendButton(props) {
   const roomName = props ? props.roomName : "";
   const turn = props ? props.turn : -1;
   const socket = props ? props.socket : null;
+  const rejectButtonDisabled = props ? props.rejectButtonDisabled : true;
   const intent = props ? props.intent : {
     device: null,
     room: null,
@@ -26,6 +29,7 @@ export default function ServantSendButton(props) {
     floor: null,
     level: null,
   };
+  const dispatch = useDispatch();
 
   const audioName = props ? props.audioName : "test.wav";
 
@@ -45,6 +49,7 @@ export default function ServantSendButton(props) {
     }
     
     try {
+      setButtonPhase(1);
       setButtonState(true);
       await axios.post(
         // `${BACKEND_URL}/api/aws/upload`,
@@ -53,16 +58,23 @@ export default function ServantSendButton(props) {
         formdata,
         requestConfig,
       ).then(res => {
-        // props.sendAudioSignal(res.data.data.Location);
-        props.sendAudioSignal(res.data.link);
-        setButtonState(false);
+        setButtonPhase(2);
+        const audioLink = res.data.link;
         const audioID = res.data.audioID;
-        if (socket) {
-          socket.emit('servant audio', {
-            roomID,
-            audioID,
-          });
-        }
+        // props.sendAudioSignal(res.data.data.Location);
+        props.sendAudioSignal(audioLink);
+        dispatch(getTranscript(audioLink, audioID))
+        .then(() => {
+          setButtonState(false);
+          setButtonPhase(0);
+          const audioID = res.data.audioID;
+          if (socket) {
+            socket.emit('servant audio', {
+              roomID,
+              audioID,
+            });
+          }
+        })
       })
     } catch(error){
       alert(error)
@@ -86,12 +98,20 @@ export default function ServantSendButton(props) {
 
   const insertSendButton = (turn === 3 && data !== null) ? (
     buttonState ? (
-      <button className="buttons" style={{cursor: 'not-allowed'}} disabled><LoadingComponent /></button>
+      <button className="buttons" style={{cursor: 'not-allowed'}} disabled><LoadingComponent /> {
+        buttonPhase === 0 ? "Gửi" :
+        buttonPhase === 1 ? "Xử lý audio..." :
+        buttonPhase === 1 ? "Lấy transcript..." : "????HOWWWW???"
+      }</button>
     ) : (
       roomDone ? (
         <button className="buttons" disabled={roomDone || buttonState}>Gửi</button>
       ) : (
-        <button className="buttons" onClick={uploadAudioAWS} disabled={roomDone || buttonState}>Gửi</button>
+        <button className="buttons" onClick={uploadAudioAWS} disabled={roomDone || buttonState}>{
+          buttonPhase === 0 ? "Gửi" :
+          buttonPhase === 1 ? "Xử lý audio..." :
+          buttonPhase === 1 ? "Lấy transcript..." : "????HOWWWW???"
+        }</button>
       )
     )
     
@@ -100,7 +120,8 @@ export default function ServantSendButton(props) {
       <RejectAudioButton
         roomID={roomID}
         userRole={userRole} 
-        socket={socket}/>
+        socket={socket}
+        disabled={rejectButtonDisabled}/>
       <button className="buttons" onClick={onConfirm} disabled={roomDone || buttonState}>Xác nhận</button>
     </div>
     

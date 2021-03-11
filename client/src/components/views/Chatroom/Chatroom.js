@@ -248,7 +248,7 @@ export default function Chatroom(props) {
   // }, [])
 
   useEffect(() => {
-    if (socket && transcriptHistory.length !== 0) {
+    if (socket) {
       socket.on('update transcript', ({username, transcript, index}) => {
         if (index === -1) {
           console.log(transcript);
@@ -274,7 +274,7 @@ export default function Chatroom(props) {
   }, [transcriptHistory, socket])
 
   useEffect(() => {
-    if (socket && transcriptHistory.length !== 0 && audioHistory.length !== 0) {
+    if (socket) {
       socket.on('audio removed', () => {
         let newHistory = [...audioHistory];
         newHistory.pop();

@@ -322,9 +322,9 @@ sockets.init = function(server) {
 
         io.to(roomID).emit("update transcript", {
           // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
-        username: audioID,
-        transcript: transcript,
-        index: -1,
+          username: audioID,
+          transcript: transcript,
+          index: -1,
         });
       }, 3500);
     });

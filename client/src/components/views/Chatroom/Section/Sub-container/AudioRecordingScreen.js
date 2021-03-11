@@ -194,8 +194,7 @@ export default function AudioRecordingScreen(props) {
       </Row>
 
       <Row>
-        {/* <Row style={{marginLeft: "15px", marginRight: "15px"}}> */}
-        <Row>
+        <Row style={{marginBottom: "10px"}}>
           <Col>
             <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
               {userRole === "client" && progress !== [] ?
@@ -238,6 +237,7 @@ export default function AudioRecordingScreen(props) {
                     audioName={audioName}
                     turn={turn}
                     disable={(intent === null && tagVisibility) || roomDone}
+                    rejectButtonDisabled={latestAudio === null}
                     socket={socket}
                     audio={audio} 
                     intent={tagVisibility ? intent : null}
@@ -252,7 +252,8 @@ export default function AudioRecordingScreen(props) {
                     socket={socket}
                     roomDone={roomDone}
                     turn={turn}
-                    audio={audio} 
+                    audio={audio}
+                    rejectButtonDisabled={latestAudio === null}
                     intent={tagVisibility ? intent : null}
                     userRole={userRole}
                     userID={user.userData ? user.userData._id : ""}
