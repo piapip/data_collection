@@ -288,22 +288,23 @@ sockets.init = function(server) {
             // IMPLEMENT SOME KIND OF ERROR!!!
             return null;
           } else {
-            // create intent
-            let extractIntent = {
-              action: null,
-              device: null,
-              floor: null,
-              room: null,
-              scale: null,
-              level: null,
-            };
+            // // create intent
+            // let extractIntent = {
+            //   action: null,
+            //   device: null,
+            //   floor: null,
+            //   room: null,
+            //   scale: null,
+            //   level: null,
+            // };
 
-            if (intent !== null) {
-              intent.map(property => {
-                return extractIntent[property.key] = property.value;
-              })
-            }
-            const { action, device, floor, room, scale, level } = extractIntent;
+            // if (intent !== null) {
+            //   intent.map(property => {
+            //     return extractIntent[property.key] = property.value;
+            //   })
+            // }
+            // const { action, device, floor, room, scale, level } = extractIntent;
+            const { action, device, floor, room, scale, level } = intent;
             const newIntent = await Intent.create({
               action,
               device,
@@ -443,32 +444,39 @@ sockets.init = function(server) {
               // update currentIntent
               const newIntent = await Intent.findById(roomFound.currentIntent)
               .then(currentIntentFound => {
-                if (intent.action !== currentIntentFound.action) {
-                  currentIntentFound = intent;
+                if (!currentIntentFound) {
+                  console.log("... Some shenanigan.. CurrentIntent doesn't even exist.");
                 } else {
-                  for (const property in intent) {
-                    if(intent[property] !== null) {
-                      currentIntentFound.property = intent[property];
+                  if (intent.action !== null && intent.action !== currentIntentFound.action) {
+                    currentIntentFound = transferObject(currentIntentFound, intent);
+                  } else {
+                    for (const property in intent) {
+                      if(intent[property] !== null) {
+                        currentIntentFound[property] = intent[property];
+                      }
                     }
                   }
+                  return currentIntentFound.save();
                 }
-
-                return currentIntentFound.save();
               })
               .catch(err => console.log("Having trouble updating currenting intent...",err))
 
               // update progress
               const newProgress = await Progress.findById(roomFound.progress)
-              .then(progressFound => {
+              .then(async progressFound => {
                 if (!progressFound) {
                   console.log("... Some shenanigan.. Progress doesn't even exist.");
                 } else {
-                  if (roomFound.intent.action !== intent.action) {
-                    progressFound = createRandomProgress(roomFound.intent)
+                  const originalIntent = await getOriginalIntent(roomID);
+                  if (intent.action !== null && originalIntent.action !== intent.action) {
+                    const properties = ["action", "device", "floor", "room", "scale", "level"];
+                    for (let key in properties) {
+                      if(progressFound[properties[key]] !== -1) progressFound[properties[key]] = 0;
+                    }
                   } else {
                     for (const property in intent) {
                       if(intent[property] !== null &&
-                         intent[property] === roomFound.intent[property]) {
+                         intent[property].toString() === originalIntent[property].toString()) {
                         if(progressFound[property] !== -1) {
                         // if(progressFound[property] === -1) {
                         //   console.log("... something's wrong with progress and intent... property: ", property);
@@ -797,18 +805,58 @@ const { Progress } = require("./../models/Progress")
 
 const createRandomProgress = (intent) => {
 
-  const { action, device, floor, room, scale, level } = intent;
+  const { action, device, floor, room, scale, level } = freshProgress(intent);
 
   const progress = Progress.create({
+    action, device, floor, room, scale, level
+  })
+
+  return progress;
+}
+
+const freshProgress = (intent) => {
+
+  const { action, device, floor, room, scale, level } = intent;
+
+  return {
     action: (action === null ? -1 : 0),
     device: (device === null ? -1 : 0),
     floor: (floor === null ? -1 : 0),
     room: (room === null ? -1 : 0),
     scale: (scale === null ? -1 : 0),
     level: (level === null ? -1 : 0),
-  })
+  }
+}
 
-  return progress
+// transfer information from newObject to the originalObject
+const transferObject = (originalObject, newObject) => {
+  for (let key in newObject) {
+    if (newObject.hasOwnProperty(key)) {
+      originalObject[key] = newObject[key];
+    }
+  }
+
+  console.log("Original object: ", originalObject);
+
+  return originalObject;
+}
+
+const getOriginalIntent = (roomID) => {
+  return Chatroom.findById(roomID)
+  .then(async roomFound => {
+    if (!roomFound) {
+      console.log("... Some shenanigan.. Room doesn't even exist.");
+      return null;
+    } else {
+      return await Intent.findById(roomFound.intent)
+      .then(intentFound => {
+        if (!intentFound) {
+          console.log("... Some shenanigan.. Intent doesn't even exist.");
+          return null;
+        } else return intentFound
+      })
+    }
+  })
 }
 
 // const createProgress = () => {

@@ -61,7 +61,7 @@ const scaleData = {
 export default function ServantDropDown(props) {
 
   const intent = props ? props.intent : null;
-  const turn = props ? props.turn : -1;
+  // const turn = props ? props.turn : -1;
   const tagVisible = props ? props.visible : true;
   const disabled = props ? props.disabled : false;
 
@@ -216,7 +216,8 @@ export default function ServantDropDown(props) {
                     defaultValue={deviceData[0]} 
                     style={{ width: "100%" }}
                     onChange={handleDeviceChange}
-                    disabled={turn !== 2 || !tagVisible}>
+                    // disabled={turn !== 2 || !tagVisible}>
+                    disabled={disabled || !tagVisible}>
                     {
                       deviceData.map(device => (
                         <Option key={device}><p style={{width: "100%", whiteSpace: "normal"}}>{device}</p></Option>
@@ -237,7 +238,8 @@ export default function ServantDropDown(props) {
                     value={selectedAction}
                     style={{ width: "100%" }}
                     onChange={onSelectedActionChange}
-                    disabled={turn !== 2  || !tagVisible}>
+                    // disabled={turn !== 2  || !tagVisible}>
+                    disabled={disabled || !tagVisible}>
                     {
                       actionList.map(action => (
                         <Option key={action}><p style={{width: "100%", whiteSpace: "normal"}}>{action}</p></Option>
@@ -258,7 +260,8 @@ export default function ServantDropDown(props) {
                     value={selectedRoom}
                     style={{ width: "100%" }}
                     onChange={onSelectedRoomChange}
-                    disabled={turn !== 2  || !tagVisible}>
+                    // disabled={turn !== 2  || !tagVisible}>
+                    disabled={disabled || !tagVisible}>
                     {
                       roomList.map(room => (
                         <Option key={room}><p style={{width: "100%", whiteSpace: "normal"}}>{room}</p></Option>
@@ -279,7 +282,8 @@ export default function ServantDropDown(props) {
                     value={selectedFloor}
                     style={{ width: "100%" }}
                     onChange={onSelectedFloorChange}
-                    disabled={turn !== 2  || !tagVisible}>
+                    // disabled={turn !== 2  || !tagVisible}>
+                    disabled={disabled || !tagVisible}>
                     {
                       floorData.map(floor => (
                         <Option key={floor}><p style={{width: "100%", whiteSpace: "normal"}}>{floor}</p></Option>
@@ -300,7 +304,8 @@ export default function ServantDropDown(props) {
                     value={selectedScale}
                     style={{ width: "100%" }}
                     onChange={onSelectedScaleChange}
-                    disabled={turn !== 2 || !tagVisible}>
+                    // disabled={turn !== 2 || !tagVisible}>
+                    disabled={disabled || !tagVisible}>
                     {
                       scaleList.map(scale => (
                         <Option key={scale}><p style={{width: "100%", whiteSpace: "normal"}}>{scale}</p></Option>
@@ -324,7 +329,8 @@ export default function ServantDropDown(props) {
                         placeholder="Chọn màu"
                         style={{ width: "100%" }}
                         onChange={onSelectedLevelChange}
-                        disabled={turn !== 2 || !tagVisible}>
+                        // disabled={turn !== 2 || !tagVisible}>
+                        disabled={disabled || !tagVisible}>
                         {
                           COLOR.map(color => (
                             <Option key={color}><p style={{width: "100%", whiteSpace: "normal"}}>{color}</p></Option>
@@ -339,7 +345,8 @@ export default function ServantDropDown(props) {
                         style={{ width: "100%" }}
                         placeholder="Nhập số"
                         onChange={onSelectedLevelChange}
-                        disabled={turn !== 2 || !tagVisible}
+                        // disabled={turn !== 2 || !tagVisible}
+                        disabled={disabled || !tagVisible}
                       />
                     ) : (
                       <InputNumber 

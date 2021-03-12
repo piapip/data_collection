@@ -13,9 +13,9 @@ import PromptLeaving from './Section/Shared/PromptLeaving';
 import Guide from './Section/Shared/Guide';
 import RoomStatusPopover from './Section/Shared/RoomStatusPopover';
 
-import Scenario from './Section/Client/Scenario';
+// import Scenario from './Section/Client/Scenario';
 
-import ProgressNote from './Section/Servant/ProgressNote';
+// import ProgressNote from './Section/Servant/ProgressNote';
 
 import AudioRecordingScreen from './Section/Sub-container/AudioRecordingScreen';
 
@@ -23,7 +23,7 @@ import {getRoom} from '../../../_actions/chatroom_actions';
 
 import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
-import LoadingComponent from '../Loading/LoadingComponent';
+// import LoadingComponent from '../Loading/LoadingComponent';
 
 import ClientBG from './../LandingPage/Section/images/speak.svg';
 import ServantBG from './../LandingPage/Section/images/listen.svg';
@@ -44,6 +44,7 @@ export default function Chatroom(props) {
   const [ latestAudio, setLatestAudio ] = useState(null);
   const [ scenario, setScenario ] = useState([]);
   const [ progress, setProgress ] = useState([]);
+  const [ currentIntent, setCurrentIntent ] = useState([]);
   const [ turn, setTurn ] = useState(-1);
   const [ loading, setLoading ] = useState(true);
   const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
@@ -101,21 +102,38 @@ export default function Chatroom(props) {
         if (userID === response.payload.roomFound.user2) setUserRole("servant");
         setRoomDone(response.payload.roomFound.done);
         setRoomName(response.payload.roomFound.name);
-        const intent = response.payload.roomFound.intent;
-        let tempIntent = []
-        for (const property in intent) {
-          if (property !== '_id' && property !== '__v' && intent[property] !== null) {
-            tempIntent.push([
+
+        const scenario = response.payload.roomFound.intent;
+        let tempScenario = [];
+        for (const property in scenario) {
+          if (property !== '_id' && property !== '__v' && scenario[property] !== null) {
+            tempScenario.push([
               property,
-              (property === 'floor' ? 'Tầng ' + intent[property] : intent[property]),
-              intent[property],
+              (property === 'floor' ? 'Tầng ' + scenario[property] : scenario[property]),
+              scenario[property],
+              // key: property,
+              // label: scenario[property],
+              // value: scenario[property],
+            ])
+          }
+        }
+        setScenario(tempScenario);
+
+        const currentIntent = response.payload.roomFound.currentIntent;
+        let tempCurrentIntent = [];
+        for (const property in currentIntent) {
+          if (property !== '_id' && property !== '__v' && currentIntent[property] !== null) {
+            tempCurrentIntent.push([
+              property,
+              (property === 'floor' ? 'Tầng ' + currentIntent[property] : currentIntent[property]),
+              currentIntent[property],
               // key: property,
               // label: intent[property],
               // value: intent[property],
             ])
           }
         }
-        setScenario(tempIntent);
+        setCurrentIntent(tempCurrentIntent)
 
         const progress = response.payload.roomFound.progress;
         updateProgress(progress)
@@ -369,7 +387,7 @@ export default function Chatroom(props) {
 
   const roomStatusContent = (
     <>
-      {
+      {/* {
         userRole === "client" ? (
         <Scenario scenario={scenario} progress={progress}/>) : 
         userRole === "servant" ? (
@@ -377,7 +395,7 @@ export default function Chatroom(props) {
         (
           <LoadingComponent />
         )
-      }
+      } */}
     </>
   )
 

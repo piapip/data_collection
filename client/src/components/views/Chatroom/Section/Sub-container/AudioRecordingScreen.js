@@ -11,12 +11,12 @@ import Status from '../Shared/Status';
 import CustomAudioPlayer from '../Shared/CustomAudioPlayer';
 
 import ClientSendButton from '../Client/ClientSendButton';
-import ClientCheckbox from '../Client/ClientCheckbox';
+// import ClientCheckbox from '../Client/ClientCheckbox';
 
 import ServantSendButton from '../Servant/ServantSendButton';
 import ServantDropDown from '../Servant/ServantDropDown';
 
-import LoadingComponent from './../../../Loading/LoadingComponent';
+// import LoadingComponent from './../../../Loading/LoadingComponent';
 
 export default function AudioRecordingScreen(props) {
   const canvasRef = props.canvasRef;
@@ -24,7 +24,7 @@ export default function AudioRecordingScreen(props) {
 
   let socket = props ? props.socket : null;
   const roomDone = props ? props.roomDone : false;
-  const progress = props ? props.progress : [];
+  // const progress = props ? props.progress : [];
   const audioName = props ? props.audioName : "";
   const chatroomID = props ? props.chatroomID : "";
   const roomName = props ? props.roomName : "";
@@ -32,7 +32,7 @@ export default function AudioRecordingScreen(props) {
   const userRole = props ? props.userRole : "";
   const turn = props ? props.turn : false;
   const message = props ? props.message : "Loading";
-  const scenario = props ? props.scenario : [];
+  // const scenario = props ? props.scenario : [];
   const latestAudio = props ? props.latestAudio : null;
   const [ isPlaying, setIsPlaying ] = useState(false);
   const [ audio, setAudio ] = useState(null);
@@ -197,7 +197,14 @@ export default function AudioRecordingScreen(props) {
         <Row style={{marginBottom: "10px"}}>
           <Col>
             <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
-              {userRole === "client" && progress !== [] ?
+              <ServantDropDown
+                toggleTagVisibility={toggleTagVisibility}
+                // turn={turn}
+                intent={intent}
+                visible={tagVisibility}
+                disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
+                setIntent={setIntent}/>
+              {/* {userRole === "client" && progress !== [] ?
                 <ClientCheckbox
                   // visible={tagVisibility && audio !== null}
                   toggleTagVisibility={toggleTagVisibility}
@@ -222,7 +229,7 @@ export default function AudioRecordingScreen(props) {
                   <LoadingComponent />
                 </div>
               )
-              }
+              } */}
             </div>
           </Col>
         </Row>
