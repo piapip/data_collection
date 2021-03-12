@@ -7,9 +7,9 @@ import './Sections/Navbar.css';
 
 function NavBar(props) {
 
-  const idle = props ? props.idle : 0;
-  const inQueue = props ? props.inQueue : 0;
-  const inRoom = props ? props.inRoom : 0;
+  // const idle = props ? props.idle : 0;
+  // const inQueue = props ? props.inQueue : 0;
+  // const inRoom = props ? props.inRoom : 0;
   const [visible, setVisible] = useState(false)
 
   const showDrawer = () => {
@@ -32,9 +32,10 @@ function NavBar(props) {
         <div className="menu_rigth">
           <RightMenu 
             mode="horizontal"
-            idle={idle}
-            inQueue={inQueue}
-            inRoom={inRoom} />
+            // idle={idle}
+            // inQueue={inQueue}
+            // inRoom={inRoom} 
+            />
         </div>
         <Button
           className="menu__mobile-button"

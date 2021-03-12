@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Route, Switch } from "react-router-dom";
 import io from 'socket.io-client';
 import Auth from "../hoc/auth";
@@ -20,9 +20,9 @@ let socket
 
 function App(props) {
 
-  const [ idle, setIdle ] = useState(0);
-  const [ inQueue, setInQueue ] = useState(0);
-  const [ inRoom, setInRoom ] = useState(0);
+  // const [ idle, setIdle ] = useState(0);
+  // const [ inQueue, setInQueue ] = useState(0);
+  // const [ inRoom, setInRoom ] = useState(0);
 
   const setupSocket =  async () => {
     var w_auth
@@ -52,13 +52,13 @@ function App(props) {
       console.log("Socket Connected!")
     });
 
-    socket.on('refresh status', ({idle, inQueue, inRoom}) => {
-      // console.log(`idle:`, idle);
-      // console.log(`inRoom:`, inRoom);
-      setIdle(idle);
-      setInQueue(inQueue);
-      setInRoom(inRoom);
-    })
+    // socket.on('refresh status', ({idle, inQueue, inRoom}) => {
+    //   // console.log(`idle:`, idle);
+    //   // console.log(`inRoom:`, inRoom);
+    //   setIdle(idle);
+    //   setInQueue(inQueue);
+    //   setInRoom(inRoom);
+    // })
   }
 
   useEffect(() => {
@@ -72,9 +72,10 @@ function App(props) {
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
       <NavBar
-        idle={idle}
-        inQueue={inQueue}
-        inRoom={inRoom}/>
+        // idle={idle}
+        // inQueue={inQueue}
+        // inRoom={inRoom}
+      />
       <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
       {/* <div style={{ paddingTop: '69px' }}> */}
         <Switch>

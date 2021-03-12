@@ -44,26 +44,33 @@ sockets.init = function(server) {
     // console.log("Connected: " + socket.id);
 
     if (!idle.includes(socket.id)) idle.push(socket.id);
-    io.to(socket.id).emit("refresh status", {
-      idle: idle.length,
-      inQueue: audioQueue.length,
-      inRoom: inRoom.length,
-    })
+    // io.to(socket.id).emit("refresh status", {
+    //   idle: idle.length,
+    //   inQueue: audioQueue.length,
+    //   inRoom: inRoom.length,
+    // })
 
     socket.on('disconnect', () => {
       // console.log("Disconnected: " + socket.id)
-      let indexQueue = audioQueue.findIndex(item => item.socketID === socket.id)
+      let indexQueue = audioQueue.findIndex(item => item.socketID === socket.id);
       if (indexQueue !== -1) {
         audioQueue.splice(indexQueue, 1);
       } else {
-        indexQueue = textQueue.findIndex(item => item.socketID === socket.id)
+        indexQueue = textQueue.findIndex(item => item.socketID === socket.id);
         if (indexQueue !== -1) {
           textQueue.splice(indexQueue, 1);
         }
       }
 
-      const indexIdle = idle.findIndex((item) => { return item === socket.id })
+      const indexIdle = idle.findIndex((item) => { return item === socket.id });
       if (indexIdle !== -1) idle.splice(indexIdle, 1);
+
+      // Check room status too.
+      const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socket.id});
+      if (inRoomIndex !== -1) {
+        inRoomIndex.splice(inRoomIndex, 1);
+        kickUser(inRoom[inRoomIndex].roomID, inRoom[inRoomIndex].userID);
+      }
     });
 
     // when receive ready signal from user
@@ -200,6 +207,13 @@ sockets.init = function(server) {
     // when an user enters the room, announce to everyone else in the room
     socket.on('joinRoom', async ({ socketID, chatroomID, userID, username }) => {
 
+      const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socketID})
+      if (inRoomIndex === -1) inRoom.push({
+        roomID: chatroomID,
+        userID: userID,
+        socketID: socketID,
+      });
+
       // -1 - no slot left  0 - already in room  1 - got in there successfully
       let status = await addSlot(chatroomID, userID);
 
@@ -231,8 +245,10 @@ sockets.init = function(server) {
       // remember to remove user from the user slot. (set it to null)
       kickUser(chatroomID, userID)
 
+      const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socketID})
+      if (inRoomIndex !== -1) inRoomIndex.splice(inRoomIndex, 1);
+
       socket.leave(chatroomID);
-      console.log(`The user ${username} has left chatroom: ${chatroomID}`)
 
       // sending to individual socketid (private message)
       io.to(chatroomID).emit('leaveRoom announce', {	
