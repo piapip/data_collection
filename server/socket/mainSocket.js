@@ -51,7 +51,7 @@ sockets.init = function(server) {
     // })
 
     socket.on('disconnect', () => {
-      // console.log("Disconnected: " + socket.id)
+      console.log("Disconnected: " + socket.id)
       let indexQueue = audioQueue.findIndex(item => item.socketID === socket.id);
       if (indexQueue !== -1) {
         audioQueue.splice(indexQueue, 1);
@@ -68,8 +68,11 @@ sockets.init = function(server) {
       // Check room status too.
       const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socket.id});
       if (inRoomIndex !== -1) {
-        inRoomIndex.splice(inRoomIndex, 1);
         kickUser(inRoom[inRoomIndex].roomID, inRoom[inRoomIndex].userID);
+        io.to(inRoom[inRoomIndex].roomID).emit('leaveRoom announce', {
+          username: inRoom[inRoomIndex].username,	
+        });
+        inRoom.splice(inRoomIndex, 1);
       }
     });
 
@@ -211,6 +214,7 @@ sockets.init = function(server) {
       if (inRoomIndex === -1) inRoom.push({
         roomID: chatroomID,
         userID: userID,
+        username: username,
         socketID: socketID,
       });
 
@@ -436,33 +440,57 @@ sockets.init = function(server) {
               // IMPLEMENT SOME KIND OF ERROR!!!
               return null;
             } else {
+              // update currentIntent
+              const newIntent = await Intent.findById(roomFound.currentIntent)
+              .then(currentIntentFound => {
+                if (intent.action !== currentIntentFound.action) {
+                  currentIntentFound = intent;
+                } else {
+                  for (const property in intent) {
+                    if(intent[property] !== null) {
+                      currentIntentFound.property = intent[property];
+                    }
+                  }
+                }
+
+                return currentIntentFound.save();
+              })
+              .catch(err => console.log("Having trouble updating currenting intent...",err))
+
               // update progress
               const newProgress = await Progress.findById(roomFound.progress)
               .then(progressFound => {
                 if (!progressFound) {
                   console.log("... Some shenanigan.. Progress doesn't even exist.");
                 } else {
-                  for (const property in intent) {
-                    if(intent[property] !== null) {
-                      if(progressFound[property] === -1) {
-                        console.log("... something's wrong with progress and intent... property: ", property);
-                        console.log(`Progress: `, progressFound);
-                        console.log(`Intent: `, intent);
-                        // IMPLEMENT SOME KIND OF ERROR!!!
-                        return 
-                      } else {
-                        progressFound[property]++;
+                  if (roomFound.intent.action !== intent.action) {
+                    progressFound = createRandomProgress(roomFound.intent)
+                  } else {
+                    for (const property in intent) {
+                      if(intent[property] !== null &&
+                         intent[property] === roomFound.intent[property]) {
+                        if(progressFound[property] !== -1) {
+                        // if(progressFound[property] === -1) {
+                        //   console.log("... something's wrong with progress and intent... property: ", property);
+                        //   console.log(`Progress: `, progressFound);
+                        //   console.log(`Intent: `, intent);
+                        //   // IMPLEMENT SOME KIND OF ERROR!!!
+                        //   return 
+                        // } else {
+                          progressFound[property]++;
+                        }
                       }
                     }
                   }
                 }
                 return progressFound.save();
               })
-              .catch(err => console.log(err))
+              .catch(err => console.log("Having trouble updating progress...",err))
 
               // emit signal
               io.to(roomID).emit('intent correct', {
                 newProgress: newProgress,
+                newIntent: newIntent,
               });
               
               if (
@@ -682,14 +710,9 @@ const createRoom = async (userID1, userID2, roomType) => {
   const randomValue = randomGenerator()
 
   let intent = await createRandomIntent()
-  let progress = await createRandomProgress(
-    intent.action, 
-    intent.device, 
-    intent.floor,
-    intent.room,
-    intent.scale,
-    intent.level,
-  )
+  let progress = await createRandomProgress(intent);
+  let currentIntent = await Intent.create({});
+  // let progress = await createProgress();
   const chatroom = await Chatroom.create({
     name: generateName() + randomValue,
     task: generateTask(intent.action, intent.device),
@@ -699,6 +722,7 @@ const createRoom = async (userID1, userID2, roomType) => {
     client: [userID1],
     servant: [userID2],
     intent: intent._id,
+    currentIntent: currentIntent._id,
     progress: progress._id,
     turn: 1,
   })
@@ -771,7 +795,10 @@ const createRandomIntent = () => {
 
 const { Progress } = require("./../models/Progress")
 
-const createRandomProgress = (action, device, floor, room, scale, level) => {
+const createRandomProgress = (intent) => {
+
+  const { action, device, floor, room, scale, level } = intent;
+
   const progress = Progress.create({
     action: (action === null ? -1 : 0),
     device: (device === null ? -1 : 0),
@@ -783,6 +810,19 @@ const createRandomProgress = (action, device, floor, room, scale, level) => {
 
   return progress
 }
+
+// const createProgress = () => {
+//   const progress = Progress.create({
+//     action: -1,
+//     device: -1,
+//     floor: -1,
+//     room: -1,
+//     scale: -1,
+//     level: -1,
+//   })
+
+//   return progress
+// }
 
 const getRandomFromArray = (arr) => {
   var item = arr[Math.floor(Math.random() * arr.length)]

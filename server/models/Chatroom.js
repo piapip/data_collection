@@ -46,12 +46,19 @@ const chatroomSchema = new mongoose.Schema({
     ref: 'Audio',
     default: [],
   }],
+  // detailed of the final result
   intent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Intent',
     required: 'Intent ID is required',
   },
-  // progress shows which criteria has been done. 
+  // currentIntent will show the current state of the dialogue so far.
+  currentIntent: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Intent',
+    default: null,
+  },
+  // progress is now the bug backup plan.
   // -1 - non-exist, 0 - not done, 1 - done
   progress: {
     type: mongoose.Schema.Types.ObjectId,
