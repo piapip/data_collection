@@ -197,13 +197,15 @@ export default function AudioRecordingScreen(props) {
         <Row style={{marginBottom: "10px"}}>
           <Col>
             <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
-              <ServantDropDown
+              {/* <ServantDropDown
                 toggleTagVisibility={toggleTagVisibility}
                 // turn={turn}
                 intent={intent}
                 visible={tagVisibility}
                 disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
-                setIntent={setIntent}/>
+                setIntent={setIntent}/> */}
+
+                
               {/* {userRole === "client" && progress !== [] ?
                 <ClientCheckbox
                   // visible={tagVisibility && audio !== null}

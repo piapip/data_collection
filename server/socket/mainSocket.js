@@ -754,79 +754,41 @@ const generateTask = () => {
   return `A random task name`
 }
 
-const { DEVICE, COLOR } = require("./../config/intent");
-// const { DEVICE, COLOR } = require("./../config/intent");
+const intentSamplePool = require("./../config/intent");
 
 const createRandomIntent = () => {
-  // gen device
-  let target = getRandomFromArray(DEVICE);
-  let device = target.name 
-  // gen floor 
-  let floor = genRandomInt(1, 4);
-  if (device === "Cổng") {
-    floor = 1;
-  }
-  // gen room
-  let room = getRandomFromArray(target.room);
-  // gen action
-  let targetAction = getRandomFromArray(target.action);
-  let action = targetAction.name;
-  // gen scale and level
-  let targetScale = null;
-  let scale = null;
-  let level = null;
-  if (targetAction.scale != null) {
-    if (targetAction.requireScale === 1 || Math.floor(Math.random() * 2) === 1) {
-      targetScale = getRandomFromArray(targetAction.scale);
-    } 
-  }
-  if (targetScale != null) {
-    scale = targetScale.name;
-    // Can't deal with this yet... Hardcode on frontend side for now.
-    // if (scale === 'Màu') {
-    //   level = COLOR[Math.floor(Math.random() * 2)];
-    // } else {
-    level = genRandomInt(targetScale.min, targetScale.max);
-    // }
+  // gen base intent
+  const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  console.log("intentIndex: ", intentIndex)
+  const slots = intentSamplePool.INTENT[intentIndex].slot;
+
+  let tempIntent = {
+    intent: intentIndex,
   }
 
-  const intent = Intent.create({
-    action: action,
-    device: device,
-    floor: floor,
-    room: room,
-    scale: scale,
-    level: level,
+  // gen slot required for intent.
+  slots.map(slot => {
+    if (intentSamplePool[slot.toUpperCase()] === undefined) {
+      // Have to change it once we know how to handle the city and district.
+      return tempIntent[slot] = -1;
+    }
+    const slotPool = intentSamplePool[slot.toUpperCase()];
+    const slotIndex = getRandomFromArray(slotPool);
+    return tempIntent[slot] = slotIndex;
   })
 
-  return intent
+  const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits } = tempIntent;
+  return Intent.create({
+    intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits
+  })
 }
 
 const { Progress } = require("./../models/Progress")
 
 const createRandomProgress = (intent) => {
 
-  const { action, device, floor, room, scale, level } = freshProgress(intent);
-
-  const progress = Progress.create({
-    action, device, floor, room, scale, level
-  })
-
+  const progress = Progress.create({})
   return progress;
-}
-
-const freshProgress = (intent) => {
-
-  const { action, device, floor, room, scale, level } = intent;
-
-  return {
-    action: (action === null ? -1 : 0),
-    device: (device === null ? -1 : 0),
-    floor: (floor === null ? -1 : 0),
-    room: (room === null ? -1 : 0),
-    scale: (scale === null ? -1 : 0),
-    level: (level === null ? -1 : 0),
-  }
 }
 
 // transfer information from newObject to the originalObject
@@ -860,22 +822,8 @@ const getOriginalIntent = (roomID) => {
   })
 }
 
-// const createProgress = () => {
-//   const progress = Progress.create({
-//     action: -1,
-//     device: -1,
-//     floor: -1,
-//     room: -1,
-//     scale: -1,
-//     level: -1,
-//   })
-
-//   return progress
-// }
-
 const getRandomFromArray = (arr) => {
-  var item = arr[Math.floor(Math.random() * arr.length)]
-  return item
+  return Math.floor(Math.random() * arr.length);
 }
 
 const genRandomInt = (min, max) => {
@@ -886,22 +834,7 @@ const genRandomInt = (min, max) => {
 
 // intent1 from client, intent2 from servant
 const compareIntent = (intent1, intent2) => {
-
-  if (intent1.scale === "Màu") {
-    return (intent1.action === intent2.action || (intent1.action === null && intent2.action === null)) && 
-    (intent1.device === intent2.device || (intent1.device === null && intent2.device === null)) && 
-    (intent1.room === intent2.room || (intent1.room === null && intent2.room === null)) && 
-    (intent1.floor === intent2.floor || (intent1.floor === null && intent2.floor === null)) && 
-    (intent1.scale === intent2.scale || (intent1.scale === null && intent2.scale === null)) && 
-    (COLOR[intent1.level] === intent2.level || (intent1.level === null && intent2.level === null));
-  } else {
-    return (intent1.action === intent2.action || (intent1.action === null && intent2.action === null)) && 
-    (intent1.device === intent2.device || (intent1.device === null && intent2.device === null)) && 
-    (intent1.room === intent2.room || (intent1.room === null && intent2.room === null)) && 
-    (intent1.floor === parseInt(intent2.floor) || (intent1.floor === null && intent2.floor === null)) && 
-    (intent1.scale === intent2.scale || (intent1.scale === null && intent2.scale === null)) && 
-    (intent1.level === intent2.level  || (intent1.level === null && intent2.level === null));
-  }
+  return JSON.stringify(intent1) === JSON.stringify(intent2);
 }
 
 const kickUser = (roomID, userID) => {
