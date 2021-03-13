@@ -723,7 +723,7 @@ const createRoom = async (userID1, userID2, roomType) => {
   // let progress = await createProgress();
   const chatroom = await Chatroom.create({
     name: generateName() + randomValue,
-    task: generateTask(intent.action, intent.device),
+    task: generateTask(),
     content_type: content_type,
     user1: userID1,
     user2: userID2,
@@ -749,8 +749,9 @@ const generateName = () => {
   return "Room R"
 }
 
-const generateTask = (action, device) => {
-  return `${action} ${device.toLowerCase()}`
+const generateTask = () => {
+  // IMPLEMENT!!!
+  return `A random task name`
 }
 
 const { DEVICE, COLOR } = require("./../config/intent");
