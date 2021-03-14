@@ -250,7 +250,7 @@ sockets.init = function(server) {
       kickUser(chatroomID, userID)
 
       const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socket.id})
-      if (inRoomIndex !== -1) inRoomIndex.splice(inRoomIndex, 1);
+      if (inRoomIndex !== -1) inRoom.splice(inRoomIndex, 1);
 
       socket.leave(chatroomID);
 
@@ -271,9 +271,9 @@ sockets.init = function(server) {
       console.log("Receive audio in chatroom " + chatroomID + " from " + sender + ". Here's the audio link: " +  link)
     });
 
-    socket.on('client intent', async ({ roomID, audioID, intent }) => {
+    socket.on('client intent', async ({ roomID, audioID, intentDetailed }) => {
       
-      console.log("Receive client intent: " + JSON.stringify(intent) + " of audio " + audioID + " from room " + roomID);
+      console.log("Receive client intent: " + JSON.stringify(intentDetailed) + " of audio " + audioID + " from room " + roomID);
 
       // check turn of the room. Throw a fit if it's not 1. If it's 1 then: 
       await Chatroom.findById(roomID)
@@ -288,30 +288,9 @@ sockets.init = function(server) {
             // IMPLEMENT SOME KIND OF ERROR!!!
             return null;
           } else {
-            // // create intent
-            // let extractIntent = {
-            //   action: null,
-            //   device: null,
-            //   floor: null,
-            //   room: null,
-            //   scale: null,
-            //   level: null,
-            // };
-
-            // if (intent !== null) {
-            //   intent.map(property => {
-            //     return extractIntent[property.key] = property.value;
-            //   })
-            // }
-            // const { action, device, floor, room, scale, level } = extractIntent;
-            const { action, device, floor, room, scale, level } = intent;
+            const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, four_last_digits } = intentDetailed;
             const newIntent = await Intent.create({
-              action,
-              device,
-              floor,
-              room,
-              scale,
-              level,
+              intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, four_last_digits
             });
 
             // save intent to audio
@@ -365,23 +344,25 @@ sockets.init = function(server) {
       }, 3500);
     });
 
-    socket.on('servant intent', async ({ roomID, intent }) => {
+    socket.on('servant intent', async ({ roomID, intentDetailed }) => {
       
       // parse the received intent
-      if (intent === null) {
-        intent = {
-          device: null,
-          room: null,
-          action: null,
-          scale: null,
-          floor: null,
-          level: null,
-        };
-      } else {
-        const properties = ["action", "device", "floor", "room", "scale", "level"];
-        for (let key in properties) {
-          if(intent[properties[key]] === undefined) intent[properties[key]] = null
-        }
+      // if (intentDetailed === null) {
+      //   intentDetailed = {
+      //     device: null,
+      //     room: null,
+      //     action: null,
+      //     scale: null,
+      //     floor: null,
+      //     level: null,
+      //   };
+      // } else {
+        
+      // }
+
+      const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits"];
+      for (let key in properties) {
+        if(intentDetailed[properties[key]] === undefined) intentDetailed[properties[key]] = null
       }
 
       // compare servant's intent and client's intent.
@@ -408,7 +389,7 @@ sockets.init = function(server) {
             .then(audioFound => {
               // console.log(audioFound.intent)
               // const result = compareIntent(audioFound.intent, intent);
-              const result = compareObject(audioFound.intent, intent);
+              const result = compareIntent(audioFound.intent, intentDetailed);
               // if the intent is an exact match to the audio's intent, update audio's revertable status to true in case if it's removed later on.
               if (result) {
                 audioFound.revertable = true;
@@ -449,12 +430,12 @@ sockets.init = function(server) {
                 if (!currentIntentFound) {
                   console.log("... Some shenanigan.. CurrentIntent doesn't even exist.");
                 } else {
-                  if (intent.action !== null && intent.action !== currentIntentFound.action) {
-                    currentIntentFound = transferObject(currentIntentFound, intent);
+                  if (intentDetailed.intent !== null && intentDetailed.intent !== currentIntentFound.intent) {
+                    currentIntentFound = transferObject(currentIntentFound, intentDetailed);
                   } else {
-                    for (const property in intent) {
-                      if(intent[property] !== null) {
-                        currentIntentFound[property] = intent[property];
+                    for (const property in intentDetailed) {
+                      if(intentDetailed[property] !== null) {
+                        currentIntentFound[property] = intentDetailed[property];
                       }
                     }
                   }
@@ -464,7 +445,7 @@ sockets.init = function(server) {
               .catch(err => console.log("Having trouble updating currenting intent...",err))
               
               // Have to change this, since the definition of a finished room is different now.
-              if (compareObject(currentIntent, roomFound.intent)) {
+              if (compareIntent(newIntent, roomFound.intent)) {
                 roomFound.done = true;
               }
 
@@ -671,6 +652,17 @@ const compareObject = (obj1, obj2) => {
   return JSON.stringify(obj1) === JSON.stringify(obj2)
 }
 
+const compareIntent = (intent1, intent2) => {
+  const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits"];
+  let count = 0;
+  for (let key in properties) {
+    if(intent1[properties[key]] !== intent2[properties[key]]) count++;
+  }
+
+  if (count !== 0) return false;
+  return true;
+}
+
 const { Chatroom } = require("./../models/Chatroom");
 
 const createRoom = async (userID1, userID2, roomType) => {
@@ -753,23 +745,23 @@ const transferObject = (originalObject, newObject) => {
   return originalObject;
 }
 
-const getOriginalIntent = (roomID) => {
-  return Chatroom.findById(roomID)
-  .then(async roomFound => {
-    if (!roomFound) {
-      console.log("... Some shenanigan.. Room doesn't even exist.");
-      return null;
-    } else {
-      return await Intent.findById(roomFound.intent)
-      .then(intentFound => {
-        if (!intentFound) {
-          console.log("... Some shenanigan.. Intent doesn't even exist.");
-          return null;
-        } else return intentFound
-      })
-    }
-  })
-}
+// const getOriginalIntent = (roomID) => {
+//   return Chatroom.findById(roomID)
+//   .then(async roomFound => {
+//     if (!roomFound) {
+//       console.log("... Some shenanigan.. Room doesn't even exist.");
+//       return null;
+//     } else {
+//       return await Intent.findById(roomFound.intent)
+//       .then(intentFound => {
+//         if (!intentFound) {
+//           console.log("... Some shenanigan.. Intent doesn't even exist.");
+//           return null;
+//         } else return intentFound
+//       })
+//     }
+//   })
+// }
 
 const getRandomFromArray = (arr) => {
   return Math.floor(Math.random() * arr.length);
@@ -780,12 +772,6 @@ const genRandomInt = (min, max) => {
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-// intent1 from client, intent2 from servant
-// const compareIntent = (intent1, intent2) => {
-//   const {intent, loan_purpose, loan_type, card_type, card_usage}
-//   return JSON.stringify(intent1) === JSON.stringify(intent2);
-// }
 
 const kickUser = (roomID, userID) => {
 

@@ -86,9 +86,9 @@ export default function ServantSendButton(props) {
     // await setButtonState(true);
     if (socket) {
       await socket.emit('servant intent', {
-        roomID,
+        roomID: roomID,
         // audioID,
-        intent,
+        intentDetailed: intent,
       });
     }
     // setButtonState(false);

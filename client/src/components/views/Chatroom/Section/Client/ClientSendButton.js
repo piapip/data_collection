@@ -62,9 +62,9 @@ export default function ClientSendButton(props) {
           setButtonPhase(0);
           if (socket) {
             socket.emit('client intent', {
-              roomID,
-              audioID,
-              intent,
+              roomID: roomID,
+              audioID: audioID,
+              intentDetailed: intent,
             });
           }
         });
