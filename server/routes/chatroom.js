@@ -7,7 +7,6 @@ router.get("/", (req, res) => {
 
   Chatroom.find({})
     // .populate('user1') //not use this yet... populate will bring every information of 'user1' to the table, instead of just the id.
-    .populate('progress')
     .exec((err, roomFound) => {
       // .send() lets the browser automatically assign Content-Type 
       // whereas .json() specifies Content-Type as json type.
@@ -122,7 +121,6 @@ router.get("/random/:userID", (req, res) => {
         ]
     }).skip(random)
     // .populate('intent')
-    .populate('progress')
     .exec((err, roomFound) => {
       if (err) res.status(500).send({ success: false, message: "Can't proceed to find any room", err })
       return res.status(200).send({
@@ -138,7 +136,6 @@ router.get("/:roomID", (req, res) => {
   Chatroom.findById(req.params.roomID)
   .populate('intent')
   .populate('currentIntent')
-  .populate('progress')
   .populate({
     path: 'audioList',
     populate: {
@@ -182,9 +179,6 @@ router.post("/", async (req, res) => {
   });
 })
 
-// const { Audio } = require("../models/Audio");
-// const { Progress } = require("../models/Progress");
-
 // REMOVE AUDIO
 router.put("/:roomID/:userRole", (req, res) => {
   const roomID = req.params.roomID;
@@ -211,7 +205,6 @@ router.put("/:roomID/:userRole", (req, res) => {
       roomFound.audioList.pop();
 
       // LOG TO A FILE!!!
-      // progress updating is now useless code as it will never be updated that way.
       
       // update turn
       if (roomFound.turn === 1) {

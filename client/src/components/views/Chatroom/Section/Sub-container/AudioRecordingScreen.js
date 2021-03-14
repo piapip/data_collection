@@ -24,7 +24,7 @@ export default function AudioRecordingScreen(props) {
 
   let socket = props ? props.socket : null;
   const roomDone = props ? props.roomDone : false;
-  // const progress = props ? props.progress : [];
+  // const currentIntent = props ? props.currentIntent : [];
   const audioName = props ? props.audioName : "";
   const chatroomID = props ? props.chatroomID : "";
   const roomName = props ? props.roomName : "";
@@ -160,6 +160,22 @@ export default function AudioRecordingScreen(props) {
     } else return ""
   }
 
+  const setNewIntent = (intentValue) => {
+    let newIntent = {
+      intent: intentValue
+    };
+
+    setIntent(newIntent);
+  }
+
+  const setSlot = (slot, value) => {
+    let newIntent = {...intent};
+    newIntent[slot] = value;
+    setIntent(newIntent);
+  }
+
+  console.log(intent);
+
   return (
     <>
       <div style={{position: 'absolute', width: "100%"}}>
@@ -197,13 +213,14 @@ export default function AudioRecordingScreen(props) {
         <Row style={{marginBottom: "10px"}}>
           <Col>
             <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
-              {/* <ServantDropDown
+              <ServantDropDown
                 toggleTagVisibility={toggleTagVisibility}
                 // turn={turn}
                 intent={intent}
                 visible={tagVisibility}
                 disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
-                setIntent={setIntent}/> */}
+                setIntent={setNewIntent}
+                setSlot={setSlot}/>
 
                 
               {/* {userRole === "client" && progress !== [] ?

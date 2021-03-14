@@ -133,7 +133,7 @@ function RoomList(props) {
                 }
               }} >
               <Column dataIndex='name' key='name' />
-              <Column 
+              {/* <Column 
                 title='Tiến độ' 
                 dataIndex='progress' 
                 key='progress' 
@@ -153,7 +153,7 @@ function RoomList(props) {
                     } else return ""
                   })}
                 </>
-              )}/>
+              )}/> */}
               <Column 
                 title='Người tham gia' 
                 dataIndex='capacity' 

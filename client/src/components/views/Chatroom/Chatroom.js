@@ -43,7 +43,6 @@ export default function Chatroom(props) {
   const [ transcriptHistory, setTranscriptHistory ] = useState([]);
   const [ latestAudio, setLatestAudio ] = useState(null);
   const [ scenario, setScenario ] = useState([]);
-  const [ progress, setProgress ] = useState([]);
   const [ currentIntent, setCurrentIntent ] = useState([]);
   const [ turn, setTurn ] = useState(-1);
   const [ loading, setLoading ] = useState(true);
@@ -63,19 +62,19 @@ export default function Chatroom(props) {
 
   const dispatch = useDispatch();
 
-  const updateProgress = (newProgress) => {
-    let tempProgress = [];
-    for(const property in newProgress) {
-      if (property !== '_id' && property !== '__v' && newProgress[property] !== null) {
-        tempProgress.push([
+  const updateCurrentIntent = (newIntent) => {
+    let tempCurrentIntent = [];
+    for(const property in newIntent) {
+      if (property !== '_id' && property !== '__v' && newIntent[property] !== null) {
+        tempCurrentIntent.push([
           property,
-          newProgress[property],
+          newIntent[property],
           // key: property,
-          // value: progress[property],
+          // value: currentIntent[property],
         ])
       }
     }
-    setProgress(tempProgress);
+    setCurrentIntent(tempCurrentIntent);
   }
 
   const openNotificationWithIcon = (type, message, description) => {
@@ -134,9 +133,6 @@ export default function Chatroom(props) {
           }
         }
         setCurrentIntent(tempCurrentIntent)
-
-        const progress = response.payload.roomFound.progress;
-        updateProgress(progress)
 
         const audios = response.payload.roomFound.audioList;
         let tempAudioList = [];
@@ -217,19 +213,18 @@ export default function Chatroom(props) {
   }, [socket]);
 
   useEffect(() => {
-    if (socket && progress.length !== 0) {
-      socket.on('intent correct', ({ newProgress }) => {
+    if (socket && currentIntent.length !== 0) {
+      socket.on('intent correct', ({ roomDone, newIntent }) => {
         // console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
         setMessage(StatusMessage.INTENT_CORRECT)
-        if (newProgress.action !== 0 && newProgress.device !== 0 && newProgress.floor !== 0 && 
-          newProgress.room !== 0 && newProgress.scale !== 0 && newProgress.level !== 0) {
+        if (roomDone) {
           setRedirect(true);
         }
-        updateProgress(newProgress);
+        updateCurrentIntent(newIntent);
         setTurn(3);        
       });
     }
-  }, [progress, socket]);
+  }, [currentIntent, socket]);
 
   useEffect(() => {
     if (socket && turn !== -1 && userRole !== "") {
@@ -348,19 +343,6 @@ export default function Chatroom(props) {
     }
   }
 
-  const getPromptStatus = () => {
-    let count = 0;
-    if (progress.length !== 0) 
-    {
-      progress.map(item => {
-        return item[1] === 0 ? count++ : "";
-      })
-    }
-
-    if (count !== 0) return true;
-    else return false;
-  }
-
   const handleOk = () => {
     setIsModalVisible(false);
     return (
@@ -403,7 +385,7 @@ export default function Chatroom(props) {
     return (
       <>
         <PromptLeaving 
-          when={getPromptStatus()}
+          when={true}
           onLeave={handleLeaveChatroom}/>
         <LoadingPage />
       </>
@@ -414,7 +396,7 @@ export default function Chatroom(props) {
       <>
       <PromptLeaving 
         onLeave={handleLeaveChatroom}
-        when={getPromptStatus()}/>
+        when={!roomDone}/>
       <div className="chatroom"
         style={{
           height: `${screenHeight-69}px`,
@@ -444,7 +426,7 @@ export default function Chatroom(props) {
                   audioName={`${audioHistory.length}_${userID}.wav`}
                   roomName={roomName}
                   roomDone={roomDone}
-                  progress={progress}
+                  currentIntent={currentIntent}
                   latestAudio={latestAudio}
                   message={message}
                   turn={turn}

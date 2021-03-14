@@ -58,13 +58,6 @@ const chatroomSchema = new mongoose.Schema({
     ref: 'Intent',
     default: null,
   },
-  // progress is now the bug backup plan.
-  // -1 - non-exist, 0 - not done, 1 - done
-  progress: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Progress',
-    required: 'Progress ID is required',
-  },
   // 1 - client - 2 - servant send intent - 3 - servant send audio
   turn: {
     type: Number,

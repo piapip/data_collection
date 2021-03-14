@@ -249,7 +249,7 @@ sockets.init = function(server) {
       // remember to remove user from the user slot. (set it to null)
       kickUser(chatroomID, userID)
 
-      const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socketID})
+      const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socket.id})
       if (inRoomIndex !== -1) inRoomIndex.splice(inRoomIndex, 1);
 
       socket.leave(chatroomID);
@@ -407,7 +407,8 @@ sockets.init = function(server) {
             // check intent against audio's intent.
             .then(audioFound => {
               // console.log(audioFound.intent)
-              const result = compareIntent(audioFound.intent, intent);
+              // const result = compareIntent(audioFound.intent, intent);
+              const result = compareObject(audioFound.intent, intent);
               // if the intent is an exact match to the audio's intent, update audio's revertable status to true in case if it's removed later on.
               if (result) {
                 audioFound.revertable = true;
@@ -425,10 +426,11 @@ sockets.init = function(server) {
       })
       .catch(err => console.log(err))
 
-      // if correct, emit a signal, telling both of them that's it's okay. Update the progress for the room and move turn to 3.
+      // if correct, emit a signal, telling both of them that's it's okay. Update the current intent for the room and move turn to 3.
       if (compare) {
 
         await Chatroom.findById(roomID)
+        .populate('intent')
         .then(async (roomFound) => {
           if (!roomFound) {
             console.log("... Some shenanigan.. Room doesn't even exist.");
@@ -460,60 +462,19 @@ sockets.init = function(server) {
                 }
               })
               .catch(err => console.log("Having trouble updating currenting intent...",err))
-
-              // update progress
-              const newProgress = await Progress.findById(roomFound.progress)
-              .then(async progressFound => {
-                if (!progressFound) {
-                  console.log("... Some shenanigan.. Progress doesn't even exist.");
-                } else {
-                  const originalIntent = await getOriginalIntent(roomID);
-                  if (intent.action !== null && originalIntent.action !== intent.action) {
-                    const properties = ["action", "device", "floor", "room", "scale", "level"];
-                    for (let key in properties) {
-                      if(progressFound[properties[key]] !== -1) progressFound[properties[key]] = 0;
-                    }
-                  } else {
-                    for (const property in intent) {
-                      if(intent[property] !== null &&
-                         intent[property].toString() === originalIntent[property].toString()) {
-                        if(progressFound[property] !== -1) {
-                        // if(progressFound[property] === -1) {
-                        //   console.log("... something's wrong with progress and intent... property: ", property);
-                        //   console.log(`Progress: `, progressFound);
-                        //   console.log(`Intent: `, intent);
-                        //   // IMPLEMENT SOME KIND OF ERROR!!!
-                        //   return 
-                        // } else {
-                          progressFound[property]++;
-                        }
-                      }
-                    }
-                  }
-                }
-                return progressFound.save();
-              })
-              .catch(err => console.log("Having trouble updating progress...",err))
+              
+              // Have to change this, since the definition of a finished room is different now.
+              if (compareObject(currentIntent, roomFound.intent)) {
+                roomFound.done = true;
+              }
 
               // emit signal
               io.to(roomID).emit('intent correct', {
-                newProgress: newProgress,
+                roomDone: roomFound.done,
                 newIntent: newIntent,
               });
-              
-              if (
-                newProgress.action !== 0 &&
-                newProgress.device !== 0 && 
-                newProgress.floor !== 0 &&
-                newProgress.room !== 0 &&
-                newProgress.scale !== 0 &&
-                newProgress.level !== 0) {
-                  roomFound.done = true;
-                }
-                
 
               // update turn
-              // BUG!!!! Since there's no error system for progress updating so even though if there's any problem with progress updating, the system will still move on.
               roomFound.turn = 3;
               return roomFound.save();
             }
@@ -716,11 +677,8 @@ const createRoom = async (userID1, userID2, roomType) => {
   // user1 - client, user2 - servant
   let content_type = roomType === "audio" ? 0 : 1
   const randomValue = randomGenerator()
-
   let intent = await createRandomIntent()
-  let progress = await createRandomProgress(intent);
   let currentIntent = await Intent.create({});
-  // let progress = await createProgress();
   const chatroom = await Chatroom.create({
     name: generateName() + randomValue,
     task: generateTask(),
@@ -731,7 +689,6 @@ const createRoom = async (userID1, userID2, roomType) => {
     servant: [userID2],
     intent: intent._id,
     currentIntent: currentIntent._id,
-    progress: progress._id,
     turn: 1,
   })
 
@@ -783,14 +740,6 @@ const createRandomIntent = () => {
   })
 }
 
-const { Progress } = require("./../models/Progress")
-
-const createRandomProgress = (intent) => {
-
-  const progress = Progress.create({})
-  return progress;
-}
-
 // transfer information from newObject to the originalObject
 const transferObject = (originalObject, newObject) => {
   for (let key in newObject) {
@@ -833,9 +782,10 @@ const genRandomInt = (min, max) => {
 }
 
 // intent1 from client, intent2 from servant
-const compareIntent = (intent1, intent2) => {
-  return JSON.stringify(intent1) === JSON.stringify(intent2);
-}
+// const compareIntent = (intent1, intent2) => {
+//   const {intent, loan_purpose, loan_type, card_type, card_usage}
+//   return JSON.stringify(intent1) === JSON.stringify(intent2);
+// }
 
 const kickUser = (roomID, userID) => {
 
@@ -879,9 +829,7 @@ const addSlot = async (roomID, userID) => {
       // IMPLEMENT SOME KIND OF ERROR!!!
       return null;
     } else {
-
-      const roomProgress = await checkProgress(roomFound.progress);
-      if (roomProgress === 1) {
+      if (roomFound.done === 1) {
         if ((roomFound.user1 !== null && roomFound.user1.equals(userID)) || 
           (roomFound.user2 !== null && roomFound.user2.equals(userID))) { 
           return 0;
@@ -952,31 +900,6 @@ const addSlot = async (roomID, userID) => {
     }
   })
   .catch(err => console.log("Kicking user: ", err))
-}
-
-// -1 - non-existence.
-//  0 - not done.
-//  1 - done.
-const checkProgress = (progressID) => {
-  return Progress.findById(progressID)
-    .then(progressFound => {
-      if (!progressFound) {
-        console.log("... Some shenanigan.. Audio doesn't even exist.");
-        // IMPLEMENT SOME KIND OF ERROR!!!
-        return -1;
-      } else {
-        if (
-          progressFound.action === 0 ||
-          progressFound.device === 0 || 
-          progressFound.floor === 0 ||
-          progressFound.room === 0 ||
-          progressFound.scale === 0 ||
-          progressFound.level === 0) 
-          return 0;
-        else return 1;
-      }
-    })
-    .catch(err => console.log("adding slot... finding progress by id: ", err))
 }
 
 module.exports = sockets;
