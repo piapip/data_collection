@@ -54,8 +54,8 @@ const intentSchema = new mongoose.Schema({
   district: {
     // type: String,
     type: Number,
-    min: 0,
-    max: 2,
+    // min: 0,
+    // max: 2,
     default: null,
   },
 
@@ -63,8 +63,8 @@ const intentSchema = new mongoose.Schema({
   city: {
     // type: String,
     type: Number,
-    min: 0,
-    max: 4,
+    // min: 0,
+    // max: 4,
     default: null,
   },
   

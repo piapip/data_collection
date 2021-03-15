@@ -724,8 +724,8 @@ const intentSamplePool = require("./../config/intent");
 
 const createRandomIntent = () => {
   // gen base intent
-  // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
-  const intentIndex = 3;
+  const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  // const intentIndex = 3;
   const slots = intentSamplePool.INTENT[intentIndex].slot;
 
   let tempIntent = {
@@ -739,10 +739,15 @@ const createRandomIntent = () => {
       return tempIntent[slot] = -1;
     }
     const slotPool = intentSamplePool[slot.toUpperCase()];
-    if (slot === "district") {
-      // console.log
-      const slotIndex = getRandomFromArray(slotPool[intentSamplePool.CITY[tempIntent["city"]]]);
-      return tempIntent[slot] = slotIndex;
+    // we decide.
+    // if (slot === "district") {
+    //   // console.log
+    //   const slotIndex = getRandomFromArray(slotPool[intentSamplePool.CITY[tempIntent["city"]]]);
+    //   return tempIntent[slot] = slotIndex;
+    // }
+    // let user decides
+    if (slot === "city" || slot === "district") {
+      return tempIntent[slot] = -1;
     }
     const slotIndex = getRandomFromArray(slotPool);
     return tempIntent[slot] = slotIndex;
