@@ -58,6 +58,10 @@ const chatroomSchema = new mongoose.Schema({
     ref: 'Intent',
     default: null,
   },
+  cheat_sheet: [{
+    type: Number,
+    default: [],
+  }],
   // 1 - client - 2 - servant send intent - 3 - servant send audio
   turn: {
     type: Number,

@@ -159,6 +159,16 @@ router.get("/:roomID/history", (req, res) => {
   })
 })
 
+// GET THE CHEAT_SHEET OF THE ROOM
+router.get("/:roomID/cheat", (req, res) => {
+  Chatroom.findById(req.params.roomID, (err, roomFound) => {
+    let cheat_sheet = roomFound.cheat_sheet;
+    if (err) res.status(500).send({ success: false, err })
+    else if (!roomFound) res.status(404).send({ success: false, message: "Room not found" })
+    else res.status(200).send({ success: true, cheat_sheet })
+  })
+})
+
 // CREATE A ROOM
 router.post("/", async (req, res) => {
 

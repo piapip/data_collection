@@ -288,10 +288,14 @@ sockets.init = function(server) {
             // IMPLEMENT SOME KIND OF ERROR!!!
             return null;
           } else {
-            const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, four_last_digits } = intentDetailed;
+            const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits } = intentDetailed;
             const newIntent = await Intent.create({
-              intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, four_last_digits
+              intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits
             });
+
+            if (name && name.length !== 0) roomFound.cheat_sheet.push(name);
+            if (cmnd && cmnd.length !== 0) roomFound.cheat_sheet.push(cmnd);
+            if (four_last_digits && four_last_digits.length !== 0) roomFound.cheat_sheet.push(four_last_digits)
 
             // save intent to audio
             Audio.findById(audioID)
@@ -679,6 +683,7 @@ const createRoom = async (userID1, userID2, roomType) => {
     user2: userID2,
     client: [userID1],
     servant: [userID2],
+    cheat_sheet: [],
     intent: intent._id,
     currentIntent: currentIntent._id,
     turn: 1,

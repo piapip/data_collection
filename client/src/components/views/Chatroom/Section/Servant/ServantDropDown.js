@@ -129,7 +129,7 @@ export default function ServantDropDown(props) {
               intentData[selectedIntent] ? intentData[selectedIntent].slot.map(slot => {
                 const slotValuePool = intentInfo[slot.toUpperCase()];
                 return (
-                  <Col xl={4} xs={24} style={outerColStyle} key={slot}>
+                  <Col xl={6} xs={24} style={outerColStyle} key={slot}>
                     <Row>
                       <Col span={24} style={innerCol1Style}>
                         <b>{slot}</b>
