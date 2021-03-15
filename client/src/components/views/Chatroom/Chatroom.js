@@ -215,10 +215,12 @@ export default function Chatroom(props) {
   }, [socket]);
 
   useEffect(() => {
-    if (socket && currentIntent.length !== 0) {
+    if (socket && scenario.length !== 0) {
       socket.on('intent correct', ({ roomDone, newIntent }) => {
         // console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
-        setMessage(StatusMessage.INTENT_CORRECT)
+        setMessage(StatusMessage.INTENT_CORRECT);
+        console.log('roomDone: ', roomDone);
+        console.log('newIntent: ', newIntent);
         if (roomDone) {
           setRedirect(true);
         }
@@ -226,7 +228,7 @@ export default function Chatroom(props) {
         setTurn(3);        
       });
     }
-  }, [currentIntent, socket]);
+  }, [scenario, socket]);
 
   useEffect(() => {
     if (socket && turn !== -1 && userRole !== "") {
@@ -355,19 +357,6 @@ export default function Chatroom(props) {
     setIsModalVisible(false);
   };
 
-  if (redirect) {
-    return (
-      <Modal 
-        closable={false}
-        visible={isModalVisible} 
-        onOk={handleOk}
-        okText="Rời phòng"
-        onCancel={handleCancel}>
-        <p>Cảm ơn bạn đã hoàn thành xong nhiệm vụ này! Giờ bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác!</p>
-      </Modal>
-    )
-  }
-
   const roomStatusContent = (
     <>
       {
@@ -385,6 +374,19 @@ export default function Chatroom(props) {
     </>
   )
 
+  if (redirect) {
+    return (
+      <Modal 
+        closable={false}
+        visible={isModalVisible} 
+        onOk={handleOk}
+        okText="Rời phòng"
+        onCancel={handleCancel}>
+        <p>Cảm ơn bạn đã hoàn thành xong nhiệm vụ này! Giờ bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác!</p>
+      </Modal>
+    )
+  }
+
   if (loading) {
     return (
       <>
@@ -394,92 +396,91 @@ export default function Chatroom(props) {
         <LoadingPage />
       </>
     )
-  } else {
+  } 
 
-    return (
-      <>
-      <PromptLeaving 
-        onLeave={handleLeaveChatroom}
-        when={!roomDone}/>
-      <div className="chatroom"
-        style={{
-          height: `${screenHeight-69}px`,
-        }}>
-        <Row>
-          <Col xs={24} xl={16} 
-            style={{
-              backgroundRepeat: "no-repeat",
-              height: `${screenHeight-69}px`,
-              backgroundSize: "cover",  
-              backgroundImage: 
-              userRole === "client" ? `url(${ClientBG})`:
-              userRole === "servant" ? `url(${ServantBG})` : 
-              'linear-gradient(0deg, #fff 20%, #f3f2f1)'
-            }}>
-            <div style={{position: "absolute", zIndex: "1001"}}>
-              <RoomStatusPopover 
-                content={(
-                  <div style={{width: "100vh"}}>
-                    <Guide turn={turn} />
-                  </div>
-                )}/>
-            </div>
-            <div>
-              {room_content_type === '0' ?
-                <AudioRecordingScreen
-                  audioName={`${audioHistory.length}_${userID}.wav`}
-                  roomName={roomName}
-                  roomDone={roomDone}
-                  currentIntent={currentIntent}
-                  latestAudio={latestAudio}
-                  message={message}
-                  turn={turn}
-                  canvasRef={canvasRef}
-                  socket={socket}
-                  user={user}
-                  scenario={scenario}
-                  roomContentType={room_content_type}
-                  chatroomID={chatroomID}
-                  userRole={userRole}
-                /> :
-                <ErrorNotFound />}
-            </div>
-          </Col>
-          <Col xs={24} xl={8} style={{
-            paddingRight: "10px", 
-            paddingTop: "10px",
-            borderLeft: "1px solid #dedede",
+  return (
+    <>
+    <PromptLeaving 
+      onLeave={handleLeaveChatroom}
+      when={!roomDone}/>
+    <div className="chatroom"
+      style={{
+        height: `${screenHeight-69}px`,
+      }}>
+      <Row>
+        <Col xs={24} xl={16} 
+          style={{
+            backgroundRepeat: "no-repeat",
+            height: `${screenHeight-69}px`,
+            backgroundSize: "cover",  
+            backgroundImage: 
+            userRole === "client" ? `url(${ClientBG})`:
+            userRole === "servant" ? `url(${ServantBG})` : 
+            'linear-gradient(0deg, #fff 20%, #f3f2f1)'
           }}>
-            <Tabs defaultActiveKey="1" centered>
-              <TabPane tab="Trạng thái" key="1">
-                <Row>
-                  <div style={{
-                    height: "calc(100vh - 170px)",
-                    backgroundColor: "white",
-                  }}>
-                    {roomStatusContent}
-                  </div>
-                </Row>
-              </TabPane>
-              <TabPane tab="Lịch sử" key="2"> 
-                <Row> 
-                  <Col>
-                    <AudioList
-                      socket={socket}
-                      roomID={chatroomID}
-                      userID={userID}
-                      username={username}
-                      userRole={userRole}
-                      transcript={transcriptHistory}
-                      audioList={audioHistory}/>
-                  </Col> 
-                </Row>
-              </TabPane>
-            </Tabs>
-          </Col>
-        </Row>
-      </div>
-      </>
-    )
-  }
+          <div style={{position: "absolute", zIndex: "1001"}}>
+            <RoomStatusPopover 
+              content={(
+                <div style={{width: "100vh"}}>
+                  <Guide turn={turn} />
+                </div>
+              )}/>
+          </div>
+          <div>
+            {room_content_type === '0' ?
+              <AudioRecordingScreen
+                audioName={`${audioHistory.length}_${userID}.wav`}
+                roomName={roomName}
+                roomDone={roomDone}
+                currentIntent={currentIntent}
+                latestAudio={latestAudio}
+                message={message}
+                turn={turn}
+                canvasRef={canvasRef}
+                socket={socket}
+                user={user}
+                scenario={scenario}
+                roomContentType={room_content_type}
+                chatroomID={chatroomID}
+                userRole={userRole}
+              /> :
+              <ErrorNotFound />}
+          </div>
+        </Col>
+        <Col xs={24} xl={8} style={{
+          paddingRight: "10px", 
+          paddingTop: "10px",
+          borderLeft: "1px solid #dedede",
+        }}>
+          <Tabs defaultActiveKey="1" centered>
+            <TabPane tab="Trạng thái" key="1">
+              <Row>
+                <div style={{
+                  height: "calc(100vh - 170px)",
+                  backgroundColor: "white",
+                }}>
+                  {roomStatusContent}
+                </div>
+              </Row>
+            </TabPane>
+            <TabPane tab="Lịch sử" key="2"> 
+              <Row> 
+                <Col>
+                  <AudioList
+                    socket={socket}
+                    roomID={chatroomID}
+                    userID={userID}
+                    username={username}
+                    userRole={userRole}
+                    transcript={transcriptHistory}
+                    audioList={audioHistory}/>
+                </Col> 
+              </Row>
+            </TabPane>
+          </Tabs>
+        </Col>
+      </Row>
+    </div>
+    </>
+  )
 }

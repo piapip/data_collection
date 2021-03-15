@@ -449,13 +449,20 @@ sockets.init = function(server) {
               // Have to change this, since the definition of a finished room is different now.
               if (compareIntent(newIntent, roomFound.intent)) {
                 roomFound.done = true;
-              }
-
-              // emit signal
+                // emit signal
+                io.to(roomID).emit('intent correct', {
+                  roomDone: true,
+                  newIntent: newIntent,
+                });
+              } else {
+                // emit signal
               io.to(roomID).emit('intent correct', {
-                roomDone: roomFound.done,
+                roomDone: false,
                 newIntent: newIntent,
               });
+              }
+
+              
 
               // update turn
               roomFound.turn = 3;

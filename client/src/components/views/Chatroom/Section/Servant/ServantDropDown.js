@@ -16,6 +16,7 @@ export default function ServantDropDown(props) {
 
   const [ selectedIntent, setSelectedIntent ] = useState(null);
 
+  const [ selectedDistrict, setSelectedDistrict ] = useState(null);
   const [ districtList, setDisctrictList ] = useState([]);
 
   const handleIntentChange = (value) => {
@@ -46,9 +47,9 @@ export default function ServantDropDown(props) {
   }
 
   const handleCityChange = (value) => {
-    console.log(value);
     
     setDisctrictList(intentInfo.DISTRICT[value]);
+    setSelectedDistrict(null);
     const cityIndex = intentInfo.CITY.findIndex(item => {
       return item === value;
     })
@@ -57,7 +58,7 @@ export default function ServantDropDown(props) {
   }
 
   const handleDistrictChange = (value) => {
-    console.log(value);
+    setSelectedDistrict(value);
     const districtIndex = districtList.findIndex(item => {
       return item === value;
     })
@@ -126,7 +127,6 @@ export default function ServantDropDown(props) {
                     defaultValue={null}
                     style={{ width: "100%" }}
                     onChange={handleIntentChange}
-                    // disabled={turn !== 2 || !tagVisible}>
                     disabled={disabled || !tagVisible}>
                     {
                       intentData.map(intent => (
@@ -157,7 +157,6 @@ export default function ServantDropDown(props) {
                                   defaultValue={null}
                                   style={{ width: "100%" }}
                                   onChange={handleCityChange}
-                                  // disabled={turn !== 2 || !tagVisible}>
                                   disabled={disabled || !tagVisible}>
                                   {
                                     intentInfo.CITY.map(city => (
@@ -170,10 +169,10 @@ export default function ServantDropDown(props) {
                             slot === "district" ? (
                               <Col span={24} style={innerCol2Style}>
                                 <Select
+                                  value={selectedDistrict}
                                   defaultValue={null}
                                   style={{ width: "100%" }}
                                   onChange={handleDistrictChange}
-                                  // disabled={turn !== 2 || !tagVisible}>
                                   disabled={disabled || !tagVisible}>
                                   {
                                     districtList.map(district => (
