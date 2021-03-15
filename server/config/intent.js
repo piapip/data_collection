@@ -1,21 +1,5 @@
 const INTENT = [
   {
-    name: "Hồ sơ vay vốn",
-    slot: ["loan_purpose", "loan_type"],
-  },
-  {
-    name: "Điều kiện vay vốn",
-    slot: ["loan_purpose", "loan_type"],
-  },
-  {
-    name: "Khái niệm sản phẩm",
-    slot: ["card_type", "card_usage"],
-  },
-  {
-    name: "Phí chuyển tiền",
-    slot: ["digital_bank"],
-  },
-  {
     name: "Cấp lại mật khẩu",
     slot: ["digital_bank"],
   },
@@ -24,32 +8,36 @@ const INTENT = [
     slot: ["card_type"],
   },
   {
-    name: "Phương thức hủy dịch vụ Ngân hàng điện tử",
-    slot: ["digital_bank"],
+    name: "Điều kiện vay vốn",
+    slot: ["loan_purpose", "loan_type"],
   },
   {
-    name: "Tính năng dịch vụ NHĐT",
-    slot: ["digital_bank"],
+    name: "Điểm đặt ATM",
+    slot: ["city", "district"],
+  },
+  {
+    name: "Điểm giao dịch",
+    slot: ["city", "district"],
   },
   {
     name: "Hồ sơ phát hành thẻ",
     slot: ["card_type", "card_usage"],
   },
   {
+    name: "Hồ sơ vay vốn",
+    slot: ["loan_purpose", "loan_type"],
+  },
+  {
+    name: "Hủy chi tiêu thẻ",
+    slot: ["name", "cmnd", "four_last_digits"],
+  },
+  {
     name: "Hướng dẫn mở thẻ",
     slot: ["card_activation_type"],
   },
   {
-    name: "Điểm đặt ATM",
-    slot: ["district", "city"],
-  },
-  {
-    name: "Điểm giao dịch",
-    slot: ["district", "city"],
-  },
-  {
-    name: "Tra cứu số dư",
-    slot: ["name", "cmnd", "four_last_digits"],
+    name: "Khái niệm sản phẩm",
+    slot: ["card_type", "card_usage"],
   },
   {
     name: "Kích hoạt thẻ tự động",
@@ -64,7 +52,19 @@ const INTENT = [
     slot: ["name", "cmnd", "four_last_digits"],
   },
   {
-    name: "Hủy chi tiêu thẻ",
+    name: "Phí chuyển tiền",
+    slot: ["digital_bank"],
+  },
+  {
+    name: "Phương thức hủy dịch vụ Ngân hàng điện tử",
+    slot: ["digital_bank"],
+  },
+  {
+    name: "Tính năng dịch vụ NHĐT",
+    slot: ["digital_bank"],
+  },
+  {
+    name: "Tra cứu số dư",
     slot: ["name", "cmnd", "four_last_digits"],
   },
   {
@@ -72,6 +72,53 @@ const INTENT = [
     slot: ["name", "cmnd", "four_last_digits"],
   },
 ];
+
+const SLOT_LABEL = [
+  {
+    name: "Mục đích cho vay",
+    tag: "LOAN_PURPOSE",
+  },
+  {
+    name: "Hình thức cho vay",
+    tag: "LOAN_TYPE",
+  },
+  {
+    name: "Nhóm thẻ",
+    tag: "CARD_TYPE",
+  },
+  {
+    name: "Hình thức thẻ",
+    tag: "CARD_USAGE",
+  },
+  {
+    name: "Ngân hàng điện tử",
+    tag: "DIGITAL_BANK",
+  },
+  {
+    name: "Tính chất mở",
+    tag: "CARD_ACTIVATION_TYPE",
+  },
+  {
+    name: "Quận",
+    tag: "DISTRICT",
+  },
+  {
+    name: "Tỉnh thành",
+    tag: "CITY",
+  },
+  {
+    name: "Họ và tên",
+    tag: "NAME",
+  },
+  {
+    name: "CMND",
+    tag: "CMND",
+  },
+  {
+    name: "4 số cuối tài khoản",
+    tag: "FOUR_LAST_DIGITS",
+  },
+]
 
 const LOAN_PURPOSE = [
   {
@@ -206,16 +253,12 @@ const CARD_ACTIVATION_TYPE = [
   },
 ];
 
-// const DISTRICT = [
-
-// ];
-
-// const CITY = [
-//   "Hà Nội",
-//   "TP HCM",
-//   "Cần Thơ",
-//   "Đà Nẵng",
-//   "Hải Phòng",
+const CITY = [
+  "Hà Nội",
+  "TP HCM",
+  "Cần Thơ",
+  "Đà Nẵng",
+  "Hải Phòng",
 //   "An Giang",
 //   "Bà Rịa - Vũng Tàu",
 //   "Bắc Giang",
@@ -274,14 +317,25 @@ const CARD_ACTIVATION_TYPE = [
 //   "Vĩnh Phúc",
 //   "Yên Bái",
 //   "Phú Yên",
-// ];
+];
+
+const DISTRICT = {
+  "Hà Nội": ['A', 'B', 'C'],
+  "TP HCM": ['D', 'E', 'F'],
+  "Cần Thơ": ['G', 'H', 'I'],
+  "Đà Nẵng": ['K', 'L', 'M'],
+  "Hải Phòng": ['N', 'O', 'P'],
+}
 
 module.exports = {
-  INTENT, 
-  LOAN_PURPOSE, 
-  LOAN_TYPE, 
-  CARD_TYPE, 
+  INTENT,
+  SLOT_LABEL,
+  LOAN_PURPOSE,
+  LOAN_TYPE,
+  CARD_TYPE,
   CARD_USAGE,
   DIGITAL_BANK,
   CARD_ACTIVATION_TYPE,
+  CITY,
+  DISTRICT,
 }

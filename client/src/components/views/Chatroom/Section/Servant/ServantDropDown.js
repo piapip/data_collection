@@ -6,32 +6,17 @@ import intentInfo from './../Shared/intent';
 const {Option} = Select;
 
 const intentData = intentInfo.INTENT;
-// const roomData = {
-//   'Quạt': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng bếp', 'Phòng ngủ', 'Phòng vệ sinh', 'Phòng làm việc', 'Phòng tắm'],
-//   'Quạt thông gió': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng bếp', 'Phòng ngủ', 'Phòng vệ sinh', 'Phòng làm việc', 'Phòng tắm'],
-//   'Tivi': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng ngủ', 'Phòng làm việc'],
-//   'Loa': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng ngủ', 'Phòng làm việc'],
-//   'Đèn bàn': ['Không có', 'Phòng khách', 'Phòng ngủ', 'Phòng làm việc'],
-//   'Đèn trần': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng bếp', 'Phòng ngủ', 'Phòng vệ sinh', 'Phòng làm việc', 'Phòng tắm'],
-//   'Đèn cầu thang': ['Không có', 'Cầu thang'],
-//   'Bình nóng lạnh': ['Không có', 'Phòng khách', 'Phòng bếp', 'Phòng vệ sinh', 'Phòng tắm'],
-//   'Điều hòa': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng bếp', 'Phòng ngủ', 'Phòng làm việc'],
-//   'Lò sưởi': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng bếp', 'Phòng ngủ', 'Phòng làm việc'],
-//   'Cổng': ['Không có', 'Vườn', 'Garage'],
-//   'Lò nướng': ['Không có', 'Phòng bếp'],
-//   'Bếp': ['Không có', 'Phòng bếp'],
-//   'Không có': ['Không có', 'Phòng khách', 'Phòng ăn', 'Phòng bếp', 'Phòng ngủ', 'Phòng vệ sinh', 'Phòng làm việc', 'Phòng tắm', 'Vườn', 'Garage', 'Cầu thang']
-// };
 
 export default function ServantDropDown(props) {
 
-  // const intent = props ? props.intent : null;
   const tagVisible = props ? props.visible : true;
   const disabled = props ? props.disabled : false;
 
   const [ radioValue, setRadioValue ] = useState(1);
 
   const [ selectedIntent, setSelectedIntent ] = useState(null);
+
+  const [ districtList, setDisctrictList ] = useState([]);
 
   const handleIntentChange = (value) => {
     const intentIndex = intentData.findIndex(item => {
@@ -58,6 +43,26 @@ export default function ServantDropDown(props) {
     const slotValue = e.target.value;
 
     props.setSlot(slot, slotValue);
+  }
+
+  const handleCityChange = (value) => {
+    console.log(value);
+    
+    setDisctrictList(intentInfo.DISTRICT[value]);
+    const cityIndex = intentInfo.CITY.findIndex(item => {
+      return item === value;
+    })
+
+    props.setSlot("city", cityIndex);
+  }
+
+  const handleDistrictChange = (value) => {
+    console.log(value);
+    const districtIndex = districtList.findIndex(item => {
+      return item === value;
+    })
+
+    props.setSlot("district", districtIndex);
   }
 
   const radioStyle = {
@@ -93,6 +98,14 @@ export default function ServantDropDown(props) {
   const innerCol2Style = {
     // paddingBottom: "15px",
     paddingBottom: "5px",
+  }
+
+  const getLabel = (slot) => {
+    const slotIndex = intentInfo.SLOT_LABEL.findIndex(item => {
+      return item.tag.toUpperCase() === slot.toUpperCase();
+    })
+
+    return slotIndex === -1 ? "" : intentInfo.SLOT_LABEL[slotIndex].name
   }
 
   return (
@@ -132,30 +145,64 @@ export default function ServantDropDown(props) {
                   <Col xl={6} xs={24} style={outerColStyle} key={slot}>
                     <Row>
                       <Col span={24} style={innerCol1Style}>
-                        <b>{slot}</b>
+                        {/* <b>{slot}</b> */}
+                        <b>{getLabel(slot)}</b>
                       </Col>
                       <Col span={24} style={innerCol2Style}>
                         {
-                          slotValuePool ? (
-                            <Select
-                              // value={selectedAction}
-                              style={{ width: "100%" }}
-                              onChange={onSlotSelectChange}
-                              disabled={disabled || !tagVisible}>
-                              {
-                                slotValuePool.map(item => (
-                                  <Option key={`${slot} ${item.tag}`}><p style={{width: "100%", whiteSpace: "normal"}}>{item.name}</p></Option>
-                                ))
-                              }
-                            </Select>
-                          ) : (
-                            <Input 
-                              style={{ width: "100%" }}
-                              placeholder="Nhập thông tin"
-                              name={slot}
-                              onChange={onSlotTypeChange}
-                              disabled={disabled || !tagVisible}
-                            />
+                          (
+                            slot === "city" ? (
+                              <Col span={24} style={innerCol2Style}>
+                                <Select
+                                  defaultValue={null}
+                                  style={{ width: "100%" }}
+                                  onChange={handleCityChange}
+                                  // disabled={turn !== 2 || !tagVisible}>
+                                  disabled={disabled || !tagVisible}>
+                                  {
+                                    intentInfo.CITY.map(city => (
+                                      <Option key={city}><p style={{width: "100%", whiteSpace: "normal"}}>{city}</p></Option>
+                                    ))
+                                  }
+                                </Select>
+                              </Col>
+                            ) : 
+                            slot === "district" ? (
+                              <Col span={24} style={innerCol2Style}>
+                                <Select
+                                  defaultValue={null}
+                                  style={{ width: "100%" }}
+                                  onChange={handleDistrictChange}
+                                  // disabled={turn !== 2 || !tagVisible}>
+                                  disabled={disabled || !tagVisible}>
+                                  {
+                                    districtList.map(district => (
+                                      <Option key={district}><p style={{width: "100%", whiteSpace: "normal"}}>{district}</p></Option>
+                                    ))
+                                  }
+                                </Select>
+                              </Col>
+                            ) : slotValuePool ? (
+                              <Select
+                                // value={selectedAction}
+                                style={{ width: "100%" }}
+                                onChange={onSlotSelectChange}
+                                disabled={disabled || !tagVisible}>
+                                {
+                                  slotValuePool.map(item => (
+                                    <Option key={`${slot} ${item.tag}`}><p style={{width: "100%", whiteSpace: "normal"}}>{item.name}</p></Option>
+                                  ))
+                                }
+                              </Select>
+                            ) : (
+                              <Input 
+                                style={{ width: "100%" }}
+                                placeholder="Nhập thông tin"
+                                name={slot}
+                                onChange={onSlotTypeChange}
+                                disabled={disabled || !tagVisible}
+                              />
+                            )
                           )
                         }
                       </Col>

@@ -14,25 +14,26 @@ export default function ProgressNote(props) {
   console.log("currentIntent: ", currentIntent);
 
   console.log(currentIntent.length !== 0 ? intentInfo.INTENT[currentIntent[0][1]] : "");
+  
+  const getLabel = (slot) => {
+    const slotIndex = intentInfo.SLOT_LABEL.findIndex(item => {
+      return item.tag.toUpperCase() === slot.toUpperCase();
+    })
 
-  // useEffect(() => {
-  //   if (scenario !== []) {
-  //     setLoading(false);
-  //   } else setLoading(true);
-  // }, [scenario]);
+    console.log("Slot: ", slot);
+    console.log("slotIndex: ", slotIndex);
 
-  // if (loading) {
-  //   return <LoadingComponent />
-  // }
+    return slotIndex === -1 ? "" : intentInfo.SLOT_LABEL[slotIndex].name
+  }
 
   const renderProgressNote = (
     currentIntent.length !== 0 ? (
       <Row>
         <Row style={{height: "50px", lineHeight: "50px"}}>
-          <Col span={6}>
+          <Col span={8}>
             <b>Ý định:</b>
           </Col>
-          <Col span={18}>
+          <Col span={16}>
             {intentInfo.INTENT[currentIntent[0][1]].name}
           </Col>
         </Row>
@@ -45,10 +46,10 @@ export default function ProgressNote(props) {
 
             return (
               <Row style={{height: "50px", lineHeight: "50px"}}>
-                <Col span={6}>
-                  <b>{property}:</b>
+                <Col span={8}>
+                  <b>{getLabel(property)}:</b>
                 </Col>
-                <Col span={18}>
+                <Col span={16}>
                   {
                     currentIntentIndex !== -1 ? currentIntent[currentIntentIndex][1] : (
                       <img src={QuestionMark} alt="question-mark" style={{height: "50px"}}/>
@@ -61,7 +62,9 @@ export default function ProgressNote(props) {
         }
       </Row>
       
-    ) : ""
+    ) : (
+      <p>Chưa có thông tin!!!</p>
+    )
   )
 
   return (

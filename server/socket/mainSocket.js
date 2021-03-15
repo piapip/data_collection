@@ -391,8 +391,6 @@ sockets.init = function(server) {
 
             // check intent against audio's intent.
             .then(audioFound => {
-              // console.log(audioFound.intent)
-              // const result = compareIntent(audioFound.intent, intent);
               const result = compareIntent(audioFound.intent, intentDetailed);
               // if the intent is an exact match to the audio's intent, update audio's revertable status to true in case if it's removed later on.
               if (result) {
@@ -660,7 +658,14 @@ const compareIntent = (intent1, intent2) => {
   const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits"];
   let count = 0;
   for (let key in properties) {
-    if(intent1[properties[key]] !== intent2[properties[key]]) count++;
+    if(intent1[properties[key]] === "-1") {
+      if(!intent2[properties[key]]) count++;
+    } else if(intent2[properties[key]] === "-1") {
+      if(!intent1[properties[key]]) count++;
+    } else {
+      if(intent1[properties[key]] !== intent2[properties[key]]) count++;
+    }
+    
   }
 
   if (count !== 0) return false;
@@ -712,7 +717,8 @@ const intentSamplePool = require("./../config/intent");
 
 const createRandomIntent = () => {
   // gen base intent
-  const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  const intentIndex = 3;
   const slots = intentSamplePool.INTENT[intentIndex].slot;
 
   let tempIntent = {
@@ -726,6 +732,11 @@ const createRandomIntent = () => {
       return tempIntent[slot] = -1;
     }
     const slotPool = intentSamplePool[slot.toUpperCase()];
+    if (slot === "district") {
+      // console.log
+      const slotIndex = getRandomFromArray(slotPool[intentSamplePool.CITY[tempIntent["city"]]]);
+      return tempIntent[slot] = slotIndex;
+    }
     const slotIndex = getRandomFromArray(slotPool);
     return tempIntent[slot] = slotIndex;
   })
@@ -769,11 +780,11 @@ const getRandomFromArray = (arr) => {
   return Math.floor(Math.random() * arr.length);
 }
 
-const genRandomInt = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// const genRandomInt = (min, max) => {
+//   min = Math.ceil(min);
+//   max = Math.floor(max);
+//   return Math.floor(Math.random() * (max - min + 1)) + min;
+// }
 
 const kickUser = (roomID, userID) => {
 

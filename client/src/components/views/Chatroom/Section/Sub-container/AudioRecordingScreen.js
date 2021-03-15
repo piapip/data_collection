@@ -214,7 +214,7 @@ export default function AudioRecordingScreen(props) {
               <ServantDropDown
                 toggleTagVisibility={toggleTagVisibility}
                 // turn={turn}
-                intent={intent}
+                // intent={intent}
                 visible={tagVisibility}
                 disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
                 setIntent={setNewIntent}
