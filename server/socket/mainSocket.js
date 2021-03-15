@@ -293,9 +293,9 @@ sockets.init = function(server) {
               intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits
             });
 
-            if (name && name.length !== 0) roomFound.cheat_sheet.push(name);
-            if (cmnd && cmnd.length !== 0) roomFound.cheat_sheet.push(cmnd);
-            if (four_last_digits && four_last_digits.length !== 0) roomFound.cheat_sheet.push(four_last_digits)
+            if (name && name.length !== 0 && !roomFound.cheat_sheet.includes(name)) roomFound.cheat_sheet.push(name);
+            if (cmnd && cmnd.length !== 0 && !roomFound.cheat_sheet.includes(cmnd)) roomFound.cheat_sheet.push(cmnd);
+            if (four_last_digits && four_last_digits.length !== 0 && !roomFound.cheat_sheet.includes(four_last_digits)) roomFound.cheat_sheet.push(four_last_digits)
 
             // save intent to audio
             Audio.findById(audioID)
@@ -713,7 +713,6 @@ const intentSamplePool = require("./../config/intent");
 const createRandomIntent = () => {
   // gen base intent
   const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
-  console.log("intentIndex: ", intentIndex)
   const slots = intentSamplePool.INTENT[intentIndex].slot;
 
   let tempIntent = {
@@ -744,8 +743,6 @@ const transferObject = (originalObject, newObject) => {
       originalObject[key] = newObject[key];
     }
   }
-
-  console.log("Original object: ", originalObject);
 
   return originalObject;
 }

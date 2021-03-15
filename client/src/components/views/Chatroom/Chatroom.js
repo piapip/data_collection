@@ -15,7 +15,7 @@ import RoomStatusPopover from './Section/Shared/RoomStatusPopover';
 
 // import Scenario from './Section/Client/Scenario';
 
-// import ProgressNote from './Section/Servant/ProgressNote';
+import ProgressNote from './Section/Servant/ProgressNote';
 
 import AudioRecordingScreen from './Section/Sub-container/AudioRecordingScreen';
 
@@ -23,7 +23,7 @@ import {getRoom} from '../../../_actions/chatroom_actions';
 
 import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
-// import LoadingComponent from '../Loading/LoadingComponent';
+import LoadingComponent from '../Loading/LoadingComponent';
 
 import ClientBG from './../LandingPage/Section/images/speak.svg';
 import ServantBG from './../LandingPage/Section/images/listen.svg';
@@ -44,6 +44,7 @@ export default function Chatroom(props) {
   const [ latestAudio, setLatestAudio ] = useState(null);
   const [ scenario, setScenario ] = useState([]);
   const [ currentIntent, setCurrentIntent ] = useState([]);
+  const [ cheatSheet, setCheatSheet ] = useState([]);
   const [ turn, setTurn ] = useState(-1);
   const [ loading, setLoading ] = useState(true);
   const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
@@ -101,6 +102,7 @@ export default function Chatroom(props) {
         if (userID === response.payload.roomFound.user2) setUserRole("servant");
         setRoomDone(response.payload.roomFound.done);
         setRoomName(response.payload.roomFound.name);
+        setCheatSheet(response.payload.roomFound.cheat_sheet);
 
         const scenario = response.payload.roomFound.intent;
         let tempScenario = [];
@@ -132,7 +134,7 @@ export default function Chatroom(props) {
             ])
           }
         }
-        setCurrentIntent(tempCurrentIntent)
+        setCurrentIntent(tempCurrentIntent);
 
         const audios = response.payload.roomFound.audioList;
         let tempAudioList = [];
@@ -264,7 +266,6 @@ export default function Chatroom(props) {
     if (socket) {
       socket.on('update transcript', ({username, transcript, index}) => {
         if (index === -1) {
-          console.log(transcript);
           let tempTranscriptList = [...transcriptHistory];
           let newTranscript = {
             // special case, username now becomes audioID
@@ -369,15 +370,18 @@ export default function Chatroom(props) {
 
   const roomStatusContent = (
     <>
-      {/* {
+      {
         userRole === "client" ? (
-        <Scenario scenario={scenario} progress={progress}/>) : 
+          <div>
+            {/* <Scenario scenario={scenario} progress={progress}/> */}
+          </div>
+        ) : 
         userRole === "servant" ? (
-        <ProgressNote progress={progress} scenario={scenario}/>) : 
+        <ProgressNote currentIntent={currentIntent} scenario={scenario}/>) : 
         (
           <LoadingComponent />
         )
-      } */}
+      }
     </>
   )
 

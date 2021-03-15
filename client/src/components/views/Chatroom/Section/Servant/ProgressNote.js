@@ -1,54 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import { Row, Col } from 'antd';
-import LoadingComponent from './../../../Loading/LoadingComponent';
+// import LoadingComponent from './../../../Loading/LoadingComponent';
 import QuestionMark from './question-mark.png';
-import { COLOR } from './../../../../Config';
+import intentInfo from '../Shared/intent';
 
 export default function ProgressNote(props) {
 
-  const scenario = props ? props.scenario : [];
-  const progress = props ? props.progress : [];
-  const [ loading, setLoading ] = useState(true);
+  // const scenario = props ? props.scenario : [];
+  const currentIntent = props ? props.currentIntent : [];
+  // const [ loading, setLoading ] = useState(true);
 
-  useEffect(() => {
-    if (scenario !== [] && progress !== []) {
-      setLoading(false);
-    } else setLoading(true);
-  }, [scenario, progress]);
+  console.log("currentIntent: ", currentIntent);
 
-  const LABEL = ["Hành động", "Thiết bị", "Tầng", "Phòng", "Scale", "Level"];
+  console.log(currentIntent.length !== 0 ? intentInfo.INTENT[currentIntent[0][1]] : "");
 
-  if (loading) {
-    return <LoadingComponent />
-  }
+  // useEffect(() => {
+  //   if (scenario !== []) {
+  //     setLoading(false);
+  //   } else setLoading(true);
+  // }, [scenario]);
+
+  // if (loading) {
+  //   return <LoadingComponent />
+  // }
 
   const renderProgressNote = (
-    (progress.length !== 0 && scenario.length !== 0) ? (
-      progress.map((property, index) => {
-        return (
-          <Col xs={24} xl={12} key={property[0]}>
-            <Row style={{height: "50px", lineHeight: "50px"}}>
-              <Col span={8}>
-                <b>{LABEL[index]}</b>:
-              </Col>
-              <Col span={16}>
-                {
-                  
-                  property[1] > 0 ? (
-                    index !== 5 ? scenario[index][1] : (
-                      scenario[4][1] === "Màu" ? COLOR[scenario[index][1] + 1] : scenario[index][1]
-                    )
-                  ) : <img src={QuestionMark} alt="question-mark" style={{height: "50px"}}/>
-                }
-              </Col>
-            </Row>
+    currentIntent.length !== 0 ? (
+      <Row>
+        <Row style={{height: "50px", lineHeight: "50px"}}>
+          <Col span={6}>
+            <b>Ý định:</b>
           </Col>
-        )  
-      })
-    ) : (
-      <LoadingComponent />
-    )
+          <Col span={18}>
+            {intentInfo.INTENT[currentIntent[0][1]].name}
+          </Col>
+        </Row>
+         
+        {
+          intentInfo.INTENT[currentIntent[0][1]].slot.map((property, index) => {
+            const currentIntentIndex = currentIntent.findIndex(item => {
+              return item[0] === property;
+            })
+
+            return (
+              <Row style={{height: "50px", lineHeight: "50px"}}>
+                <Col span={6}>
+                  <b>{property}:</b>
+                </Col>
+                <Col span={18}>
+                  {
+                    currentIntentIndex !== -1 ? currentIntent[currentIntentIndex][1] : (
+                      <img src={QuestionMark} alt="question-mark" style={{height: "50px"}}/>
+                    )
+                  }
+                </Col>
+              </Row>
+            )
+          })
+        }
+      </Row>
+      
+    ) : ""
   )
 
   return (

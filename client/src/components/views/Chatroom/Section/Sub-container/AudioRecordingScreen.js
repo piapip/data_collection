@@ -174,8 +174,6 @@ export default function AudioRecordingScreen(props) {
     setIntent(newIntent);
   }
 
-  console.log(intent);
-
   return (
     <>
       <div style={{position: 'absolute', width: "100%"}}>

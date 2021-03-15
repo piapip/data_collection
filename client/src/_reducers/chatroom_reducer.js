@@ -3,6 +3,7 @@ import {
   GET_ALL,
   GET_RANDOM,
   DELETE_AUDIO,
+  GET_CHEAT_SHEET,
 } from '../_actions/types'
 
 export default function(state={}, action){
@@ -14,5 +15,7 @@ export default function(state={}, action){
       return {...state, roomFound: action.payload}
     case DELETE_AUDIO:
       return {...state, success: action.payload}
+    case GET_CHEAT_SHEET:
+      return {...state, cheatSheet: action.payload}
   }
 }

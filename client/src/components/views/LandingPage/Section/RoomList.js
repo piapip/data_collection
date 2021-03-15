@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { getAllRooms } from '../../../../_actions/chatroom_actions';
 
 import { Table, Row, Col, Button, Popover } from 'antd';
-import { CheckCircleTwoTone, MinusCircleTwoTone , MinusOutlined } from '@ant-design/icons';
+// import { CheckCircleTwoTone, MinusCircleTwoTone , MinusOutlined } from '@ant-design/icons';
 
 import RandomRoomButton from './RandomRoomButton';
 import LoadingComponent from './../../Loading/LoadingComponent';
