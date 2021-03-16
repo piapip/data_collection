@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Select, Input, Row, Col, Radio } from 'antd';
 
 import intentInfo from './../Shared/intent';
+import "./ServantDropDown.css";
 
 const {Option} = Select;
 

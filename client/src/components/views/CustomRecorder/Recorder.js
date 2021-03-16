@@ -95,29 +95,6 @@ export default function Recorder(props) {
     <div>
       <div style={{margin: '4rem auto'}}>
         <div className="primary-button">
-          {/* {
-            turn ? (
-              isRecording ? (
-                <button onClick={stopRecord()} className="primary-button button" type="button">
-                  <StopIcon/>
-                </button> 
-              ) : (
-                <button onClick={startRecord()} className="primary-button button" type="button">
-                  <MicIcon/>
-                </button>
-              )
-            ) : (
-              <button onClick={() => alert("Yo")} style={{cursor: 'not-allowed', width: '88px', height: '88px'}} disabled>
-                <MicIcon />
-              </button>
-            )
-          } */}
-          {/* <button onClick={
-            turn ? alert("Yo") :
-            isRecording ? stopRecord : startRecord
-          } className="primary-button button" type="button">
-            {isRecording ? <StopIcon /> : <MicIcon />}
-          </button> */}
           {renderRecordingButton}
           <div className="primary-button background"/>
         </div>

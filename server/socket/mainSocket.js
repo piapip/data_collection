@@ -288,14 +288,18 @@ sockets.init = function(server) {
             // IMPLEMENT SOME KIND OF ERROR!!!
             return null;
           } else {
-            const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits } = intentDetailed;
-            const newIntent = await Intent.create({
-              intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits
-            });
+            let newIntent;
+            if (intentDetailed === null) newIntent = await Intent.create({})
+            else {
+              const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits } = intentDetailed;
+              newIntent = await Intent.create({
+                intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits
+              });
 
-            if (name && name.length !== 0 && !roomFound.cheat_sheet.includes(name)) roomFound.cheat_sheet.push(name);
-            if (cmnd && cmnd.length !== 0 && !roomFound.cheat_sheet.includes(cmnd)) roomFound.cheat_sheet.push(cmnd);
-            if (four_last_digits && four_last_digits.length !== 0 && !roomFound.cheat_sheet.includes(four_last_digits)) roomFound.cheat_sheet.push(four_last_digits)
+              if (name && name.length !== 0 && !roomFound.cheat_sheet.includes(name)) roomFound.cheat_sheet.push(name);
+              if (cmnd && cmnd.length !== 0 && !roomFound.cheat_sheet.includes(cmnd)) roomFound.cheat_sheet.push(cmnd);
+              if (four_last_digits && four_last_digits.length !== 0 && !roomFound.cheat_sheet.includes(four_last_digits)) roomFound.cheat_sheet.push(four_last_digits)
+            }
 
             // save intent to audio
             Audio.findById(audioID)
@@ -364,6 +368,7 @@ sockets.init = function(server) {
         
       // }
 
+      if (intentDetailed === null) intentDetailed = {};
       const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits"];
       for (let key in properties) {
         if(intentDetailed[properties[key]] === undefined) intentDetailed[properties[key]] = null
@@ -662,6 +667,9 @@ const compareObject = (obj1, obj2) => {
 }
 
 const compareIntent = (intent1, intent2) => {
+  if ((intent1 === null && intent2 !== null) || (intent1 !== null && intent2 === null)) return false;
+  if (intent1 === null && intent2 === null) return true;
+
   const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits"];
   let count = 0;
   for (let key in properties) {
@@ -725,7 +733,7 @@ const intentSamplePool = require("./../config/intent");
 const createRandomIntent = () => {
   // gen base intent
   // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
-  const intentIndex = 14;
+  const intentIndex = 12;
   const slots = intentSamplePool.INTENT[intentIndex].slot;
 
   let tempIntent = {

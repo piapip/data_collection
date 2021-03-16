@@ -183,10 +183,9 @@ export default function AudioRecordingScreen(props) {
           turn={turn} />
       </div>
 
-      <Row style={{textAlign: "center"}}>
+      <Row style={{textAlign: "center", paddingTop: "20vh"}}>
         <div className="primary-buttons">
-          <canvas className="primary-buttons canvas" ref={canvasRef}
-                  style={{width: '100%', position: 'absolute', maxWidth: 'calc(1400px - 40px)'}}/>
+          <canvas className="primary-buttons canvas" ref={canvasRef}/>
           <RecordButton
             turn={((turn === 1 && userRole === "client" && !roomDone) || (turn === 3 && userRole === "servant" && !roomDone)) && (audio === null)}
             roomID={chatroomID}

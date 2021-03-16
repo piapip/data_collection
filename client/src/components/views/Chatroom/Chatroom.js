@@ -215,7 +215,7 @@ export default function Chatroom(props) {
   }, [socket]);
 
   useEffect(() => {
-    if (socket && scenario.length !== 0) {
+    if (socket) {
       socket.on('intent correct', ({ roomDone, newIntent }) => {
         // console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
         setMessage(StatusMessage.INTENT_CORRECT);
