@@ -36,7 +36,8 @@ export default function AudioRecordingScreen(props) {
   const latestAudio = props ? props.latestAudio : null;
   const [ isPlaying, setIsPlaying ] = useState(false);
   const [ audio, setAudio ] = useState(null);
-  const [ intent, setIntent ] = useState(null); 
+  const [ intent, setIntent ] = useState(null);
+  const [ genericIntent, setGenericIntent ] = useState(null);
   const [ isRecording, setIsRecording ] = useState(false);
   const [ tagVisibility, setTagVisibility ] = useState(true);
 
@@ -168,6 +169,14 @@ export default function AudioRecordingScreen(props) {
     setIntent(newIntent);
   }
 
+  const setNewGenericIntent = (genericIntentValue) => {
+    let newGenericIntent = {
+      generic_intent: genericIntentValue
+    };
+
+    setGenericIntent(newGenericIntent);
+  }
+
   const setSlot = (slot, value) => {
     let newIntent = {...intent};
     newIntent[slot] = value;
@@ -215,35 +224,8 @@ export default function AudioRecordingScreen(props) {
                 visible={tagVisibility}
                 disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
                 setIntent={setNewIntent}
+                setGenericIntent={setNewGenericIntent}
                 setSlot={setSlot}/>
-
-                
-              {/* {userRole === "client" && progress !== [] ?
-                <ClientCheckbox
-                  // visible={tagVisibility && audio !== null}
-                  toggleTagVisibility={toggleTagVisibility}
-                  progress={progress}
-                  intent={tagVisibility ? intent : null}
-                  visible={tagVisibility}
-                  disabled={!(turn === 1 && userRole === "client")}
-                  setIntent={setIntent}
-                  list={scenario}  
-                /> : 
-              userRole === "servant" ? (
-                // <Dropdown list={dropdowns}/>
-                <ServantDropDown
-                  toggleTagVisibility={toggleTagVisibility}
-                  turn={turn}
-                  intent={intent}
-                  visible={tagVisibility}
-                  disabled={!(turn === 2 && userRole === "servant")}
-                  setIntent={setIntent}/>
-              ) : (
-                <div style={{textAlign: "center"}}>
-                  <LoadingComponent />
-                </div>
-              )
-              } */}
             </div>
           </Col>
         </Row>
@@ -261,7 +243,7 @@ export default function AudioRecordingScreen(props) {
                     rejectButtonDisabled={latestAudio === null}
                     socket={socket}
                     audio={audio} 
-                    intent={tagVisibility ? intent : null}
+                    intent={tagVisibility ? intent : genericIntent}
                     userRole={userRole}
                     userID={user.userData ? user.userData._id : ""}
                     roomID={chatroomID}
@@ -275,7 +257,7 @@ export default function AudioRecordingScreen(props) {
                     turn={turn}
                     audio={audio}
                     rejectButtonDisabled={latestAudio === null}
-                    intent={tagVisibility ? intent : null}
+                    intent={tagVisibility ? intent : genericIntent}
                     userRole={userRole}
                     userID={user.userData ? user.userData._id : ""}
                     roomID={chatroomID}

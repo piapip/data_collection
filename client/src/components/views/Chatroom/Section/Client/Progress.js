@@ -21,21 +21,6 @@ export default function Progress(props) {
   }, [scenario])
 
   const compareProperty = (scenarioProp, currentIntent) => {
-    // if (!scenarioProp) return false;
-    // if (!currentIntent || currentIntent.length === 0) return false;
-    // const scenarioPropIndex = currentIntent.findIndex(item => {
-    //   return item[0] === scenarioProp[0];
-    // })
-
-    // if (scenarioPropIndex === -1) return false;
-    // else {
-    //   if (scenarioProp[1] === "-1" && currentIntent[scenarioPropIndex][1]) return true;
-    //   else {
-    //     if (scenarioProp[1] === currentIntent[scenarioPropIndex][1]) return true;
-    //     return false;
-    //   }
-    // }
-
     if (!scenarioProp) return false;
     if (!currentIntent || currentIntent.length === 0) return null;
     const scenarioPropIndex = currentIntent.findIndex(item => {
@@ -80,7 +65,7 @@ export default function Progress(props) {
         ) : (
           <Col xl={6} xs={24} key={property[0]}>
             <Row style={{textAlign: "center"}}>
-              {getLabel(property[0])}
+            {index === 0 ? "Ý định" : getLabel(property[0])}
             </Row>
             <Row style={{textAlign: "center"}}>
               <img src={RedCrossSign} alt="not done" style={{height: "50px"}}/>

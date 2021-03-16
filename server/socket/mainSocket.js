@@ -291,9 +291,9 @@ sockets.init = function(server) {
             let newIntent;
             if (intentDetailed === null) newIntent = await Intent.create({})
             else {
-              const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits } = intentDetailed;
+              const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = intentDetailed;
               newIntent = await Intent.create({
-                intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits
+                intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent
               });
 
               if (name && name.length !== 0 && !roomFound.cheat_sheet.includes(name)) roomFound.cheat_sheet.push(name);
@@ -371,7 +371,7 @@ sockets.init = function(server) {
       // }
 
       if (intentDetailed === null) intentDetailed = {};
-      const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits"];
+      const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits", "generic_intent"];
       for (let key in properties) {
         if(intentDetailed[properties[key]] === undefined) intentDetailed[properties[key]] = null
       }
@@ -439,6 +439,9 @@ sockets.init = function(server) {
                 if (!currentIntentFound) {
                   console.log("... Some shenanigan.. CurrentIntent doesn't even exist.");
                 } else {
+                  // no need to update if it's just a generic intent.
+                  if (intentDetailed.generic_intent) return currentIntentFound; 
+
                   if (intentDetailed.intent !== null && intentDetailed.intent !== currentIntentFound.intent) {
                     currentIntentFound = transferObject(currentIntentFound, intentDetailed);
                   } else {
@@ -454,19 +457,17 @@ sockets.init = function(server) {
               .catch(err => console.log("Having trouble updating currenting intent...",err))
               
               // Have to change this, since the definition of a finished room is different now.
-              if (compareIntent(newIntent, roomFound.intent)) {
+              // remember that roomFound.intent.generic_intent will always be null because it doesn't really matter, so we need to create an alternative that also has such pattern.
+              const alternativeIntent = newIntent;
+              alternativeIntent.generic_intent = null;
+              if (compareIntent(alternativeIntent, roomFound.intent)) {
                 roomFound.done = true;
-                // emit signal
-                io.to(roomID).emit('intent correct', {
-                  roomDone: true,
-                  newIntent: newIntent,
-                });
               } else {
                 // emit signal
-              io.to(roomID).emit('intent correct', {
-                roomDone: false,
-                newIntent: newIntent,
-              });
+                io.to(roomID).emit('intent correct', {
+                  roomDone: roomFound.done,
+                  newIntent: newIntent,
+                });
               }
 
               
@@ -672,7 +673,7 @@ const compareIntent = (intent1, intent2) => {
   if ((intent1 === null && intent2 !== null) || (intent1 !== null && intent2 === null)) return false;
   if (intent1 === null && intent2 === null) return true;
 
-  const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits"];
+  const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits", "generic_intent"];
   let count = 0;
   for (let key in properties) {
     if(intent1[properties[key]] === "-1") {
@@ -734,8 +735,8 @@ const intentSamplePool = require("./../config/intent");
 
 const createRandomIntent = () => {
   // gen base intent
-  // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
-  const intentIndex = 12;
+  const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  // const intentIndex = 12;
   const slots = intentSamplePool.INTENT[intentIndex].slot;
 
   let tempIntent = {
@@ -764,8 +765,10 @@ const createRandomIntent = () => {
   })
 
   const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits } = tempIntent;
+  // I can still put this lil piece of crap in the {} up there, but who knows what magic it might hold, so better safe than sorry.
+  const generic_intent = null;
   return Intent.create({
-    intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits
+    intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent
   })
 }
 

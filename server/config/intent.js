@@ -118,7 +118,7 @@ const SLOT_LABEL = [
     name: "4 số cuối tài khoản",
     tag: "FOUR_LAST_DIGITS",
   },
-]
+];
 
 const LOAN_PURPOSE = [
   {
@@ -350,8 +350,16 @@ const DISTRICT = {
   "Thừa Thiên Huế": ['A Lưới', 'Nam Đông', 'Phong Điền', 'Phú Lộc', 'Phú Vang', 'Quảng Điền', 'Thành phố Huế', 'Thị xã Hương Thủy', 'Thị xã Hương Trà'],
 
   "Tuyên Quang": ['Chiêm Hóa', 'Hàm Yên', 'Lâm Bình', 'Na Hang', 'Sơn Dương', 'Yên Sơn'],
-  
-}
+};
+
+const GENERIC_INTENT = [
+  "Chào hỏi",
+  "Bot làm được gì?",
+  "Khen",
+  "Chê",
+  "Tạm biệt",
+  "Câu hỏi thông thường khác",
+]
 
 module.exports = {
   INTENT,
@@ -364,4 +372,5 @@ module.exports = {
   CARD_ACTIVATION_TYPE,
   CITY,
   DISTRICT,
+  GENERIC_INTENT,
 }

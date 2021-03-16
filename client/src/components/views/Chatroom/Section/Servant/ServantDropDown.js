@@ -7,6 +7,7 @@ import "./ServantDropDown.css";
 const {Option} = Select;
 
 const intentData = intentInfo.INTENT;
+const genericIntentData = intentInfo.GENERIC_INTENT;
 
 export default function ServantDropDown(props) {
 
@@ -26,6 +27,13 @@ export default function ServantDropDown(props) {
     });
     setSelectedIntent(intentIndex);
     props.setIntent(intentIndex);
+  }
+
+  const handleGenericIntentChange = (value) => {
+    const genericIntentIndex = genericIntentData.findIndex(item => {
+      return item === value
+    });
+    props.setGenericIntent(genericIntentIndex);
   }
 
   const onSlotSelectChange = (key) => {
@@ -216,13 +224,38 @@ export default function ServantDropDown(props) {
         </div>
       </Radio>
       
-      <Radio style={{
+      {/* <Radio style={{
         display: "block",
         height: "48px",
         lineHeight: "48px",
       }} value={2}><b style={{paddingLeft: "10px", color: disabled ? "grey" : "black"}}>Không có tag</b>
+      </Radio> */}
+      <Radio style={radioStyle} value={2}>
+        <div style={radioContextStyle}>
+          <Row>
+            <Col xl={6} xs={24} style={outerColStyle}>
+              <Row>
+                <Col span={24} style={innerCol1Style}>
+                  <b>Khác</b>
+                </Col>
+                <Col span={24} style={innerCol2Style}>
+                  <Select
+                    defaultValue={null}
+                    style={{ width: "100%" }}
+                    onChange={handleGenericIntentChange}
+                    disabled={disabled || tagVisible}>
+                    {
+                      genericIntentData.map(intent => (
+                        <Option key={intent}><p style={{width: "100%", whiteSpace: "normal"}}>{intent}</p></Option>
+                      ))
+                    }
+                  </Select>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </div>
       </Radio>
-      
     </div>
   </Radio.Group>
   )

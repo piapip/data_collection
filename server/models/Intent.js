@@ -64,6 +64,11 @@ const intentSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+
+  generic_intent: {
+    type: Number,
+    default: null,
+  },
 });
 
 const Intent = mongoose.model('Intent', intentSchema);
