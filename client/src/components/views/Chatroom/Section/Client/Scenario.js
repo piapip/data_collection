@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import {Col, Row} from "antd";
 
-// import Progress from "./Progress";
+import Progress from "./Progress";
+
 import LoadingComponent from './../../../Loading/LoadingComponent';
 
 import intentInfo from './../Shared/intent';
@@ -63,11 +64,11 @@ export default function Scenario(props) {
             )
           }
         </Col>
-        {/* <Col span={24}>
+        <Col span={24}>
           <Progress
             scenario={scenario}
             currentIntent={currentIntent}/>
-        </Col> */}
+        </Col>
       </Row>
     </div>
   )

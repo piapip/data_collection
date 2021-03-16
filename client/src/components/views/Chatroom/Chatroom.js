@@ -363,6 +363,7 @@ export default function Chatroom(props) {
         userRole === "client" ? (
           <div>
             <Scenario scenario={scenario} currentIntent={currentIntent}/>
+            <ProgressNote currentIntent={currentIntent} scenario={scenario}/>
           </div>
         ) : 
         userRole === "servant" ? (

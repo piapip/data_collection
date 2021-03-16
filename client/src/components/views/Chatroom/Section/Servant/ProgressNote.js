@@ -20,9 +20,6 @@ export default function ProgressNote(props) {
       return item.tag.toUpperCase() === slot.toUpperCase();
     })
 
-    console.log("Slot: ", slot);
-    console.log("slotIndex: ", slotIndex);
-
     return slotIndex === -1 ? "" : intentInfo.SLOT_LABEL[slotIndex].name
   }
 
@@ -69,7 +66,12 @@ export default function ProgressNote(props) {
 
   return (
     <>
+      {/* <Row>
+        <Col>
+        </Col>
+      </Row> */}
       <Row style={{padding: "10px"}}>
+        <h3 style={{fontWeight:'bold',fontSize:'18px',textAlign: "center"}}>Hiện trạng</h3>
         {renderProgressNote}
       </Row>
     </>
