@@ -13,7 +13,7 @@ import PromptLeaving from './Section/Shared/PromptLeaving';
 import Guide from './Section/Shared/Guide';
 import RoomStatusPopover from './Section/Shared/RoomStatusPopover';
 
-// import Scenario from './Section/Client/Scenario';
+import Scenario from './Section/Client/Scenario';
 
 import ProgressNote from './Section/Servant/ProgressNote';
 
@@ -362,7 +362,7 @@ export default function Chatroom(props) {
       {
         userRole === "client" ? (
           <div>
-            {/* <Scenario scenario={scenario} progress={progress}/> */}
+            <Scenario scenario={scenario} currentIntent={currentIntent}/>
           </div>
         ) : 
         userRole === "servant" ? (

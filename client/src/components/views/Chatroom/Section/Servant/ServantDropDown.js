@@ -24,18 +24,18 @@ export default function ServantDropDown(props) {
       return item.name === value
     });
     setSelectedIntent(intentIndex);
-    console.log(intentIndex);
     props.setIntent(intentIndex);
   }
 
   const onSlotSelectChange = (key) => {
-    const keyParsing = key.split(' ');
+    // const keyParsing = key.split(' ', 2);
+    const keyParsing = key.split(/(?<=^\S+)\s/)
     const slot = keyParsing[0];
     const tag = keyParsing[1];
     const tagIndex = intentInfo[slot.toUpperCase()].findIndex(item => {
       return item.tag === tag;
     });
-
+    
     props.setSlot(slot, tagIndex);
   }
 

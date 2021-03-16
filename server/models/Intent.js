@@ -3,50 +3,36 @@ const mongoose = require('mongoose');
 const intentSchema = new mongoose.Schema({
   intent: {
     type: Number,
-    min: 0,
-    max: 17,
     default: null,
   },
 
   loan_purpose: {
     type: Number,
-    min: 0,
-    max: 5,
     default: null,
   },
 
   loan_type: {
     type: Number,
-    min: 0,
-    max: 2,
     default: null,
   },
 
   card_type: {
     type: Number,
-    min: 0,
-    max: 6,
     default: null,
   },
 
   card_usage: {
     type: Number,
-    min: 0,
-    max: 1,
     default: null,
   },
 
   digital_bank: {
     type: Number,
-    min: 0,
-    max: 4,
     default: null,
   },
 
   card_activation_type: {
     type: Number,
-    min: 0,
-    max: 1,
     default: null,
   },
 
@@ -54,8 +40,6 @@ const intentSchema = new mongoose.Schema({
   district: {
     // type: String,
     type: Number,
-    // min: 0,
-    // max: 2,
     default: null,
   },
 
@@ -63,8 +47,6 @@ const intentSchema = new mongoose.Schema({
   city: {
     // type: String,
     type: Number,
-    // min: 0,
-    // max: 4,
     default: null,
   },
   

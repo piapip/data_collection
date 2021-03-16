@@ -724,8 +724,8 @@ const intentSamplePool = require("./../config/intent");
 
 const createRandomIntent = () => {
   // gen base intent
-  const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
-  // const intentIndex = 3;
+  // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  const intentIndex = 14;
   const slots = intentSamplePool.INTENT[intentIndex].slot;
 
   let tempIntent = {
