@@ -1,19 +1,12 @@
 import React from 'react';
 
 import { Row, Col } from 'antd';
-// import LoadingComponent from './../../../Loading/LoadingComponent';
 import QuestionMark from './question-mark.png';
 import intentInfo from '../Shared/intent';
 
 export default function ProgressNote(props) {
 
-  // const scenario = props ? props.scenario : [];
   const currentIntent = props ? props.currentIntent : [];
-  // const [ loading, setLoading ] = useState(true);
-
-  console.log("currentIntent: ", currentIntent);
-
-  console.log(currentIntent.length !== 0 ? intentInfo.INTENT[currentIntent[0][1]] : "");
   
   const getLabel = (slot) => {
     const slotIndex = intentInfo.SLOT_LABEL.findIndex(item => {
@@ -42,7 +35,7 @@ export default function ProgressNote(props) {
             })
 
             return (
-              <Row style={{height: "50px", lineHeight: "50px"}}>
+              <Row style={{height: "50px", lineHeight: "50px"}} key={index}>
                 <Col span={8}>
                   <b>{getLabel(property)}:</b>
                 </Col>
@@ -58,7 +51,6 @@ export default function ProgressNote(props) {
           })
         }
       </Row>
-      
     ) : (
       <p>Chưa có thông tin!!!</p>
     )

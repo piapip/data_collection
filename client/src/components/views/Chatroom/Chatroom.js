@@ -19,7 +19,7 @@ import ProgressNote from './Section/Servant/ProgressNote';
 
 import AudioRecordingScreen from './Section/Sub-container/AudioRecordingScreen';
 
-import {getRoom} from '../../../_actions/chatroom_actions';
+import { getRoom, getCheatSheet } from '../../../_actions/chatroom_actions';
 
 import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
@@ -211,6 +211,13 @@ export default function Chatroom(props) {
         // console.log(`Servant doesn't seem to understood client's intent!`)
         setMessage(StatusMessage.INTENT_INCORECT);
       });
+
+      socket.on('refresh cheatsheet', () => {
+        dispatch(getCheatSheet(chatroomID))
+        .then((response) => {
+          setCheatSheet(response.payload.cheat_sheet);
+        })
+      })
     }
   }, [socket]);
 
@@ -287,7 +294,7 @@ export default function Chatroom(props) {
         }
       })
     }
-  }, [transcriptHistory, socket])
+  }, [transcriptHistory, socket]);
 
   useEffect(() => {
     if (socket) {
@@ -422,8 +429,11 @@ export default function Chatroom(props) {
           <div style={{position: "absolute", zIndex: "1001"}}>
             <RoomStatusPopover 
               content={(
-                <div style={{width: "100vh"}}>
-                  <Guide turn={turn} />
+                // <div style={{width: "100vh"}}>
+                <div>
+                  <Guide 
+                    turn={turn} 
+                    cheatSheet={cheatSheet}/>
                 </div>
               )}/>
           </div>

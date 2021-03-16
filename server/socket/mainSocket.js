@@ -298,7 +298,7 @@ sockets.init = function(server) {
 
               if (name && name.length !== 0 && !roomFound.cheat_sheet.includes(name)) roomFound.cheat_sheet.push(name);
               if (cmnd && cmnd.length !== 0 && !roomFound.cheat_sheet.includes(cmnd)) roomFound.cheat_sheet.push(cmnd);
-              if (four_last_digits && four_last_digits.length !== 0 && !roomFound.cheat_sheet.includes(four_last_digits)) roomFound.cheat_sheet.push(four_last_digits)
+              if (four_last_digits && four_last_digits.length !== 0 && !roomFound.cheat_sheet.includes(four_last_digits)) roomFound.cheat_sheet.push(four_last_digits);
             }
 
             // save intent to audio
@@ -329,6 +329,8 @@ sockets.init = function(server) {
         console.log(err);
       })
 
+      io.to(roomID).emit("refresh cheatsheet", {});
+
       setTimeout(async () => {
         let transcript = await Audio.findById(audioID)
         .then(audioFound => {
@@ -341,7 +343,7 @@ sockets.init = function(server) {
           return audioFound.transcript;
         })
 
-        console.log(`transcript: ${transcript}`)
+        // console.log(`transcript: ${transcript}`)
 
         io.to(roomID).emit("update transcript", {
           // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
