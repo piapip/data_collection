@@ -188,8 +188,7 @@ export default function AudioRecordingScreen(props) {
       <div style={{position: 'absolute', width: "100%"}}>
         <Status
           userRole={userRole}
-          message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message}
-          turn={turn} />
+          message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message} />
       </div>
 
       <Row style={{textAlign: "center", paddingTop: "20vh"}}>
