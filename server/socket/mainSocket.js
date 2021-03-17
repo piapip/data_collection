@@ -470,8 +470,6 @@ sockets.init = function(server) {
                 });
               }
 
-              
-
               // update turn
               roomFound.turn = 3;
               return roomFound.save();
@@ -549,9 +547,9 @@ sockets.init = function(server) {
 
         io.to(roomID).emit("update transcript", {
           // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
-        username: audioID,
-        transcript: transcript,
-        index: -1,
+          username: audioID,
+          transcript: transcript,
+          index: -1,
         });
       }, 2500);
     });
@@ -750,13 +748,13 @@ const createRandomIntent = () => {
       return tempIntent[slot] = -1;
     }
     const slotPool = intentSamplePool[slot.toUpperCase()];
-    // we decide.
+    // we decide the objective.
     // if (slot === "district") {
     //   // console.log
     //   const slotIndex = getRandomFromArray(slotPool[intentSamplePool.CITY[tempIntent["city"]]]);
     //   return tempIntent[slot] = slotIndex;
     // }
-    // let user decides
+    // let users decide the object.
     if (slot === "city" || slot === "district") {
       return tempIntent[slot] = -1;
     }

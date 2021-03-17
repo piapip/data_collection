@@ -234,8 +234,6 @@ export default function Chatroom(props) {
       socket.on('intent correct', ({ roomDone, newIntent }) => {
         // console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
         setMessage(StatusMessage.INTENT_CORRECT);
-        console.log('roomDone: ', roomDone);
-        console.log('newIntent: ', newIntent);
         if (roomDone) {
           setRedirect(true);
         }
