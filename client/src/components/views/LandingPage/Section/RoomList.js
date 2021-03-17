@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { getAllRooms } from '../../../../_actions/chatroom_actions';
 
 import { Table, Row, Col, Button, Popover } from 'antd';
-import { CheckCircleTwoTone, MinusCircleTwoTone , MinusOutlined } from '@ant-design/icons';
+// import { CheckCircleTwoTone, MinusCircleTwoTone , MinusOutlined } from '@ant-design/icons';
 
 import RandomRoomButton from './RandomRoomButton';
 import LoadingComponent from './../../Loading/LoadingComponent';
@@ -133,7 +133,7 @@ function RoomList(props) {
                 }
               }} >
               <Column dataIndex='name' key='name' />
-              <Column 
+              {/* <Column 
                 title='Tiến độ' 
                 dataIndex='progress' 
                 key='progress' 
@@ -153,7 +153,7 @@ function RoomList(props) {
                     } else return ""
                   })}
                 </>
-              )}/>
+              )}/> */}
               <Column 
                 title='Người tham gia' 
                 dataIndex='capacity' 

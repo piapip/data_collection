@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const uploadService = require('../services/upload');
 const multer = require('multer');
-const tmp = require("tmp");
-const fs = require("fs");
-const request = require('request');
-const { exec } = require('child_process');
+// const tmp = require("tmp");
+// const fs = require("fs");
+// const request = require('request');
+// const { exec } = require('child_process');
 
 const DOMAIN_NAME = 'http://localhost:5000';
 
@@ -69,7 +69,7 @@ const saveAudioMongo = async (userID, link) => {
     fixBy: null,
   })
 
-  getTranscript(link, audio._id)
+  // getTranscript(link, audio._id)
 
   return audio._id
 }
@@ -100,49 +100,49 @@ const updateRoomInfo = (roomID, audioID) => {
   });
 }
 
-let download = function(uri, filename, callback){
-  request.head(uri, function(err, res, body){
-    if (err) throw "Something's wrong while uploading audio uri..."
-    // console.log('content-type:', res.headers['content-type']);
-    // console.log('content-length:', res.headers['content-length']);
+// let download = function(uri, filename, callback){
+//   request.head(uri, function(err, res, body){
+//     if (err) throw "Something's wrong while uploading audio uri..."
+//     // console.log('content-type:', res.headers['content-type']);
+//     // console.log('content-length:', res.headers['content-length']);
 
-    request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
-  });
-};
+//     request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+//   });
+// };
 
-const getTranscript = (uri, audioID) => {
+// const getTranscript = (uri, audioID) => {
 
-  tmp.file(function _tempFileCreated (err, path, fd, cleanupCallback) {
-    if (err) throw err;
-    download(uri, path , function(){
-      exec(
-        `python ./server/routes/audio_transcript/main.py ${path}`,
-        (err, stdout, stderr) => {
-          if (err) {
-            console.error(`exec error: ${err}`);
-            return "";
-          }
+//   tmp.file(function _tempFileCreated (err, path, fd, cleanupCallback) {
+//     if (err) throw err;
+//     download(uri, path , function(){
+//       exec(
+//         `python ./server/routes/audio_transcript/main.py ${path}`,
+//         (err, stdout, stderr) => {
+//           if (err) {
+//             console.error(`exec error: ${err}`);
+//             return "";
+//           }
           
-          Audio.findById(audioID)
-          .then(audioFound => {
-            if(!audioFound) {
-              console.log("Can't find audio for transcript!");
-              return null
-            } else {
-              audioFound.transcript = stdout;
-              return audioFound.save();
-            }
-          })
-          .then(audioUpdated => {})
-          .catch(err => {
-            console.log(`Error while updating audio ${audioID} transcript... ${err}`)
-          })
-        }
-      )
-    });
+//           Audio.findById(audioID)
+//           .then(audioFound => {
+//             if(!audioFound) {
+//               console.log("Can't find audio for transcript!");
+//               return null
+//             } else {
+//               audioFound.transcript = stdout;
+//               return audioFound.save();
+//             }
+//           })
+//           .then(audioUpdated => {})
+//           .catch(err => {
+//             console.log(`Error while updating audio ${audioID} transcript... ${err}`)
+//           })
+//         }
+//       )
+//     });
 
-    cleanupCallback();
-  })
-}
+//     cleanupCallback();
+//   })
+// }
 
 module.exports = router;

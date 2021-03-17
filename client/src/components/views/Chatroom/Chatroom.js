@@ -19,7 +19,7 @@ import ProgressNote from './Section/Servant/ProgressNote';
 
 import AudioRecordingScreen from './Section/Sub-container/AudioRecordingScreen';
 
-import {getRoom} from '../../../_actions/chatroom_actions';
+import { getRoom, getCheatSheet } from '../../../_actions/chatroom_actions';
 
 import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
@@ -43,7 +43,8 @@ export default function Chatroom(props) {
   const [ transcriptHistory, setTranscriptHistory ] = useState([]);
   const [ latestAudio, setLatestAudio ] = useState(null);
   const [ scenario, setScenario ] = useState([]);
-  const [ progress, setProgress ] = useState([]);
+  const [ currentIntent, setCurrentIntent ] = useState([]);
+  const [ cheatSheet, setCheatSheet ] = useState([]);
   const [ turn, setTurn ] = useState(-1);
   const [ loading, setLoading ] = useState(true);
   const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
@@ -62,19 +63,19 @@ export default function Chatroom(props) {
 
   const dispatch = useDispatch();
 
-  const updateProgress = (newProgress) => {
-    let tempProgress = [];
-    for(const property in newProgress) {
-      if (property !== '_id' && property !== '__v' && newProgress[property] !== null) {
-        tempProgress.push([
+  const updateCurrentIntent = (newIntent) => {
+    let tempCurrentIntent = [];
+    for(const property in newIntent) {
+      if (property !== '_id' && property !== '__v' && newIntent[property] !== null) {
+        tempCurrentIntent.push([
           property,
-          newProgress[property],
+          newIntent[property],
           // key: property,
-          // value: progress[property],
+          // value: currentIntent[property],
         ])
       }
     }
-    setProgress(tempProgress);
+    setCurrentIntent(tempCurrentIntent);
   }
 
   const openNotificationWithIcon = (type, message, description) => {
@@ -101,24 +102,39 @@ export default function Chatroom(props) {
         if (userID === response.payload.roomFound.user2) setUserRole("servant");
         setRoomDone(response.payload.roomFound.done);
         setRoomName(response.payload.roomFound.name);
-        const intent = response.payload.roomFound.intent;
-        let tempIntent = []
-        for (const property in intent) {
-          if (property !== '_id' && property !== '__v' && intent[property] !== null) {
-            tempIntent.push([
+        setCheatSheet(response.payload.roomFound.cheat_sheet);
+
+        const scenario = response.payload.roomFound.intent;
+        let tempScenario = [];
+        for (const property in scenario) {
+          if (property !== '_id' && property !== '__v' && scenario[property] !== null) {
+            tempScenario.push([
               property,
-              (property === 'floor' ? 'Tầng ' + intent[property] : intent[property]),
-              intent[property],
+              (property === 'floor' ? 'Tầng ' + scenario[property] : scenario[property]),
+              scenario[property],
+              // key: property,
+              // label: scenario[property],
+              // value: scenario[property],
+            ])
+          }
+        }
+        setScenario(tempScenario);
+
+        const currentIntent = response.payload.roomFound.currentIntent;
+        let tempCurrentIntent = [];
+        for (const property in currentIntent) {
+          if (property !== '_id' && property !== '__v' && currentIntent[property] !== null) {
+            tempCurrentIntent.push([
+              property,
+              (property === 'floor' ? 'Tầng ' + currentIntent[property] : currentIntent[property]),
+              currentIntent[property],
               // key: property,
               // label: intent[property],
               // value: intent[property],
             ])
           }
         }
-        setScenario(tempIntent);
-
-        const progress = response.payload.roomFound.progress;
-        updateProgress(progress)
+        setCurrentIntent(tempCurrentIntent);
 
         const audios = response.payload.roomFound.audioList;
         let tempAudioList = [];
@@ -199,19 +215,35 @@ export default function Chatroom(props) {
   }, [socket]);
 
   useEffect(() => {
-    if (socket && progress.length !== 0) {
-      socket.on('intent correct', ({ newProgress }) => {
+    if (socket) {
+      socket.on('refresh cheatsheet', () => {
+        const fetchCheatSheet = () => {
+          dispatch(getCheatSheet(chatroomID))
+          .then((response) => {
+            setCheatSheet(response.payload.cheat_sheet);
+          })
+        };
+  
+        fetchCheatSheet();
+      })
+    }
+  }, [socket, chatroomID, dispatch])
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('intent correct', ({ roomDone, newIntent }) => {
         // console.log(`Servant has understood client's intent correctly! It's now servant turn to record the reply.`);
-        setMessage(StatusMessage.INTENT_CORRECT)
-        if (newProgress.action !== 0 && newProgress.device !== 0 && newProgress.floor !== 0 && 
-          newProgress.room !== 0 && newProgress.scale !== 0 && newProgress.level !== 0) {
+        setMessage(StatusMessage.INTENT_CORRECT);
+        console.log('roomDone: ', roomDone);
+        console.log('newIntent: ', newIntent);
+        if (roomDone) {
           setRedirect(true);
         }
-        updateProgress(newProgress);
+        updateCurrentIntent(newIntent);
         setTurn(3);        
       });
     }
-  }, [progress, socket]);
+  }, [scenario, socket]);
 
   useEffect(() => {
     if (socket && turn !== -1 && userRole !== "") {
@@ -248,10 +280,9 @@ export default function Chatroom(props) {
   // }, [])
 
   useEffect(() => {
-    if (socket && transcriptHistory.length !== 0) {
+    if (socket) {
       socket.on('update transcript', ({username, transcript, index}) => {
         if (index === -1) {
-          console.log(transcript);
           let tempTranscriptList = [...transcriptHistory];
           let newTranscript = {
             // special case, username now becomes audioID
@@ -271,10 +302,10 @@ export default function Chatroom(props) {
         }
       })
     }
-  }, [transcriptHistory, socket])
+  }, [transcriptHistory, socket]);
 
   useEffect(() => {
-    if (socket && transcriptHistory.length !== 0 && audioHistory.length !== 0) {
+    if (socket) {
       socket.on('audio removed', () => {
         let newHistory = [...audioHistory];
         newHistory.pop();
@@ -330,19 +361,6 @@ export default function Chatroom(props) {
     }
   }
 
-  const getPromptStatus = () => {
-    let count = 0;
-    if (progress.length !== 0) 
-    {
-      progress.map(item => {
-        return item[1] === 0 ? count++ : "";
-      })
-    }
-
-    if (count !== 0) return true;
-    else return false;
-  }
-
   const handleOk = () => {
     setIsModalVisible(false);
     return (
@@ -353,6 +371,24 @@ export default function Chatroom(props) {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
+  const roomStatusContent = (
+    <>
+      {
+        userRole === "client" ? (
+          <div>
+            <Scenario scenario={scenario} currentIntent={currentIntent}/>
+            <ProgressNote currentIntent={currentIntent} scenario={scenario}/>
+          </div>
+        ) : 
+        userRole === "servant" ? (
+        <ProgressNote currentIntent={currentIntent} scenario={scenario}/>) : 
+        (
+          <LoadingComponent />
+        )
+      }
+    </>
+  )
 
   if (redirect) {
     return (
@@ -367,128 +403,103 @@ export default function Chatroom(props) {
     )
   }
 
-  const roomStatusContent = (
-    <>
-      {
-        userRole === "client" ? (
-        <Scenario scenario={scenario} progress={progress}/>) : 
-        userRole === "servant" ? (
-        <ProgressNote progress={progress} scenario={scenario}/>) : 
-        (
-          <LoadingComponent />
-        )
-      }
-    </>
-  )
-
   if (loading) {
     return (
       <>
         <PromptLeaving 
-          when={getPromptStatus()}
+          when={true}
           onLeave={handleLeaveChatroom}/>
         <LoadingPage />
       </>
     )
-  } else {
+  } 
 
-    return (
-      <>
-      <PromptLeaving 
-        onLeave={handleLeaveChatroom}
-        when={getPromptStatus()}/>
-      <div className="chatroom"
-        style={{
-          height: `${screenHeight-69}px`,
-        }}>
-        <Row>
-          <Col xs={24} xl={16} 
-            style={{
-              backgroundRepeat: "no-repeat",
-              height: `${screenHeight-69}px`,
-              backgroundSize: "cover",  
-              backgroundImage: 
-              userRole === "client" ? `url(${ClientBG})`:
-              userRole === "servant" ? `url(${ServantBG})` : 
-              'linear-gradient(0deg, #fff 20%, #f3f2f1)'
-            }}>
-            <div style={{position: "absolute", zIndex: "1001"}}>
-              <RoomStatusPopover 
-                content={(
-                  <div style={{width: "100vh"}}>
-                    <Guide turn={turn} />
-                  </div>
-                )}/>
-            </div>
-            <div>
-              {room_content_type === '0' ?
-                <AudioRecordingScreen
-                  audioName={`${audioHistory.length}_${userID}.wav`}
-                  roomName={roomName}
-                  roomDone={roomDone}
-                  progress={progress}
-                  latestAudio={latestAudio}
-                  message={message}
-                  turn={turn}
-                  canvasRef={canvasRef}
-                  socket={socket}
-                  user={user}
-                  scenario={scenario}
-                  roomContentType={room_content_type}
-                  chatroomID={chatroomID}
-                  userRole={userRole}
-                /> :
-                <ErrorNotFound />}
-            </div>
-          </Col>
-          <Col xs={24} xl={8} style={{
-            paddingRight: "10px", 
-            paddingTop: "10px",
-            borderLeft: "1px solid #dedede",
+  return (
+    <>
+    <PromptLeaving 
+      onLeave={handleLeaveChatroom}
+      when={!roomDone}/>
+    <div className="chatroom"
+      style={{
+        height: `${screenHeight-69}px`,
+      }}>
+      <Row>
+        <Col xs={24} xl={16} 
+          style={{
+            backgroundRepeat: "no-repeat",
+            height: `${screenHeight-69}px`,
+            backgroundSize: "cover",  
+            backgroundImage: 
+            userRole === "client" ? `url(${ClientBG})`:
+            userRole === "servant" ? `url(${ServantBG})` : 
+            'linear-gradient(0deg, #fff 20%, #f3f2f1)'
           }}>
-            <Tabs defaultActiveKey="1" centered>
-              <TabPane tab="Trạng thái" key="1">
-                <Row>
-                  <div style={{
-                    height: "calc(100vh - 170px)",
-                    backgroundColor: "white",
-                  }}>
-                    {roomStatusContent}
-                  </div>
-                </Row>
-              </TabPane>
-              <TabPane tab="Lịch sử" key="2"> 
-                <Row> 
-                  <Col>
-                    <AudioList
-                      socket={socket}
-                      roomID={chatroomID}
-                      userID={userID}
-                      username={username}
-                      userRole={userRole}
-                      transcript={transcriptHistory}
-                      audioList={audioHistory}/>
-                  </Col> 
-                </Row>
-              </TabPane>
-            </Tabs>
-
-            {/* <Row> 
-              <Col>
-                <AudioList
-                  socket={socket}
-                  roomID={chatroomID}
-                  userID={userID}
-                  username={username}
-                  userRole={userRole}
-                  transcript={transcriptHistory}
-                  audioList={audioHistory}/>
-              </Col> 
-            </Row> */}
-          </Col>
-        </Row>
-      </div>
-      </>
-    )
-  }
+          <div style={{position: "absolute", zIndex: "1001"}}>
+            <RoomStatusPopover 
+              content={(
+                // <div style={{width: "100vh"}}>
+                <div>
+                  <Guide 
+                    turn={turn} 
+                    cheatSheet={cheatSheet}/>
+                </div>
+              )}/>
+          </div>
+          <div>
+            {room_content_type === '0' ?
+              <AudioRecordingScreen
+                audioName={`${audioHistory.length}_${userID}.wav`}
+                roomName={roomName}
+                roomDone={roomDone}
+                currentIntent={currentIntent}
+                latestAudio={latestAudio}
+                message={message}
+                turn={turn}
+                canvasRef={canvasRef}
+                socket={socket}
+                user={user}
+                scenario={scenario}
+                roomContentType={room_content_type}
+                chatroomID={chatroomID}
+                userRole={userRole}
+              /> :
+              <ErrorNotFound />}
+          </div>
+        </Col>
+        <Col xs={24} xl={8} style={{
+          paddingRight: "10px", 
+          paddingTop: "10px",
+          borderLeft: "1px solid #dedede",
+        }}>
+          <Tabs defaultActiveKey="1" centered>
+            <TabPane tab="Trạng thái" key="1">
+              <Row>
+                <div style={{
+                  height: "calc(100vh - 170px)",
+                  backgroundColor: "white",
+                }}>
+                  {roomStatusContent}
+                </div>
+              </Row>
+            </TabPane>
+            <TabPane tab="Lịch sử" key="2"> 
+              <Row> 
+                <Col>
+                  <AudioList
+                    socket={socket}
+                    roomID={chatroomID}
+                    userID={userID}
+                    username={username}
+                    userRole={userRole}
+                    transcript={transcriptHistory}
+                    audioList={audioHistory}/>
+                </Col> 
+              </Row>
+            </TabPane>
+          </Tabs>
+        </Col>
+      </Row>
+    </div>
+    </>
+  )
 }

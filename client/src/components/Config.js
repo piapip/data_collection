@@ -5,4 +5,3 @@ export const AUDIO_SERVER = '/api/audio';
 export const MESSAGE_SERVER = '/api/message';
 export const BACKEND_URL = process.env.NODE_ENV === "production" ? 'https://slu-piapip-2.herokuapp.com/' : 'http://localhost:5000';
 // export const BACKEND_URL = process.env.NODE_ENV === "production" ? process.env.PORT : 5000;
-export const COLOR = ['Không có', 'Trắng', 'Vàng', 'Trong suốt'];

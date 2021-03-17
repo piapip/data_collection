@@ -1,72 +1,82 @@
 import React, { useState, useEffect } from 'react';
 
-// import { Collapse, Row, Col } from 'antd';
 import { Row, Col } from 'antd';
 import CorrectSign from './green-correct-sign.png';
 import RedCrossSign from './red-cross-sign.png';
-// import { CheckCircleTwoTone, MinusCircleTwoTone } from '@ant-design/icons';
 
 import LoadingComponent from './../../../Loading/LoadingComponent';
 
-// const { Panel } = Collapse;
+import intentInfo from './../Shared/intent';
 
 export default function Progress(props) {
 
   const scenario = props ? props.scenario : [];
-  const progress = props ? props.progress : [];
+  const currentIntent = props ? props.currentIntent : [];
   const [ loading, setLoading ] = useState(true);
 
   useEffect(() => {
-    if (progress.length !== 0 && scenario.length !== 0) {
+    if (scenario.length !== 0) {
       setLoading(false);
     } else setLoading(true);
-  }, [progress, scenario])
+  }, [scenario])
 
-  // const renderProgress = (
-  //   progress.length !== 0 ? progress.map(property => {
-  //     if (property[1] >= 1) {
-  //       return (
-  //         <Col span={4} key={property[0]} style={{alignItems: "center"}}>
-  //           <CheckCircleTwoTone twoToneColor="#52c41a"/>
-  //         </Col>
-  //       )
-  //     } else if (property[1] === 0) {
-  //       return (
-  //         <Col span={4} key={property[0]} style={{alignItems: "center", textAlign: "center"}}>
-  //           <MinusCircleTwoTone twoToneColor="#eb2f96"/>
-  //         </Col>
-  //       )
-  //     } else {
-  //       return "";
-  //     }
-  //   }) : ""
-  // );
+  const compareProperty = (scenarioProp, currentIntent) => {
+    if (!scenarioProp) return false;
+    if (!currentIntent || currentIntent.length === 0) return null;
+    const scenarioPropIndex = currentIntent.findIndex(item => {
+      return item[0] === scenarioProp[0];
+    })
+
+    if (scenarioPropIndex === -1) return null;
+    else {
+      if (scenarioProp[1] === "-1" && currentIntent[scenarioPropIndex][1]) return currentIntent[scenarioPropIndex][1];
+      else {
+        if (scenarioProp[1] === currentIntent[scenarioPropIndex][1]) return currentIntent[scenarioPropIndex][1];
+        return null;
+      }
+    }
+    
+  }
+
+  const getLabel = (slot) => {
+    const slotIndex = intentInfo.SLOT_LABEL.findIndex(item => {
+      return item.tag.toUpperCase() === slot.toUpperCase();
+    })
+
+    return slotIndex === -1 ? "" : intentInfo.SLOT_LABEL[slotIndex].name
+  }
 
   const renderProgress = (
-    (scenario && progress) ? (progress.length !== 0 && scenario.length !== 0) ? (
-      progress.map((property, index) => {
-        return property[1] >= 1 ? (
-          <Col xl={4} xs={24} key={property[0]}>
+    (scenario && scenario.length !== 0) ? (
+      scenario.map((property, index) => {
+        const slotValue = compareProperty(property, currentIntent);
+        return slotValue ? (
+          <Col xl={6} xs={24} key={property[0]}>
+            <Row style={{textAlign: "center"}}>
+              {index === 0 ? "Ý định" : getLabel(property[0])}
+            </Row>
             <Row style={{textAlign: "center"}}>
               <img src={CorrectSign} alt="done" style={{height: "50px"}}/>
             </Row>
             <Row style={{textAlign: "center"}}>
-              {scenario[index][1]}
+              {property[1] === "-1" ? slotValue : intentInfo[property[0].toUpperCase()][slotValue].name}
             </Row>
           </Col>
-        ) : property[1] === 0 ? (
-          <Col xl={4} xs={24} key={property[0]}>
+        ) : (
+          <Col xl={6} xs={24} key={property[0]}>
+            <Row style={{textAlign: "center"}}>
+            {index === 0 ? "Ý định" : getLabel(property[0])}
+            </Row>
             <Row style={{textAlign: "center"}}>
               <img src={RedCrossSign} alt="not done" style={{height: "50px"}}/>
             </Row>
             <Row style={{textAlign: "center"}}>
-              {scenario[index][1]}
+              {property[1] === "-1" ? "?" : intentInfo[property[0].toUpperCase()][property[1]].name}
             </Row>
           </Col>
-        ) : ""
-        
+        )
       })
-    ) : "" : <LoadingComponent />
+    ) : <LoadingComponent />
   )
 
   if (loading) {
@@ -75,13 +85,6 @@ export default function Progress(props) {
 
   return (
     <>
-      {/* <Collapse defaultActiveKey={['progress']}>
-        <Panel header="Tiến trình hoàn thành: " key="progress">
-          <Row justify="center" align="middle">
-            {renderProgress}
-          </Row>
-        </Panel>
-      </Collapse> */}
       <Row style={{height: "50px", lineHeight: "50px"}}>
         {renderProgress}
       </Row>

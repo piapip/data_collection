@@ -4,6 +4,7 @@ import {
   GET_ALL,
   GET_RANDOM,
   DELETE_AUDIO,
+  GET_CHEAT_SHEET,
 } from './types';
 import { ROOM_SERVER } from '../components/Config.js';
 
@@ -47,6 +48,17 @@ export function removeLatestAudio(roomID, userRole) {
 
   return {
     type: DELETE_AUDIO,
+    payload: request,
+  }
+}
+
+export function getCheatSheet(roomID) {
+  const request =
+    axios.get(`${ROOM_SERVER}/${roomID}/cheat`)
+      .then(response => response.data);
+  
+  return {
+    type: GET_CHEAT_SHEET,
     payload: request,
   }
 }

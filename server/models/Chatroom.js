@@ -46,18 +46,22 @@ const chatroomSchema = new mongoose.Schema({
     ref: 'Audio',
     default: [],
   }],
+  // detailed of the final result
   intent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Intent',
     required: 'Intent ID is required',
   },
-  // progress shows which criteria has been done. 
-  // -1 - non-exist, 0 - not done, 1 - done
-  progress: {
+  // currentIntent will show the current state of the dialogue so far.
+  currentIntent: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Progress',
-    required: 'Progress ID is required',
+    ref: 'Intent',
+    default: null,
   },
+  cheat_sheet: [{
+    type: String,
+    default: [],
+  }],
   // 1 - client - 2 - servant send intent - 3 - servant send audio
   turn: {
     type: Number,

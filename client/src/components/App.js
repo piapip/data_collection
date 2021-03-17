@@ -19,6 +19,11 @@ import { BACKEND_URL } from './Config';
 let socket
 
 function App(props) {
+
+  // const [ idle, setIdle ] = useState(0);
+  // const [ inQueue, setInQueue ] = useState(0);
+  // const [ inRoom, setInRoom ] = useState(0);
+
   const setupSocket =  async () => {
     var w_auth
     document.cookie.split(";").map(info => {
@@ -46,6 +51,14 @@ function App(props) {
     socket.on("connection", () => {
       console.log("Socket Connected!")
     });
+
+    // socket.on('refresh status', ({idle, inQueue, inRoom}) => {
+    //   // console.log(`idle:`, idle);
+    //   // console.log(`inRoom:`, inRoom);
+    //   setIdle(idle);
+    //   setInQueue(inQueue);
+    //   setInRoom(inRoom);
+    // })
   }
 
   useEffect(() => {
@@ -55,11 +68,14 @@ function App(props) {
   const LandingPageWithSocket = () => (<LandingPage socket={socket} />)
   const LoginPageWithSocket = () => (<LoginPage setupSocket={setupSocket} />)
   const ChatroomWithSocket = () => (<Chatroom socket={socket} />)
-  // const ServantWithSocket = ()=>(<Servant socket={socket}/>)
 
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
-      <NavBar />
+      <NavBar
+        // idle={idle}
+        // inQueue={inQueue}
+        // inRoom={inRoom}
+      />
       <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
       {/* <div style={{ paddingTop: '69px' }}> */}
         <Switch>
@@ -68,7 +84,6 @@ function App(props) {
           <Route exact path="/register" component={Auth(RegisterPage, false)} />
           {/* content-type: 0 - audio, 1 - text message */}
           <Route exact path="/chatroom/:content_type/:id" component={Auth(ChatroomWithSocket, true)} />
-          {/* <Route exact path="/servant/:id" component={Auth(ServantWithSocket, true)} /> */}
 
         </Switch>
       </div>

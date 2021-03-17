@@ -7,6 +7,10 @@ import { withRouter, Link } from 'react-router-dom';
 import { useSelector } from "react-redux";
 
 function RightMenu(props) {
+
+  // const idle = props ? props.idle : 0;
+  // const inQueue = props ? props.inQueue : 0;
+  // const inRoom = props ? props.inRoom : 0;
   const user = useSelector(state => state.user)
 
   const logoutHandler = () => {
@@ -22,6 +26,11 @@ function RightMenu(props) {
   if (user.userData && !user.userData.isAuth) {
     return (
       <Menu mode={props.mode}>
+        {/* <Menu.Item key="stat">
+        <a style={{lineHeight: "17px"}}><span className="dot dot_idle"></span> {idle} online<br/>
+          <span className="dot dot_inQueue"></span> {inQueue} in queue<br/>
+          <span className="dot dot_inRoom"></span> {inRoom} in room</a>
+        </Menu.Item> */}
         <Menu.Item key="mail">
           <Link to="/login">Signin</Link>
         </Menu.Item>
@@ -33,6 +42,11 @@ function RightMenu(props) {
   } else {
     return (
       <Menu mode={props.mode}>
+        {/* <Menu.Item key="stat">
+        <a style={{lineHeight: "17px"}}><span className="dot dot_idle"></span> {idle} online<br/>
+          <span className="dot dot_inQueue"></span> {inQueue} in queue<br/>
+          <span className="dot dot_inRoom"></span> {inRoom} in room</a>
+        </Menu.Item> */}
         <Menu.Item>
           <a>Xin chào {user.userData && user.userData.name}</a>
         </Menu.Item>

@@ -35,22 +35,44 @@ sockets.init = function(server) {
   let audioQueue = [];    // ready for audio room
   let textQueue = [];     // ready for text room
   let promptQueue = [];   // ready to join room
+  let idle = [];          // not in queue
+  let inRoom = [];
   // ^^^^^ server socket
 
   // vvvvv client socket
   io.on('connection', (socket) => {
     // console.log("Connected: " + socket.id);
 
+    if (!idle.includes(socket.id)) idle.push(socket.id);
+    // io.to(socket.id).emit("refresh status", {
+    //   idle: idle.length,
+    //   inQueue: audioQueue.length,
+    //   inRoom: inRoom.length,
+    // })
+
     socket.on('disconnect', () => {
-      // console.log("Disconnected: " + socket.id)
-      var index = audioQueue.findIndex(item => item.socketID === socket.id)
-      if (index !== -1) {
-        audioQueue.splice(index, 1);
+      console.log("Disconnected: " + socket.id)
+      let indexQueue = audioQueue.findIndex(item => item.socketID === socket.id);
+      if (indexQueue !== -1) {
+        audioQueue.splice(indexQueue, 1);
       } else {
-        index = textQueue.findIndex(item => item.socketID === socket.id)
-        if (index !== -1) {
-          textQueue.splice(index, 1);
+        indexQueue = textQueue.findIndex(item => item.socketID === socket.id);
+        if (indexQueue !== -1) {
+          textQueue.splice(indexQueue, 1);
         }
+      }
+
+      const indexIdle = idle.findIndex((item) => { return item === socket.id });
+      if (indexIdle !== -1) idle.splice(indexIdle, 1);
+
+      // Check room status too.
+      const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socket.id});
+      if (inRoomIndex !== -1) {
+        kickUser(inRoom[inRoomIndex].roomID, inRoom[inRoomIndex].userID);
+        io.to(inRoom[inRoomIndex].roomID).emit('leaveRoom announce', {
+          username: inRoom[inRoomIndex].username,	
+        });
+        inRoom.splice(inRoomIndex, 1);
       }
     });
 
@@ -62,6 +84,9 @@ sockets.init = function(server) {
         username: username,
         inputType: inputType,
       }
+
+      const indexIdle = idle.findIndex((item) => { return item === socket.id })
+      if (indexIdle !== -1) idle.splice(indexIdle, 1);
 
       // put the user into the respective queue, "all" will put the user into both queues.
       if (inputType === "audio") {
@@ -185,6 +210,14 @@ sockets.init = function(server) {
     // when an user enters the room, announce to everyone else in the room
     socket.on('joinRoom', async ({ socketID, chatroomID, userID, username }) => {
 
+      const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socketID})
+      if (inRoomIndex === -1) inRoom.push({
+        roomID: chatroomID,
+        userID: userID,
+        username: username,
+        socketID: socketID,
+      });
+
       // -1 - no slot left  0 - already in room  1 - got in there successfully
       let status = await addSlot(chatroomID, userID);
 
@@ -216,8 +249,10 @@ sockets.init = function(server) {
       // remember to remove user from the user slot. (set it to null)
       kickUser(chatroomID, userID)
 
+      const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socket.id})
+      if (inRoomIndex !== -1) inRoom.splice(inRoomIndex, 1);
+
       socket.leave(chatroomID);
-      console.log(`The user ${username} has left chatroom: ${chatroomID}`)
 
       // sending to individual socketid (private message)
       io.to(chatroomID).emit('leaveRoom announce', {	
@@ -236,9 +271,9 @@ sockets.init = function(server) {
       console.log("Receive audio in chatroom " + chatroomID + " from " + sender + ". Here's the audio link: " +  link)
     });
 
-    socket.on('client intent', async ({ roomID, audioID, intent }) => {
+    socket.on('client intent', async ({ roomID, audioID, intentDetailed }) => {
       
-      console.log("Receive client intent: " + JSON.stringify(intent) + " of audio " + audioID + " from room " + roomID);
+      console.log("Receive client intent: " + JSON.stringify(intentDetailed) + " of audio " + audioID + " from room " + roomID);
 
       // check turn of the room. Throw a fit if it's not 1. If it's 1 then: 
       await Chatroom.findById(roomID)
@@ -253,30 +288,18 @@ sockets.init = function(server) {
             // IMPLEMENT SOME KIND OF ERROR!!!
             return null;
           } else {
-            // create intent
-            let extractIntent = {
-              action: null,
-              device: null,
-              floor: null,
-              room: null,
-              scale: null,
-              level: null,
-            };
+            let newIntent;
+            if (intentDetailed === null) newIntent = await Intent.create({})
+            else {
+              const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = intentDetailed;
+              newIntent = await Intent.create({
+                intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent
+              });
 
-            if (intent !== null) {
-              intent.map(property => {
-                return extractIntent[property.key] = property.value;
-              })
+              if (name && name.length !== 0 && !roomFound.cheat_sheet.includes(name)) roomFound.cheat_sheet.push(name);
+              if (cmnd && cmnd.length !== 0 && !roomFound.cheat_sheet.includes(cmnd)) roomFound.cheat_sheet.push(cmnd);
+              if (four_last_digits && four_last_digits.length !== 0 && !roomFound.cheat_sheet.includes(four_last_digits)) roomFound.cheat_sheet.push(four_last_digits);
             }
-            const { action, device, floor, room, scale, level } = extractIntent;
-            const newIntent = await Intent.create({
-              action,
-              device,
-              floor,
-              room,
-              scale,
-              level,
-            });
 
             // save intent to audio
             Audio.findById(audioID)
@@ -306,6 +329,8 @@ sockets.init = function(server) {
         console.log(err);
       })
 
+      io.to(roomID).emit("refresh cheatsheet", {});
+
       setTimeout(async () => {
         let transcript = await Audio.findById(audioID)
         .then(audioFound => {
@@ -318,34 +343,37 @@ sockets.init = function(server) {
           return audioFound.transcript;
         })
 
-        console.log(`transcript: ${transcript}`)
+        // console.log(`transcript: ${transcript}`)
 
         io.to(roomID).emit("update transcript", {
           // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
-        username: audioID,
-        transcript: transcript,
-        index: -1,
+          username: audioID,
+          transcript: transcript,
+          index: -1,
         });
       }, 3500);
     });
 
-    socket.on('servant intent', async ({ roomID, intent }) => {
+    socket.on('servant intent', async ({ roomID, intentDetailed }) => {
       
       // parse the received intent
-      if (intent === null) {
-        intent = {
-          device: null,
-          room: null,
-          action: null,
-          scale: null,
-          floor: null,
-          level: null,
-        };
-      } else {
-        const properties = ["action", "device", "floor", "room", "scale", "level"];
-        for (let key in properties) {
-          if(intent[properties[key]] === undefined) intent[properties[key]] = null
-        }
+      // if (intentDetailed === null) {
+      //   intentDetailed = {
+      //     device: null,
+      //     room: null,
+      //     action: null,
+      //     scale: null,
+      //     floor: null,
+      //     level: null,
+      //   };
+      // } else {
+        
+      // }
+
+      if (intentDetailed === null) intentDetailed = {};
+      const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits", "generic_intent"];
+      for (let key in properties) {
+        if(intentDetailed[properties[key]] === undefined) intentDetailed[properties[key]] = null
       }
 
       // compare servant's intent and client's intent.
@@ -370,8 +398,7 @@ sockets.init = function(server) {
 
             // check intent against audio's intent.
             .then(audioFound => {
-              // console.log(audioFound.intent)
-              const result = compareIntent(audioFound.intent, intent);
+              const result = compareIntent(audioFound.intent, intentDetailed);
               // if the intent is an exact match to the audio's intent, update audio's revertable status to true in case if it's removed later on.
               if (result) {
                 audioFound.revertable = true;
@@ -389,10 +416,11 @@ sockets.init = function(server) {
       })
       .catch(err => console.log(err))
 
-      // if correct, emit a signal, telling both of them that's it's okay. Update the progress for the room and move turn to 3.
+      // if correct, emit a signal, telling both of them that's it's okay. Update the current intent for the room and move turn to 3.
       if (compare) {
 
         await Chatroom.findById(roomID)
+        .populate('intent')
         .then(async (roomFound) => {
           if (!roomFound) {
             console.log("... Some shenanigan.. Room doesn't even exist.");
@@ -405,48 +433,46 @@ sockets.init = function(server) {
               // IMPLEMENT SOME KIND OF ERROR!!!
               return null;
             } else {
-              // update progress
-              const newProgress = await Progress.findById(roomFound.progress)
-              .then(progressFound => {
-                if (!progressFound) {
-                  console.log("... Some shenanigan.. Progress doesn't even exist.");
+              // update currentIntent
+              const newIntent = await Intent.findById(roomFound.currentIntent)
+              .then(currentIntentFound => {
+                if (!currentIntentFound) {
+                  console.log("... Some shenanigan.. CurrentIntent doesn't even exist.");
                 } else {
-                  for (const property in intent) {
-                    if(intent[property] !== null) {
-                      if(progressFound[property] === -1) {
-                        console.log("... something's wrong with progress and intent... property: ", property);
-                        console.log(`Progress: `, progressFound);
-                        console.log(`Intent: `, intent);
-                        // IMPLEMENT SOME KIND OF ERROR!!!
-                        return 
-                      } else {
-                        progressFound[property]++;
+                  // no need to update if it's just a generic intent.
+                  if (intentDetailed.generic_intent) return currentIntentFound; 
+
+                  if (intentDetailed.intent !== null && intentDetailed.intent !== currentIntentFound.intent) {
+                    currentIntentFound = transferObject(currentIntentFound, intentDetailed);
+                  } else {
+                    for (const property in intentDetailed) {
+                      if(intentDetailed[property] !== null) {
+                        currentIntentFound[property] = intentDetailed[property];
                       }
                     }
                   }
+                  return currentIntentFound.save();
                 }
-                return progressFound.save();
               })
-              .catch(err => console.log(err))
-
-              // emit signal
-              io.to(roomID).emit('intent correct', {
-                newProgress: newProgress,
-              });
+              .catch(err => console.log("Having trouble updating currenting intent...",err))
               
-              if (
-                newProgress.action !== 0 &&
-                newProgress.device !== 0 && 
-                newProgress.floor !== 0 &&
-                newProgress.room !== 0 &&
-                newProgress.scale !== 0 &&
-                newProgress.level !== 0) {
-                  roomFound.done = true;
-                }
-                
+              // Have to change this, since the definition of a finished room is different now.
+              // remember that roomFound.intent.generic_intent will always be null because it doesn't really matter, so we need to create an alternative that also has such pattern.
+              const alternativeIntent = newIntent;
+              alternativeIntent.generic_intent = null;
+              if (compareIntent(alternativeIntent, roomFound.intent)) {
+                roomFound.done = true;
+              } else {
+                // emit signal
+                io.to(roomID).emit('intent correct', {
+                  roomDone: roomFound.done,
+                  newIntent: newIntent,
+                });
+              }
+
+              
 
               // update turn
-              // BUG!!!! Since there's no error system for progress updating so even though if there's any problem with progress updating, the system will still move on.
               roomFound.turn = 3;
               return roomFound.save();
             }
@@ -575,10 +601,6 @@ sockets.init = function(server) {
   
   });
 
-  // Need to add a "I don't understand button, please say the line again" for both side. None of them can delete their own audios unless the other party does so.
-  // If the button is pressed, the last message that was sent out of the room will be deleted. (Of course, can't always press it). 
-  // This gonna be a problem since I have to update code for both amazon server and local server. Or I can cheat just by deleting the record of the room. 
-  // But since the policy of the website is that once the conversation is over, the room will be destroy along with its record... Maybe I should create a log for that.
   // Create a log for the record so deleting audio won't be a problem.
   // Also create a log for those deleted record. So can pluck em out and put them into a trash folder
 }
@@ -647,32 +669,46 @@ const compareObject = (obj1, obj2) => {
   return JSON.stringify(obj1) === JSON.stringify(obj2)
 }
 
+const compareIntent = (intent1, intent2) => {
+  if ((intent1 === null && intent2 !== null) || (intent1 !== null && intent2 === null)) return false;
+  if (intent1 === null && intent2 === null) return true;
+
+  const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits", "generic_intent"];
+  let count = 0;
+  for (let key in properties) {
+    if(intent1[properties[key]] === "-1") {
+      if(!intent2[properties[key]]) count++;
+    } else if(intent2[properties[key]] === "-1") {
+      if(!intent1[properties[key]]) count++;
+    } else {
+      if(intent1[properties[key]] !== intent2[properties[key]]) count++;
+    }
+    
+  }
+
+  if (count !== 0) return false;
+  return true;
+}
+
 const { Chatroom } = require("./../models/Chatroom");
 
 const createRoom = async (userID1, userID2, roomType) => {
   // user1 - client, user2 - servant
   let content_type = roomType === "audio" ? 0 : 1
   const randomValue = randomGenerator()
-
   let intent = await createRandomIntent()
-  let progress = await createRandomProgress(
-    intent.action, 
-    intent.device, 
-    intent.floor,
-    intent.room,
-    intent.scale,
-    intent.level,
-  )
+  let currentIntent = await Intent.create({});
   const chatroom = await Chatroom.create({
     name: generateName() + randomValue,
-    task: generateTask(intent.action, intent.device),
+    task: generateTask(),
     content_type: content_type,
     user1: userID1,
     user2: userID2,
     client: [userID1],
     servant: [userID2],
+    cheat_sheet: [],
     intent: intent._id,
-    progress: progress._id,
+    currentIntent: currentIntent._id,
     turn: 1,
   })
 
@@ -690,103 +726,90 @@ const generateName = () => {
   return "Room R"
 }
 
-const generateTask = (action, device) => {
-  return `${action} ${device.toLowerCase()}`
+const generateTask = () => {
+  // IMPLEMENT!!!
+  return `A random task name`
 }
 
-const { DEVICE, COLOR } = require("./../config/intent");
-// const { DEVICE, COLOR } = require("./../config/intent");
+const intentSamplePool = require("./../config/intent");
 
 const createRandomIntent = () => {
-  // gen device
-  let target = getRandomFromArray(DEVICE);
-  let device = target.name 
-  // gen floor 
-  let floor = genRandomInt(1, 4);
-  if (device === "Cổng") {
-    floor = 1;
+  // gen base intent
+  const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  // const intentIndex = 12;
+  const slots = intentSamplePool.INTENT[intentIndex].slot;
+
+  let tempIntent = {
+    intent: intentIndex,
   }
-  // gen room
-  let room = getRandomFromArray(target.room);
-  // gen action
-  let targetAction = getRandomFromArray(target.action);
-  let action = targetAction.name;
-  // gen scale and level
-  let targetScale = null;
-  let scale = null;
-  let level = null;
-  if (targetAction.scale != null) {
-    if (targetAction.requireScale === 1 || Math.floor(Math.random() * 2) === 1) {
-      targetScale = getRandomFromArray(targetAction.scale);
-    } 
-  }
-  if (targetScale != null) {
-    scale = targetScale.name;
-    // Can't deal with this yet... Hardcode on frontend side for now.
-    // if (scale === 'Màu') {
-    //   level = COLOR[Math.floor(Math.random() * 2)];
-    // } else {
-    level = genRandomInt(targetScale.min, targetScale.max);
+
+  // gen slot required for intent.
+  slots.map(slot => {
+    if (intentSamplePool[slot.toUpperCase()] === undefined) {
+      // Have to change it once we know how to handle the city and district.
+      return tempIntent[slot] = -1;
+    }
+    const slotPool = intentSamplePool[slot.toUpperCase()];
+    // we decide.
+    // if (slot === "district") {
+    //   // console.log
+    //   const slotIndex = getRandomFromArray(slotPool[intentSamplePool.CITY[tempIntent["city"]]]);
+    //   return tempIntent[slot] = slotIndex;
     // }
+    // let user decides
+    if (slot === "city" || slot === "district") {
+      return tempIntent[slot] = -1;
+    }
+    const slotIndex = getRandomFromArray(slotPool);
+    return tempIntent[slot] = slotIndex;
+  })
+
+  const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits } = tempIntent;
+  // I can still put this lil piece of crap in the {} up there, but who knows what magic it might hold, so better safe than sorry.
+  const generic_intent = null;
+  return Intent.create({
+    intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent
+  })
+}
+
+// transfer information from newObject to the originalObject
+const transferObject = (originalObject, newObject) => {
+  for (let key in newObject) {
+    if (newObject.hasOwnProperty(key)) {
+      originalObject[key] = newObject[key];
+    }
   }
 
-  const intent = Intent.create({
-    action: action,
-    device: device,
-    floor: floor,
-    room: room,
-    scale: scale,
-    level: level,
-  })
-
-  return intent
+  return originalObject;
 }
 
-const { Progress } = require("./../models/Progress")
-
-const createRandomProgress = (action, device, floor, room, scale, level) => {
-  const progress = Progress.create({
-    action: (action === null ? -1 : 0),
-    device: (device === null ? -1 : 0),
-    floor: (floor === null ? -1 : 0),
-    room: (room === null ? -1 : 0),
-    scale: (scale === null ? -1 : 0),
-    level: (level === null ? -1 : 0),
-  })
-
-  return progress
-}
+// const getOriginalIntent = (roomID) => {
+//   return Chatroom.findById(roomID)
+//   .then(async roomFound => {
+//     if (!roomFound) {
+//       console.log("... Some shenanigan.. Room doesn't even exist.");
+//       return null;
+//     } else {
+//       return await Intent.findById(roomFound.intent)
+//       .then(intentFound => {
+//         if (!intentFound) {
+//           console.log("... Some shenanigan.. Intent doesn't even exist.");
+//           return null;
+//         } else return intentFound
+//       })
+//     }
+//   })
+// }
 
 const getRandomFromArray = (arr) => {
-  var item = arr[Math.floor(Math.random() * arr.length)]
-  return item
+  return Math.floor(Math.random() * arr.length);
 }
 
-const genRandomInt = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-// intent1 from client, intent2 from servant
-const compareIntent = (intent1, intent2) => {
-
-  if (intent1.scale === "Màu") {
-    return (intent1.action === intent2.action || (intent1.action === null && intent2.action === null)) && 
-    (intent1.device === intent2.device || (intent1.device === null && intent2.device === null)) && 
-    (intent1.room === intent2.room || (intent1.room === null && intent2.room === null)) && 
-    (intent1.floor === intent2.floor || (intent1.floor === null && intent2.floor === null)) && 
-    (intent1.scale === intent2.scale || (intent1.scale === null && intent2.scale === null)) && 
-    (COLOR[intent1.level] === intent2.level || (intent1.level === null && intent2.level === null));
-  } else {
-    return (intent1.action === intent2.action || (intent1.action === null && intent2.action === null)) && 
-    (intent1.device === intent2.device || (intent1.device === null && intent2.device === null)) && 
-    (intent1.room === intent2.room || (intent1.room === null && intent2.room === null)) && 
-    (intent1.floor === parseInt(intent2.floor) || (intent1.floor === null && intent2.floor === null)) && 
-    (intent1.scale === intent2.scale || (intent1.scale === null && intent2.scale === null)) && 
-    (intent1.level === intent2.level  || (intent1.level === null && intent2.level === null));
-  }
-}
+// const genRandomInt = (min, max) => {
+//   min = Math.ceil(min);
+//   max = Math.floor(max);
+//   return Math.floor(Math.random() * (max - min + 1)) + min;
+// }
 
 const kickUser = (roomID, userID) => {
 
@@ -830,9 +853,7 @@ const addSlot = async (roomID, userID) => {
       // IMPLEMENT SOME KIND OF ERROR!!!
       return null;
     } else {
-
-      const roomProgress = await checkProgress(roomFound.progress);
-      if (roomProgress === 1) {
+      if (roomFound.done === 1) {
         if ((roomFound.user1 !== null && roomFound.user1.equals(userID)) || 
           (roomFound.user2 !== null && roomFound.user2.equals(userID))) { 
           return 0;
@@ -903,31 +924,6 @@ const addSlot = async (roomID, userID) => {
     }
   })
   .catch(err => console.log("Kicking user: ", err))
-}
-
-// -1 - non-existence.
-//  0 - not done.
-//  1 - done.
-const checkProgress = (progressID) => {
-  return Progress.findById(progressID)
-    .then(progressFound => {
-      if (!progressFound) {
-        console.log("... Some shenanigan.. Audio doesn't even exist.");
-        // IMPLEMENT SOME KIND OF ERROR!!!
-        return -1;
-      } else {
-        if (
-          progressFound.action === 0 ||
-          progressFound.device === 0 || 
-          progressFound.floor === 0 ||
-          progressFound.room === 0 ||
-          progressFound.scale === 0 ||
-          progressFound.level === 0) 
-          return 0;
-        else return 1;
-      }
-    })
-    .catch(err => console.log("adding slot... finding progress by id: ", err))
 }
 
 module.exports = sockets;

@@ -11,12 +11,12 @@ import Status from '../Shared/Status';
 import CustomAudioPlayer from '../Shared/CustomAudioPlayer';
 
 import ClientSendButton from '../Client/ClientSendButton';
-import ClientCheckbox from '../Client/ClientCheckbox';
+// import ClientCheckbox from '../Client/ClientCheckbox';
 
 import ServantSendButton from '../Servant/ServantSendButton';
 import ServantDropDown from '../Servant/ServantDropDown';
 
-import LoadingComponent from './../../../Loading/LoadingComponent';
+// import LoadingComponent from './../../../Loading/LoadingComponent';
 
 export default function AudioRecordingScreen(props) {
   const canvasRef = props.canvasRef;
@@ -24,7 +24,7 @@ export default function AudioRecordingScreen(props) {
 
   let socket = props ? props.socket : null;
   const roomDone = props ? props.roomDone : false;
-  const progress = props ? props.progress : [];
+  // const currentIntent = props ? props.currentIntent : [];
   const audioName = props ? props.audioName : "";
   const chatroomID = props ? props.chatroomID : "";
   const roomName = props ? props.roomName : "";
@@ -32,11 +32,12 @@ export default function AudioRecordingScreen(props) {
   const userRole = props ? props.userRole : "";
   const turn = props ? props.turn : false;
   const message = props ? props.message : "Loading";
-  const scenario = props ? props.scenario : [];
+  // const scenario = props ? props.scenario : [];
   const latestAudio = props ? props.latestAudio : null;
   const [ isPlaying, setIsPlaying ] = useState(false);
   const [ audio, setAudio ] = useState(null);
-  const [ intent, setIntent ] = useState(null); 
+  const [ intent, setIntent ] = useState(null);
+  const [ genericIntent, setGenericIntent ] = useState(null);
   const [ isRecording, setIsRecording ] = useState(false);
   const [ tagVisibility, setTagVisibility ] = useState(true);
 
@@ -160,6 +161,28 @@ export default function AudioRecordingScreen(props) {
     } else return ""
   }
 
+  const setNewIntent = (intentValue) => {
+    let newIntent = {
+      intent: intentValue
+    };
+
+    setIntent(newIntent);
+  }
+
+  const setNewGenericIntent = (genericIntentValue) => {
+    let newGenericIntent = {
+      generic_intent: genericIntentValue
+    };
+
+    setGenericIntent(newGenericIntent);
+  }
+
+  const setSlot = (slot, value) => {
+    let newIntent = {...intent};
+    newIntent[slot] = value;
+    setIntent(newIntent);
+  }
+
   return (
     <>
       <div style={{position: 'absolute', width: "100%"}}>
@@ -169,10 +192,9 @@ export default function AudioRecordingScreen(props) {
           turn={turn} />
       </div>
 
-      <Row style={{textAlign: "center"}}>
+      <Row style={{textAlign: "center", paddingTop: "20vh"}}>
         <div className="primary-buttons">
-          <canvas className="primary-buttons canvas" ref={canvasRef}
-                  style={{width: '100%', position: 'absolute', maxWidth: 'calc(1400px - 40px)'}}/>
+          <canvas className="primary-buttons canvas" ref={canvasRef}/>
           <RecordButton
             turn={((turn === 1 && userRole === "client" && !roomDone) || (turn === 3 && userRole === "servant" && !roomDone)) && (audio === null)}
             roomID={chatroomID}
@@ -194,36 +216,16 @@ export default function AudioRecordingScreen(props) {
       </Row>
 
       <Row>
-        {/* <Row style={{marginLeft: "15px", marginRight: "15px"}}> */}
-        <Row>
+        <Row style={{marginBottom: "10px"}}>
           <Col>
             <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
-              {userRole === "client" && progress !== [] ?
-                <ClientCheckbox
-                  // visible={tagVisibility && audio !== null}
-                  toggleTagVisibility={toggleTagVisibility}
-                  progress={progress}
-                  intent={tagVisibility ? intent : null}
-                  visible={tagVisibility}
-                  disabled={!(turn === 1 && userRole === "client")}
-                  setIntent={setIntent}
-                  list={scenario}  
-                /> : 
-              userRole === "servant" ? (
-                // <Dropdown list={dropdowns}/>
-                <ServantDropDown
-                  toggleTagVisibility={toggleTagVisibility}
-                  turn={turn}
-                  intent={intent}
-                  visible={tagVisibility}
-                  disabled={!(turn === 2 && userRole === "servant")}
-                  setIntent={setIntent}/>
-              ) : (
-                <div style={{textAlign: "center"}}>
-                  <LoadingComponent />
-                </div>
-              )
-              }
+              <ServantDropDown
+                toggleTagVisibility={toggleTagVisibility}
+                visible={tagVisibility}
+                disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
+                setIntent={setNewIntent}
+                setGenericIntent={setNewGenericIntent}
+                setSlot={setSlot}/>
             </div>
           </Col>
         </Row>
@@ -238,9 +240,10 @@ export default function AudioRecordingScreen(props) {
                     audioName={audioName}
                     turn={turn}
                     disable={(intent === null && tagVisibility) || roomDone}
+                    rejectButtonDisabled={latestAudio === null}
                     socket={socket}
                     audio={audio} 
-                    intent={tagVisibility ? intent : null}
+                    intent={tagVisibility ? intent : genericIntent}
                     userRole={userRole}
                     userID={user.userData ? user.userData._id : ""}
                     roomID={chatroomID}
@@ -252,8 +255,9 @@ export default function AudioRecordingScreen(props) {
                     socket={socket}
                     roomDone={roomDone}
                     turn={turn}
-                    audio={audio} 
-                    intent={tagVisibility ? intent : null}
+                    audio={audio}
+                    rejectButtonDisabled={latestAudio === null}
+                    intent={tagVisibility ? intent : genericIntent}
                     userRole={userRole}
                     userID={user.userData ? user.userData._id : ""}
                     roomID={chatroomID}

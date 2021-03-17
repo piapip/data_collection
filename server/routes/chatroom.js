@@ -1,15 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { Chatroom } = require("../models/Chatroom");
-// const { Intent } = require("../models/Intent");
-// const { auth } = require("../middleware/auth");
 
 // GET ALL
 router.get("/", (req, res) => {
 
   Chatroom.find({})
     // .populate('user1') //not use this yet... populate will bring every information of 'user1' to the table, instead of just the id.
-    .populate('progress')
     .exec((err, roomFound) => {
       // .send() lets the browser automatically assign Content-Type 
       // whereas .json() specifies Content-Type as json type.
@@ -124,7 +121,6 @@ router.get("/random/:userID", (req, res) => {
         ]
     }).skip(random)
     // .populate('intent')
-    .populate('progress')
     .exec((err, roomFound) => {
       if (err) res.status(500).send({ success: false, message: "Can't proceed to find any room", err })
       return res.status(200).send({
@@ -139,7 +135,7 @@ router.get("/random/:userID", (req, res) => {
 router.get("/:roomID", (req, res) => {
   Chatroom.findById(req.params.roomID)
   .populate('intent')
-  .populate('progress')
+  .populate('currentIntent')
   .populate({
     path: 'audioList',
     populate: {
@@ -163,6 +159,16 @@ router.get("/:roomID/history", (req, res) => {
   })
 })
 
+// GET THE CHEAT_SHEET OF THE ROOM
+router.get("/:roomID/cheat", (req, res) => {
+  Chatroom.findById(req.params.roomID, (err, roomFound) => {
+    let cheat_sheet = roomFound.cheat_sheet;
+    if (err) res.status(500).send({ success: false, err })
+    else if (!roomFound) res.status(404).send({ success: false, message: "Room not found" })
+    else res.status(200).send({ success: true, cheat_sheet })
+  })
+})
+
 // CREATE A ROOM
 router.post("/", async (req, res) => {
 
@@ -182,9 +188,6 @@ router.post("/", async (req, res) => {
     });
   });
 })
-
-const { Audio } = require("../models/Audio");
-const { Progress } = require("../models/Progress");
 
 // REMOVE AUDIO
 router.put("/:roomID/:userRole", (req, res) => {
@@ -208,63 +211,10 @@ router.put("/:roomID/:userRole", (req, res) => {
       }
 
       // remove the latest audio and get its ID (OPTIONAL: Log it to a file)
-      const latestAudioID = roomFound.audioList.pop();
+      // const latestAudioID = roomFound.audioList.pop();
+      roomFound.audioList.pop();
 
       // LOG TO A FILE!!!
-
-      const progressID = roomFound.progress;
-  
-      // get the intent of the removed audio
-      const audioIntent = 
-        await Audio.findById(latestAudioID)
-        .populate('intent')
-        .then(audioFound => {
-          if (!audioFound) {
-            res.status(404).send({ success: -2, message: "Audio not found!" })
-          } else {
-            // check audio's revertable status. If false, then no need to update intent, return null. Else return intent and let's update progress.
-            if (audioFound.revertable) {
-              return audioFound.intent;
-            } else return null;
-          }
-        })
-        .catch(err => console.log("Yikes... Removing audio... handling audio: ", err))
-      
-      // maybe I don't need to update progress since it'll never be in such state. But it's better safe than sorry. Maybe we'll change the policy for that later on.
-      // If null, then no need to update intent. Else let's update progress.
-      if (audioIntent !== null) {
-        const  { action, device, floor, room, scale, level } = audioIntent;
-        const target = { action, device, floor, room, scale, level };
-
-        console.log("Target: ", target);
-
-        // update progress
-        let err = await Progress.findById(progressID)
-        .then(progressFound => {
-          for (let key in target) {
-            if(target[key] !== null) {
-              if (progressFound[key] === -1) {
-                // return res.status(500).send({ success: -3, message: "Something's wrong with the server. PUT... chatroom... Updating progress..." });
-                return "Something's wrong with the server. PUT... chatroom... Updating progress...";
-              } else if (progressFound[key] === 0) {
-                // return res.status(500).send({ success: -3, message: "Something's wrong with the server. Maybe the audio is already deleted and progress is already updated!" });
-                return "Something's wrong with the server. Maybe the audio is already deleted and progress is already updated!";
-              } else {
-                progressFound[key]--;
-              }
-            }
-          }
-          
-          // return null
-          return progressFound.save((err, progressUpdated) => {
-            if (err) return err;
-            else return null;
-          });
-        })
-        .catch(err => console.log("Yikes... Removing audio... handling progress: ", err))
-        
-        if (err !== null) console.log(err);
-      }
       
       // update turn
       if (roomFound.turn === 1) {
@@ -284,25 +234,5 @@ router.put("/:roomID/:userRole", (req, res) => {
     }
   });
 })
-
-// DELETE A ROOM
-// router.delete("/:roomID", (req, res) => {
-//   Chatroom.findByIdAndDelete(req.params.roomID, (err, roomDeleted) => {
-//     if (err) res.status(500).send({ success: false, err })
-//     else if (!roomDeleted) res.status(404).send({ success: false, message: "Room not found" })
-//     else {
-//       console.log(roomDeleted)
-//       const audioList = roomDeleted.audioList
-//       const intent = 
-//       // Delete audio record 
-//       Audio.
-//       // Write in the log about that record, write ID and intent of the audio if there's any.
-
-//       // Delete Intent
-
-//       // Delete Progress
-//     }
-//   })
-// })
 
 module.exports = router;

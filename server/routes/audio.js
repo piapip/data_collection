@@ -2,6 +2,19 @@ const express = require('express');
 const router = express.Router();
 const { Audio } = require("../models/Audio");
 
+const tmp = require("tmp");
+const fs = require("fs");
+const request = require('request');
+const { exec } = require('child_process');
+
+router.put("/transcript", (req, res) => {
+  const { audioLink, audioID } = req.body;
+  
+  getTranscript(audioLink, audioID);
+
+  res.status(200).send("")
+})
+
 router.put("/:audioID", (req, res) => {
 
   const audioID = req.params.audioID;
@@ -23,10 +36,17 @@ router.put("/:audioID", (req, res) => {
     console.log(`Error while updating audio ${audioID} transcript... ${err}`)
     res.status(500).send({success: false, message: "Something's wrong internally, so sorry..."})
   })
-  // console.log("Received transcript for audio " + audioID + " " + transcript);
-  // res.status(200).send({success: true});
-  // res.status(404)
 })
+
+let download = function(uri, filename, callback){
+  request.head(uri, function(err, res, body){
+    if (err) throw "Something's wrong while uploading audio uri..."
+    // console.log('content-type:', res.headers['content-type']);
+    // console.log('content-length:', res.headers['content-length']);
+
+    request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+  });
+};
 
 router.put("/:audioID/:userID", (req, res) => {
 
@@ -55,5 +75,40 @@ router.put("/:audioID/:userID", (req, res) => {
   // res.status(200).send({success: true});
   // res.status(404)
 })
+
+const getTranscript = (uri, audioID) => {
+
+  tmp.file(function _tempFileCreated (err, path, fd, cleanupCallback) {
+    if (err) throw err;
+    download(uri, path , function(){
+      exec(
+        `python ./server/routes/audio_transcript/main.py ${path}`,
+        (err, stdout, stderr) => {
+          if (err) {
+            console.error(`exec error: ${err}`);
+            return "";
+          }
+          
+          Audio.findById(audioID)
+          .then(audioFound => {
+            if(!audioFound) {
+              console.log("Can't find audio for transcript!");
+              return null
+            } else {
+              audioFound.transcript = stdout;
+              return audioFound.save();
+            }
+          })
+          .then(audioUpdated => {})
+          .catch(err => {
+            console.log(`Error while updating audio ${audioID} transcript... ${err}`)
+          })
+        }
+      )
+    });
+
+    cleanupCallback();
+  })
+}
 
 module.exports = router;
