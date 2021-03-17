@@ -211,15 +211,23 @@ export default function Chatroom(props) {
         // console.log(`Servant doesn't seem to understood client's intent!`)
         setMessage(StatusMessage.INTENT_INCORECT);
       });
-
-      socket.on('refresh cheatsheet', () => {
-        dispatch(getCheatSheet(chatroomID))
-        .then((response) => {
-          setCheatSheet(response.payload.cheat_sheet);
-        })
-      })
     }
   }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('refresh cheatsheet', () => {
+        const fetchCheatSheet = () => {
+          dispatch(getCheatSheet(chatroomID))
+          .then((response) => {
+            setCheatSheet(response.payload.cheat_sheet);
+          })
+        };
+  
+        fetchCheatSheet();
+      })
+    }
+  }, [socket, chatroomID, dispatch])
 
   useEffect(() => {
     if (socket) {

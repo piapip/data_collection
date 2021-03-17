@@ -41,7 +41,7 @@ export default function ProgressNote(props) {
                 </Col>
                 <Col span={16}>
                   {
-                    currentIntentIndex !== -1 ? currentIntent[currentIntentIndex][1] : (
+                    currentIntentIndex !== -1 ? intentInfo[currentIntent[currentIntentIndex][0].toUpperCase()][currentIntent[currentIntentIndex][1]].name : (
                       <img src={QuestionMark} alt="question-mark" style={{height: "50px"}}/>
                     )
                   }

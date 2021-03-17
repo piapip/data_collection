@@ -100,10 +100,10 @@ export default function ServantDropDown(props) {
     paddingRight: "5px",
   }
 
-  const innerCol1Style = {
-    paddingTop: "15px", 
-    paddingBottom: "5px",
-  }
+  // const innerCol1Style = {
+  //   // paddingTop: "15px", 
+  //   paddingBottom: "5px",
+  // }
 
   const innerCol2Style = {
     // paddingBottom: "15px",
@@ -118,6 +118,46 @@ export default function ServantDropDown(props) {
     return slotIndex === -1 ? "" : intentInfo.SLOT_LABEL[slotIndex].name
   }
 
+  const renderMainIntent = (
+    <Row>
+      {/* <Col span={24} style={innerCol1Style}>
+        <b>Ý định: </b>
+      </Col> */}
+      <Col span={24} style={innerCol2Style}>
+        <Select
+          placeholder="Chọn ý định"
+          // defaultValue={null}
+          style={{ width: "50%" }}
+          onChange={handleIntentChange}
+          disabled={disabled || !tagVisible}>
+          {
+            intentData.map(intent => (
+              <Option key={intent.name}><p style={{width: "100%", whiteSpace: "normal"}}>{intent.name}</p></Option>
+            ))
+          }
+        </Select>
+      </Col>
+    </Row>
+  )
+
+  const emptyOption = (
+    <Col xl={6} xs={24} style={outerColStyle}>
+      <Row>
+        {/* <Col span={24} style={innerCol1Style}>
+          <b>???</b>
+        </Col> */}
+        <Col span={24} style={innerCol2Style}>
+          <Select
+            placeholder="Phải chọn ý định trước!"
+            style={{ width: "100%" }}
+            disabled={true}>
+          </Select>
+        </Col>
+      </Row>
+    </Col>
+    
+  )
+
   return (
     <Radio.Group onChange={onRadioGroupChange} value={radioValue} 
       style={{width: '95%', marginTop: '0px', verticalAlign: 'middle'}} disabled={disabled}>
@@ -125,26 +165,9 @@ export default function ServantDropDown(props) {
         
       <Radio style={radioStyle} value={1}>
         <div style={radioContextStyle}>
-          <Row>
-            <Col xl={6} xs={24} style={outerColStyle}>
-              <Row>
-                <Col span={24} style={innerCol1Style}>
-                  <b>Ý định</b>
-                </Col>
-                <Col span={24} style={innerCol2Style}>
-                  <Select
-                    defaultValue={null}
-                    style={{ width: "100%" }}
-                    onChange={handleIntentChange}
-                    disabled={disabled || !tagVisible}>
-                    {
-                      intentData.map(intent => (
-                        <Option key={intent.name}><p style={{width: "100%", whiteSpace: "normal"}}>{intent.name}</p></Option>
-                      ))
-                    }
-                  </Select>
-                </Col>
-              </Row>
+          <Row style={{marginBottom: "15px"}}>
+            <Col xl={24} xs={24} style={outerColStyle}>
+              {renderMainIntent}
             </Col>
 
             {
@@ -153,17 +176,17 @@ export default function ServantDropDown(props) {
                 return (
                   <Col xl={6} xs={24} style={outerColStyle} key={slot}>
                     <Row>
-                      <Col span={24} style={innerCol1Style}>
-                        {/* <b>{slot}</b> */}
+                      {/* <Col span={24} style={innerCol1Style}>
                         <b>{getLabel(slot)}</b>
-                      </Col>
+                      </Col> */}
                       <Col span={24} style={innerCol2Style}>
                         {
                           (
                             slot === "city" ? (
                               <Col span={24} style={innerCol2Style}>
                                 <Select
-                                  defaultValue={null}
+                                  // defaultValue={null}
+                                  placeholder={`Chọn ${getLabel(slot).toLowerCase()}`}
                                   style={{ width: "100%" }}
                                   onChange={handleCityChange}
                                   disabled={disabled || !tagVisible}>
@@ -179,7 +202,8 @@ export default function ServantDropDown(props) {
                               <Col span={24} style={innerCol2Style}>
                                 <Select
                                   value={selectedDistrict}
-                                  defaultValue={null}
+                                  // defaultValue={null}
+                                  placeholder={`Chọn ${getLabel(slot).toLowerCase()}`}
                                   style={{ width: "100%" }}
                                   onChange={handleDistrictChange}
                                   disabled={disabled || !tagVisible}>
@@ -192,7 +216,7 @@ export default function ServantDropDown(props) {
                               </Col>
                             ) : slotValuePool ? (
                               <Select
-                                // value={selectedAction}
+                                placeholder={`Chọn ${getLabel(slot).toLowerCase()}`}
                                 style={{ width: "100%" }}
                                 onChange={onSlotSelectChange}
                                 disabled={disabled || !tagVisible}>
@@ -205,7 +229,8 @@ export default function ServantDropDown(props) {
                             ) : (
                               <Input 
                                 style={{ width: "100%" }}
-                                placeholder="Nhập thông tin"
+                                // placeholder="Nhập thông tin"
+                                placeholder={`Nhập ${getLabel(slot).toLowerCase()}`}
                                 name={slot}
                                 onChange={onSlotTypeChange}
                                 disabled={disabled || !tagVisible}
@@ -217,30 +242,26 @@ export default function ServantDropDown(props) {
                     </Row>
                   </Col>
                 )
-              }) 
-              : ""
+              }) : (
+                emptyOption
+              )
             }
           </Row>
         </div>
       </Radio>
-      
-      {/* <Radio style={{
-        display: "block",
-        height: "48px",
-        lineHeight: "48px",
-      }} value={2}><b style={{paddingLeft: "10px", color: disabled ? "grey" : "black"}}>Không có tag</b>
-      </Radio> */}
+
       <Radio style={radioStyle} value={2}>
         <div style={radioContextStyle}>
           <Row>
             <Col xl={6} xs={24} style={outerColStyle}>
               <Row>
-                <Col span={24} style={innerCol1Style}>
+                {/* <Col span={24} style={innerCol1Style}>
                   <b>Khác</b>
-                </Col>
+                </Col> */}
                 <Col span={24} style={innerCol2Style}>
                   <Select
-                    defaultValue={null}
+                    // defaultValue={null}
+                    placeholder="Ý định khác?"
                     style={{ width: "100%" }}
                     onChange={handleGenericIntentChange}
                     disabled={disabled || tagVisible}>
