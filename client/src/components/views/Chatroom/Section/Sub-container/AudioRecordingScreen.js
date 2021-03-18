@@ -4,17 +4,18 @@ import React, {useRef, useEffect, useState} from 'react';
 import { Row, Col, Tooltip } from 'antd';
 import {/*ShareIcon,*/ RedoIcon, PlayOutlineIcon, StopIcon} from '../../../../ui/icons';
 
+import RecordButton from '../../../CustomRecorder/Recorder';
+
 import Wave from '../Shared/Wave';
 // import RecordButton from '../Shared/RecordButton';
-import RecordButton from '../../../CustomRecorder/Recorder';
 import Status from '../Shared/Status';
 import CustomAudioPlayer from '../Shared/CustomAudioPlayer';
+import Dropdown from '../Shared/Dropdown';
 
 import ClientSendButton from '../Client/ClientSendButton';
 // import ClientCheckbox from '../Client/ClientCheckbox';
 
 import ServantSendButton from '../Servant/ServantSendButton';
-import ServantDropDown from '../Servant/ServantDropDown';
 
 // import LoadingComponent from './../../../Loading/LoadingComponent';
 
@@ -218,7 +219,7 @@ export default function AudioRecordingScreen(props) {
         <Row style={{marginBottom: "10px"}}>
           <Col>
             <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
-              <ServantDropDown
+              <Dropdown 
                 toggleTagVisibility={toggleTagVisibility}
                 visible={tagVisibility}
                 disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
