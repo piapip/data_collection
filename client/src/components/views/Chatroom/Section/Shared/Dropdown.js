@@ -105,10 +105,10 @@ export default function Dropdown(props) {
     props.setSlot("district", districtIndex);
   }
 
-  // const radioStyle = {
-  //   width: '100%',
-  //   marginTop: '0',
-  // };
+  const radioStyle = {
+    width: '100%',
+    marginTop: '0',
+  };
 
   const radioContextStyle = {
     display: 'inline-block',
@@ -159,13 +159,14 @@ export default function Dropdown(props) {
       <Col span={24} style={innerCol1Style}>
         <b>Ý định nghiệp vụ:</b>
       </Col>
-      <Col span={2} style={titleStyle}>
+      <Col span={4} style={titleStyle}>
         <b>Ý định: </b>
       </Col>
-      <Col span={22} style={innerCol2Style}>
+      <Col span={20} style={innerCol2Style}>
         <Select
           // defaultValue={null}
-          style={{ width: "50%" }}
+          // style={{ width: "50%" }}
+          style={{ width: "100%" }}
           onChange={handleIntentChange}
           disabled={disabled || !tagVisible}>
           {
@@ -179,23 +180,27 @@ export default function Dropdown(props) {
   )
 
   const emptyOption = (
-    <Col xl={6} xs={24} style={{height: "65px"}}>
-    </Col>
-
-    // <Col xl={6} xs={24} style={outerColStyle}>
-    //   <Row>
-    //     <Col span={24} style={innerCol1Style}>
-    //       <b>???</b>
-    //     </Col>
-    //     <Col span={24} style={innerCol2Style}>
-    //       <Select
-    //         placeholder="Phải chọn ý định trước!"
-    //         style={{ width: "100%" }}
-    //         disabled={true}>
-    //       </Select>
-    //     </Col>
-    //   </Row>
+    // <Col xl={6} xs={24} style={{height: "65px"}}>
     // </Col>
+
+    [1, 1, 1].map(() => {
+      return (
+        <Col xl={8} xs={24} style={outerColStyle}>
+          <Row>
+            <Col span={24} style={innerCol1Style}>
+              <b>???</b>
+            </Col>
+            <Col span={24} style={innerCol2Style}>
+              <Select
+                // placeholder="Phải chọn ý định trước!"
+                style={{ width: "100%" }}
+                disabled={true}>
+              </Select>
+            </Col>
+          </Row>
+        </Col>
+      )
+    })
   )
 
   return (
@@ -204,12 +209,12 @@ export default function Dropdown(props) {
       disabled={disabled}>
       <div style={{marginTop: '0px', verticalAlign: 'middle'}}>
         
-      {/* <Radio value={1} style={radioStyle}> */}
-      <Radio value={1} style={{
+      <Radio value={1} style={radioStyle}>
+      {/* <Radio value={1} style={{
         display: 'inline-block',
         width: '70%',
         marginTop: '0',
-      }}>
+      }}> */}
         <div style={radioContextStyle}>
           {/* <Row style={{marginBottom: "5px"}}> */}
           <Row>
@@ -221,7 +226,7 @@ export default function Dropdown(props) {
               intentData[selectedIntent] ? intentData[selectedIntent].slot.map(slot => {
                 const slotValuePool = intentInfo[slot.toUpperCase()];
                 return (
-                  <Col xl={7} xs={24} style={outerColStyle} key={slot}>
+                  <Col xl={8} xs={24} style={outerColStyle} key={slot}>
                     <Row>
                       <Col span={24} style={innerCol1Style}>
                         <b>{getLabel(slot)}</b>
@@ -302,11 +307,11 @@ export default function Dropdown(props) {
         </div>
       </Radio>
 
-      {/* <Radio style={radioStyle} value={2}> */}
-      <Radio value={2} style={{
+      <Radio style={radioStyle} value={2}>
+      {/* <Radio value={2} style={{
         width: '25%',
         marginTop: '0',
-      }}>
+      }}> */}
         <div style={radioContextStyle}>
           <Row justify={'center'}>
             {/* <Col xl={6} xs={24} style={outerColStyle}>
@@ -314,10 +319,10 @@ export default function Dropdown(props) {
                 <Col span={24} style={innerCol1Style}>
                   <b>Ý định khác: </b>
                 </Col>
-                <Col span={8} style={titleStyle}>
+                <Col span={4} style={titleStyle}>
                   <b>Ý định: </b>
                 </Col>
-                <Col span={16} style={innerCol2Style}>
+                <Col span={20} style={innerCol2Style}>
                   <Select
                     defaultValue={null}
                     // style={{ width: "50%" }}

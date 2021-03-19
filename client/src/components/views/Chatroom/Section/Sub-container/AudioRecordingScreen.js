@@ -215,59 +215,64 @@ export default function AudioRecordingScreen(props) {
           autoPlay={true}/>
       </Row>
 
-      <Row>
-        <Row style={{marginBottom: "10px"}}>
-          <Col>
-            <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
-              <Dropdown 
-                toggleTagVisibility={toggleTagVisibility}
-                visible={tagVisibility}
-                disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
-                setIntent={setNewIntent}
-                setGenericIntent={setNewGenericIntent}
-                setSlot={setSlot}/>
-            </div>
-          </Col>
-        </Row>
-        <Row justify="center" style={{display: 'flex', alignItems: 'center'}}>
-          <Col span={24}>
-            <div className="submit-button">
-              {renderAudio(audio)}
-              {
-                userRole === "client" ? (
-                  <ClientSendButton
-                    roomName={roomName}
-                    audioName={audioName}
-                    turn={turn}
-                    disable={(intent === null && tagVisibility) || roomDone}
-                    rejectButtonDisabled={latestAudio === null}
-                    socket={socket}
-                    audio={audio} 
-                    intent={tagVisibility ? intent : genericIntent}
-                    userRole={userRole}
-                    userID={user.userData ? user.userData._id : ""}
-                    roomID={chatroomID}
-                    sendAudioSignal={sendAudioSignal}/>
-                ) : (
-                  <ServantSendButton
-                    roomName={roomName}
-                    audioName={audioName}
-                    socket={socket}
-                    roomDone={roomDone}
-                    turn={turn}
-                    audio={audio}
-                    rejectButtonDisabled={latestAudio === null}
-                    intent={tagVisibility ? intent : genericIntent}
-                    userRole={userRole}
-                    userID={user.userData ? user.userData._id : ""}
-                    roomID={chatroomID}
-                    sendAudioSignal={sendAudioSignal}/>
-                )
-              }
-              
-            </div>
-          </Col>
-        </Row>
+      <Row type="flex">
+        <Col xl={12} xs={24}>
+          <Row style={{marginBottom: "10px"}}>
+            <Col>
+              <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
+                <Dropdown 
+                  toggleTagVisibility={toggleTagVisibility}
+                  visible={tagVisibility}
+                  disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
+                  setIntent={setNewIntent}
+                  setGenericIntent={setNewGenericIntent}
+                  setSlot={setSlot}/>
+              </div>
+            </Col>
+          </Row>
+        </Col>
+
+        <Col xl={12} xs={24} style={{display: "flex"}}>
+          <Row style={{display: 'flex', alignItems: 'center', width: "100%", justifyContent: "center"}}>
+            {/* <Col span={24}> */}
+              <div className="submit-button">
+                {renderAudio(audio)}
+                {
+                  userRole === "client" ? (
+                    <ClientSendButton
+                      roomName={roomName}
+                      audioName={audioName}
+                      turn={turn}
+                      disable={(intent === null && tagVisibility) || roomDone}
+                      rejectButtonDisabled={latestAudio === null}
+                      socket={socket}
+                      audio={audio} 
+                      intent={tagVisibility ? intent : genericIntent}
+                      userRole={userRole}
+                      userID={user.userData ? user.userData._id : ""}
+                      roomID={chatroomID}
+                      sendAudioSignal={sendAudioSignal}/>
+                  ) : (
+                    <ServantSendButton
+                      roomName={roomName}
+                      audioName={audioName}
+                      socket={socket}
+                      roomDone={roomDone}
+                      turn={turn}
+                      audio={audio}
+                      rejectButtonDisabled={latestAudio === null}
+                      intent={tagVisibility ? intent : genericIntent}
+                      userRole={userRole}
+                      userID={user.userData ? user.userData._id : ""}
+                      roomID={chatroomID}
+                      sendAudioSignal={sendAudioSignal}/>
+                  )
+                }
+                
+              </div>
+            {/* </Col> */}
+          </Row>
+        </Col>
       </Row>
     </>
   )
