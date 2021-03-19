@@ -3,6 +3,7 @@ import {
   GET_ONE,
   GET_ALL,
   GET_RANDOM,
+  UPDATE_ROOM,
   DELETE_AUDIO,
   GET_CHEAT_SHEET,
 } from './types';
@@ -38,6 +39,22 @@ export function getRandomRoom(userID) {
   return {
     type: GET_RANDOM,
     payload: request
+  }
+}
+
+export function updateRoom(roomID, audioID) {
+  const dataToSend = {
+    roomID: roomID,
+    audioID: audioID,
+  }
+
+  const request =
+    axios.put(`${ROOM_SERVER}`, dataToSend)
+      .then(response => response.data);
+
+  return {
+    type: UPDATE_ROOM,
+    payload: request,
   }
 }
 

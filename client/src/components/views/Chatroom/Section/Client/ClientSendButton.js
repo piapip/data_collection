@@ -5,7 +5,8 @@ import axios from 'axios';
 import RejectAudioButton from '../Shared/RejectAudioButton';
 import LoadingComponent from '../../../Loading/LoadingComponent';
 
-import { getTranscript } from '../../../../../_actions/audio_actions';
+import { getTranscript, saveAudio } from '../../../../../_actions/audio_actions';
+import { updateRoom } from '../../../../../_actions/chatroom_actions';
 
 export default function ClientSendButton(props) {
 
@@ -47,9 +48,10 @@ export default function ClientSendButton(props) {
     // create data
     let formdata = new FormData();
     formdata.append('destination', roomName);
-    formdata.append('soundBlob', data.blob, audioName);
-    formdata.append('userID', userID);
-    formdata.append('roomID', roomID);
+    formdata.append('name', audioName);
+    formdata.append('soundBlob', data.blob, `${roomName}/${audioName}`);
+    // formdata.append('userID', userID);
+    // formdata.append('roomID', roomID);
      
     const requestConfig = {     
       headers: new Headers({
@@ -66,23 +68,41 @@ export default function ClientSendButton(props) {
         formdata,
         requestConfig,
       ).then(res => {
-        setButtonPhase(2);
-        const audioLink = res.data.link;
-        const audioID = res.data.audioID;
         // props.sendAudioSignal(res.data.data.Location);
-        props.sendAudioSignal(audioLink);
-        dispatch(getTranscript(audioLink, audioID))
-        .then(() => {
-          setButtonState(false);
-          setButtonPhase(0);
-          if (socket) {
-            socket.emit('client intent', {
-              roomID: roomID,
-              audioID: audioID,
-              intentDetailed: intent,
+        if (res.data.status === 1) {
+          setButtonPhase(2);
+          const audioLink = res.data.result.link;
+          dispatch(saveAudio(userID, audioLink))
+          .then((response) => {
+            // update room audioList in the db
+            const audioID = response.payload.audioID;
+            dispatch(updateRoom(roomID, audioID))
+            .then(response => {
+              if (!response.payload.success) {
+                // IMPLEMENT WARNING OVER HERE!!!!
+                setButtonPhase(0);
+              }
             });
-          }
-        });
+            // tell the server that thing's are ready to move on.
+            props.sendAudioSignal(audioLink);
+            // get transcript
+            dispatch(getTranscript(audioLink, audioID))
+            .then(() => {
+              setButtonState(false);
+              setButtonPhase(0);
+              if (socket) {
+                socket.emit('client intent', {
+                  roomID: roomID,
+                  audioID: audioID,
+                  intentDetailed: intent,
+                });
+              }
+            });
+          })
+        } else {
+          // IMPLEMENT WARNING OVER HERE!!!!
+          setButtonPhase(0);
+        }
       })
 
     } catch(error){

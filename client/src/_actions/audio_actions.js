@@ -1,7 +1,8 @@
 import axios from 'axios';
 import {
   GET_TRANSCRIPT,
-  FIX_TRANSCRIPT
+  FIX_TRANSCRIPT,
+  SAVE_AUDIO,
 } from './types';
 import { AUDIO_SERVER } from '../components/Config.js';
 
@@ -33,4 +34,20 @@ export function fixTranscript(audioID, userID, transcript) {
       type: FIX_TRANSCRIPT,
       payload: request
     }
+}
+
+export function saveAudio(userID, audioLink) {
+  const dataToSend = {
+    userID: userID,
+    link: audioLink,
+  }
+
+  const request = 
+    axios.post(`${AUDIO_SERVER}`, dataToSend)
+    .then(response => response.data);
+
+  return {
+    type: SAVE_AUDIO,
+    payload: request
+  }
 }
