@@ -26,6 +26,22 @@ export default function ClientSendButton(props) {
   const [ buttonState, setButtonState ] = useState(false);
   const [ buttonPhase, setButtonPhase ] = useState(0);
 
+  const validateIntent = () =>{
+    if (!intent) return false;
+
+    if (intent.four_last_digits) {
+      const re = '^[0-9]+$';
+      if (intent.four_last_digits.length !== 4 || !(new RegExp(re).test(intent.four_last_digits))) return false;
+    }
+
+    if (intent.cmnd) {
+      const re = '^[0-9]+$';
+      if (!(new RegExp(re).test(intent.cmnd))) return false;
+    }
+
+    return true;
+  }
+
   const uploadAudioAWS = async (e) => {
 
     // create data
@@ -34,7 +50,6 @@ export default function ClientSendButton(props) {
     formdata.append('soundBlob', data.blob, audioName);
     formdata.append('userID', userID);
     formdata.append('roomID', roomID);
-    // formdata.append('audioIntent', intent);
      
     const requestConfig = {     
       headers: new Headers({
@@ -76,7 +91,7 @@ export default function ClientSendButton(props) {
   }
 
   const insertButton = (data !== null && turn === 1) ? (
-    buttonDisable ? (
+    buttonDisable || !validateIntent() ? (
       // Can put an alert instead of a Popover but it looks stupid as fuck
       <button className="buttons" style={{cursor: 'not-allowed'}} disabled>Gửi</button>
     ) : (

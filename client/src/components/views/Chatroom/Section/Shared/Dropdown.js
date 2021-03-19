@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Select, Input, Row, Col, Radio } from 'antd';
+import { Form, Select, Input, Row, Col, Radio } from 'antd';
 
 import intentInfo from './intent';
 import "./Dropdown.css";
@@ -20,6 +20,11 @@ export default function Dropdown(props) {
 
   const [ selectedDistrict, setSelectedDistrict ] = useState(null);
   const [ districtList, setDisctrictList ] = useState([]);
+  const [ validator, setValidator ] = useState({
+    name: " ",
+    cmnd: " ",
+    four_last_digits: " ",
+  });
 
   const handleIntentChange = (value) => {
     const intentIndex = intentData.findIndex(item => {
@@ -52,6 +57,31 @@ export default function Dropdown(props) {
     const slot = e.target.name;
     const slotValue = e.target.value;
 
+    if (slot === "cmnd") {
+      const re = '^[0-9]+$';
+      if (!(new RegExp(re).test(slotValue))) {
+        let newValidator = validator;
+        newValidator[slot] = "CMND chỉ nhận số!";
+        setValidator(newValidator);
+      } else {
+        let newValidator = validator;
+        newValidator[slot] = " ";
+        setValidator(newValidator);
+      }
+    }
+
+    if (slot === "four_last_digits") {
+      const re = '^[0-9]+$';
+      if (slotValue.length !== 4 || !(new RegExp(re).test(slotValue))) {
+        let newValidator = validator;
+        newValidator[slot] = "Phải nhập 4 số!";
+        setValidator(newValidator);
+      } else {
+        let newValidator = validator;
+        newValidator[slot] = " ";
+        setValidator(newValidator);
+      }
+    }
     props.setSlot(slot, slotValue);
   }
 
@@ -75,10 +105,10 @@ export default function Dropdown(props) {
     props.setSlot("district", districtIndex);
   }
 
-  const radioStyle = {
-    width: '100%',
-    marginTop: '0',
-  };
+  // const radioStyle = {
+  //   width: '100%',
+  //   marginTop: '0',
+  // };
 
   const radioContextStyle = {
     display: 'inline-block',
@@ -242,12 +272,21 @@ export default function Dropdown(props) {
                                 }
                               </Select>
                             ) : (
-                              <Input 
-                                style={{ width: "100%" }}
-                                name={slot}
-                                onChange={onSlotTypeChange}
-                                disabled={disabled || !tagVisible}
-                              />
+                              <Form>
+                                <Form.Item
+                                  // name={slot}
+                                  style={{marginBottom: "0px"}}
+                                  validateStatus={validator[slot] !== " " ? "error" : "validating"}
+                                  help={validator[slot]}
+                                >
+                                  <Input
+                                    style={{ width: "100%" }}
+                                    name={slot}
+                                    onChange={onSlotTypeChange}
+                                    disabled={disabled || !tagVisible}
+                                  />
+                                </Form.Item>
+                              </Form>
                             )
                           )
                         }
