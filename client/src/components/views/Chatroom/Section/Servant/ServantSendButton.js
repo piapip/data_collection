@@ -29,6 +29,23 @@ export default function ServantSendButton(props) {
     floor: null,
     level: null,
   };
+
+  const validateIntent = () =>{
+    if (!intent) return false;
+
+    if (intent.four_last_digits) {
+      const re = '^[0-9]+$';
+      if (intent.four_last_digits.length !== 4 || !(new RegExp(re).test(intent.four_last_digits))) return false;
+    }
+
+    if (intent.cmnd) {
+      const re = '^[0-9]+$';
+      if (!(new RegExp(re).test(intent.cmnd))) return false;
+    }
+
+    return true;
+  }
+
   const dispatch = useDispatch();
 
   const audioName = props ? props.audioName : "test.wav";
@@ -97,7 +114,7 @@ export default function ServantSendButton(props) {
   // const insertSendIntentButton = 
 
   const insertSendButton = (turn === 3 && data !== null) ? (
-    buttonState ? (
+    (buttonState || !validateIntent()) ? (
       <button className="buttons" style={{cursor: 'not-allowed'}} disabled><LoadingComponent /> {
         buttonPhase === 0 ? "Gửi" :
         buttonPhase === 1 ? "Xử lý audio..." :

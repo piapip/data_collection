@@ -91,7 +91,7 @@ export default function ClientSendButton(props) {
   }
 
   const insertButton = (data !== null && turn === 1) ? (
-    buttonDisable || !validateIntent() ? (
+    (buttonDisable || !validateIntent()) ? (
       // Can put an alert instead of a Popover but it looks stupid as fuck
       <button className="buttons" style={{cursor: 'not-allowed'}} disabled>Gửi</button>
     ) : (
