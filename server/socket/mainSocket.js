@@ -692,12 +692,14 @@ const { Chatroom } = require("./../models/Chatroom");
 
 const createRoom = async (userID1, userID2, roomType) => {
   // user1 - client, user2 - servant
-  let content_type = roomType === "audio" ? 0 : 1
-  const randomValue = randomGenerator()
+  let content_type = roomType === "audio" ? 0 : 1;
+  // const randomValue = randomGenerator();
+  const name = await generateName(userID1, userID2);
   let intent = await createRandomIntent()
   let currentIntent = await Intent.create({});
   const chatroom = await Chatroom.create({
-    name: generateName() + randomValue,
+    name: name,
+    // name: "Room R" + randomValue,
     task: generateTask(),
     content_type: content_type,
     user1: userID1,
@@ -708,20 +710,36 @@ const createRoom = async (userID1, userID2, roomType) => {
     intent: intent._id,
     currentIntent: currentIntent._id,
     turn: 1,
+  });
+
+  return chatroom._id;
+}
+
+const randomGenerator = () => {
+  return Math.floor(Math.random() * 1000000000);
+}
+
+const generateName = async (userID1, userID2) => {
+  // PROBLEM!!! Both users will fire this function... fuck...
+  // Here's the idea: count how many Chatroom documents there are, then increase by 1 then make it as the name
+  let roomName = "";
+  await Chatroom.estimatedDocumentCount(async (err, count) => {
+    if (err) {
+      console.log("Can't count chatroom documents, ", err);
+    } else {
+      roomName = "Room R" + count;
+      console.log("roomName: ", roomName);
+      // await Chatroom.find({ name: roomName })
+      // .then(async roomFound => {
+      //   // console.log(roomFound.);
+      //   if (roomFound && roomFound.user1 !== userID1 && roomFound.user2 !== userID2) {
+      //     roomName = await generateName(userID1, userID2);
+      //   }
+      // });
+    }
   })
 
-  return chatroom._id
-}
-
-let count = 0;
-const randomGenerator = () => {
-  // return Math.floor(Math.random() * 100000);
-  return count++;
-}
-
-const generateName = () => {
-  // IMPLEMENT!!!
-  return "Room R"
+  return roomName;
 }
 
 const generateTask = () => {
@@ -780,24 +798,6 @@ const transferObject = (originalObject, newObject) => {
 
   return originalObject;
 }
-
-// const getOriginalIntent = (roomID) => {
-//   return Chatroom.findById(roomID)
-//   .then(async roomFound => {
-//     if (!roomFound) {
-//       console.log("... Some shenanigan.. Room doesn't even exist.");
-//       return null;
-//     } else {
-//       return await Intent.findById(roomFound.intent)
-//       .then(intentFound => {
-//         if (!intentFound) {
-//           console.log("... Some shenanigan.. Intent doesn't even exist.");
-//           return null;
-//         } else return intentFound
-//       })
-//     }
-//   })
-// }
 
 const getRandomFromArray = (arr) => {
   return Math.floor(Math.random() * arr.length);
