@@ -11,10 +11,13 @@ export default function ReadyButton(props) {
 
   useEffect(() => {
     // seems redundant but need it. So when the user denies their second queue confirmation, we'll reset the timer.
+    let isMount = true;
     if (!props.readyStatus) {
       clearInterval(increment.current);
-      setTimer(0);
+      if (isMount) setTimer(0);
     }
+
+    return () => { isMount = false }
   }, [ props.readyStatus ])
 
   const ready = () => {
@@ -67,7 +70,12 @@ export default function ReadyButton(props) {
               
             )) : (
               <Link to={`/login`}>
-                <Button shape="round" style={{marginTop: "45px", marginBottom: "45px"}}>Sẵn sàng</Button>
+                <Row>
+                  <Button shape="round" style={{marginTop: "45px", marginBottom: "45px"}}>Sẵn sàng</Button>
+                </Row>
+                <Row>
+                  {timeConverter(timer)}
+                </Row>
               </Link>
             )
           }

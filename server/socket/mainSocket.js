@@ -692,7 +692,7 @@ const createRoom = async (userID1, userID2, roomType) => {
   // user1 - client, user2 - servant
   let content_type = roomType === "audio" ? 0 : 1;
   // const randomValue = randomGenerator();
-  const name = await generateName(userID1, userID2);
+  const name = await generateName(4);
   let intent = await createRandomIntent()
   let currentIntent = await Intent.create({});
   const chatroom = await Chatroom.create({
@@ -713,31 +713,35 @@ const createRoom = async (userID1, userID2, roomType) => {
   return chatroom._id;
 }
 
-const randomGenerator = () => {
-  return Math.floor(Math.random() * 1000000000);
-}
+// const randomGenerator = () => {
+//   return Math.floor(Math.random() * 1000000000);
+// }
 
-const generateName = async (userID1, userID2) => {
-  // PROBLEM!!! Both users will fire this function... fuck...
-  // Here's the idea: count how many Chatroom documents there are, then increase by 1 then make it as the name
-  let roomName = "";
-  await Chatroom.estimatedDocumentCount(async (err, count) => {
-    if (err) {
-      console.log("Can't count chatroom documents, ", err);
-    } else {
-      roomName = "Room R" + count;
-      console.log("roomName: ", roomName);
-      // await Chatroom.find({ name: roomName })
-      // .then(async roomFound => {
-      //   // console.log(roomFound.);
-      //   if (roomFound && roomFound.user1 !== userID1 && roomFound.user2 !== userID2) {
-      //     roomName = await generateName(userID1, userID2);
-      //   }
-      // });
-    }
-  })
+const generateName = async (length) => {
 
-  return roomName;
+  const name = `Room ${generateRandomString(length)}`;
+
+  return name;
+  // // PROBLEM!!! Both users will fire this function... fuck... and it doesn't always work...
+  // // Here's the idea: count how many Chatroom documents there are, then increase by 1 then make it as the name
+  // let roomName = "";
+  // await Chatroom.estimatedDocumentCount(async (err, count) => {
+  //   if (err) {
+  //     console.log("Can't count chatroom documents, ", err);
+  //   } else {
+  //     roomName = "Room R" + count;
+  //     console.log("roomName: ", roomName);
+  //     // await Chatroom.find({ name: roomName })
+  //     // .then(async roomFound => {
+  //     //   // console.log(roomFound.);
+  //     //   if (roomFound && roomFound.user1 !== userID1 && roomFound.user2 !== userID2) {
+  //     //     roomName = await generateName(userID1, userID2);
+  //     //   }
+  //     // });
+  //   }
+  // })
+
+  // return roomName;
 }
 
 const generateTask = () => {
@@ -920,6 +924,18 @@ const addSlot = async (roomID, userID) => {
     }
   })
   .catch(err => console.log("Kicking user: ", err))
+}
+
+const generateRandomString = (length, allowedChars) => {
+  let text = '';
+  const possible =
+    allowedChars ||
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for (let i = 0; i < length; i += 1) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
 }
 
 module.exports = sockets;

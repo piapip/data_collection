@@ -133,27 +133,6 @@ function RoomList(props) {
                 }
               }} >
               <Column dataIndex='name' key='name' />
-              {/* <Column 
-                title='Tiến độ' 
-                dataIndex='progress' 
-                key='progress' 
-                render={(progress) => (
-                <>
-                  {Object.entries(progress).map((object) => {
-                    if (object[0] !== "_id" && object[0] !== "__v") {
-                      return object[1] !== -1 ? (
-                        object[1] === 0 ? (
-                          <MinusCircleTwoTone key={object[0]} twoToneColor="#eb2f96"/>
-                        ) : (
-                          <CheckCircleTwoTone key={object[0]} twoToneColor="#52c41a"/>
-                        )
-                      ) : (
-                        <MinusOutlined key={object[0]} />
-                      )
-                    } else return ""
-                  })}
-                </>
-              )}/> */}
               <Column 
                 title='Người tham gia' 
                 dataIndex='capacity' 
@@ -173,9 +152,6 @@ function RoomList(props) {
                       readyStatus ? (
                         <Popover trigger="hover" content={content}>
                           <p style={{color: "#1890ff", fontSize: "14px"}}>Join</p>
-                          {/* <Link to={`/chatroom/${updateIndex()}`} style={{pointerEvents: "none"}}>
-                            Join
-                          </Link> */}
                         </Popover>
                       ) : (
                         isAuth ? (
@@ -190,9 +166,6 @@ function RoomList(props) {
                         
                       )
                     }
-                    {/* <Link to={`/chatroom/${updateIndex()}`}>
-                      Join
-                    </Link> */}
                   </>
                 )
               }} />
