@@ -41,9 +41,16 @@ const storage = multer.diskStorage({
     return cb(null, path.join(__dirname, '../', destination))
   },
   filename: (req, file, cb) => {
-    const filename = `${path.parse(file.originalname).name}_${generateRandomString(16)}${path.extname(
-      file.originalname,
-    )}`;
+    let filename;
+    
+    const customFilename = req.body.name;
+    if(customFilename) {
+      filename = customFilename;
+    } else {
+      filename = `${path.parse(file.originalname).name}_${generateRandomString(16)}${path.extname(
+        file.originalname,
+      )}`;
+    }
     return cb(null, filename)
   },
 })

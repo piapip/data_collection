@@ -1,6 +1,7 @@
 import {
   GET_TRANSCRIPT,
-  FIX_TRANSCRIPT
+  FIX_TRANSCRIPT,
+  SAVE_AUDIO
 } from '../_actions/types';
 
 export default function(state={}, action) {
@@ -9,5 +10,7 @@ export default function(state={}, action) {
       return {...state}
     case FIX_TRANSCRIPT:
       return {...state, audioUpdated: action.payload}
+    case SAVE_AUDIO:
+      return {...state}
   }
 }

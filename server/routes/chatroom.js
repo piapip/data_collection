@@ -189,6 +189,34 @@ router.post("/", async (req, res) => {
   });
 })
 
+// Update room Status with given information
+router.put("/", (req, res) => {
+  const { roomID, audioID } = req.body;
+
+  Chatroom.findById(roomID)
+  .then(roomFound => {
+    if(!roomFound) {
+      console.log("Room not found!!!")
+      // IMPLEMENT ERROR HANDLING HERE!!
+      return "Room not found!"
+    } else {
+      roomFound.audioList.push(audioID);
+      return roomFound.save();
+    }
+  })
+  .then((roomUpdated) => {
+    if (!roomUpdated) {
+      res.status(500).send({ success: false, message: "Can't update room information after upload audio!!!" })
+    }
+    else res.status(200).send({ success: true })
+  })
+  .catch(err => {
+    res.status(500).send({ success: false, message: "Unable to update audio information to room" })
+    console.log(err)
+    throw err
+  });
+})
+
 // REMOVE AUDIO
 router.put("/:roomID/:userRole", (req, res) => {
   const roomID = req.params.roomID;

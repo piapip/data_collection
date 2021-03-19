@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 
-import { getTranscript } from '../../../../../_actions/audio_actions';
+import { getTranscript, saveAudio } from '../../../../../_actions/audio_actions';
+import { updateRoom } from '../../../../../_actions/chatroom_actions';
 
 import RejectAudioButton from './../Shared/RejectAudioButton';
 import LoadingComponent from './../../../Loading/LoadingComponent';
+
+import { UPLOAD_API } from '../../../../Config';
 
 export default function ServantSendButton(props) {
 
@@ -29,6 +32,23 @@ export default function ServantSendButton(props) {
     floor: null,
     level: null,
   };
+
+  const validateIntent = () =>{
+    if (!intent) return false;
+
+    if (intent.four_last_digits) {
+      const re = '^[0-9]+$';
+      if (intent.four_last_digits.length !== 4 || !(new RegExp(re).test(intent.four_last_digits))) return false;
+    }
+
+    if (intent.cmnd) {
+      const re = '^[0-9]+$';
+      if (!(new RegExp(re).test(intent.cmnd))) return false;
+    }
+
+    return true;
+  }
+
   const dispatch = useDispatch();
 
   const audioName = props ? props.audioName : "test.wav";
@@ -38,9 +58,10 @@ export default function ServantSendButton(props) {
     // create data
     let formdata = new FormData();
     formdata.append('destination', roomName);
-    formdata.append('soundBlob', data.blob, audioName);
-    formdata.append('userID', userID);
-    formdata.append('roomID', roomID);
+    formdata.append('name', audioName);
+    formdata.append('soundBlob', data.blob, `${roomName}/${audioName}`);
+    // formdata.append('userID', userID);
+    // formdata.append('roomID', roomID);
      
     const requestConfig = {     
       headers: new Headers({
@@ -52,29 +73,44 @@ export default function ServantSendButton(props) {
       setButtonPhase(1);
       setButtonState(true);
       await axios.post(
-        // `${BACKEND_URL}/api/aws/upload`,
         // '/api/aws/upload',
-        '/api/upload/file',
+        UPLOAD_API,
         formdata,
         requestConfig,
       ).then(res => {
-        setButtonPhase(2);
-        const audioLink = res.data.link;
-        const audioID = res.data.audioID;
         // props.sendAudioSignal(res.data.data.Location);
-        props.sendAudioSignal(audioLink);
-        dispatch(getTranscript(audioLink, audioID))
-        .then(() => {
-          setButtonState(false);
-          setButtonPhase(0);
-          const audioID = res.data.audioID;
-          if (socket) {
-            socket.emit('servant audio', {
-              roomID,
-              audioID,
+
+        if (res.data.status === 1) {
+          setButtonPhase(2);
+          const audioLink = res.data.result.link;
+          console.log("audioLink: ", audioLink);
+          dispatch(saveAudio(userID, audioLink))
+          .then(response => {
+            // update room audioList in the db
+            const audioID = response.payload.audioID;
+            dispatch(updateRoom(roomID, audioID))
+            .then(response => {
+              if (!response.payload.success) {
+                // IMPLEMENT WARNING OVER HERE!!!!
+                setButtonPhase(0);
+              }
             });
-          }
-        })
+            // tell the server that thing's are ready to move on.
+            props.sendAudioSignal(audioLink);
+            // get transcript
+            dispatch(getTranscript(audioLink, audioID))
+            .then(() => {
+              setButtonPhase(false);
+              setButtonPhase(0);
+              if (socket) {
+                socket.emit('servant audio', {
+                  roomID,
+                  audioID,
+                });
+              }
+            })
+          })
+        }
       })
     } catch(error){
       alert(error)
@@ -83,25 +119,20 @@ export default function ServantSendButton(props) {
 
   // need intent sending button
   const onConfirm = async () => {
-    // await setButtonState(true);
     if (socket) {
       await socket.emit('servant intent', {
         roomID: roomID,
-        // audioID,
         intentDetailed: intent,
       });
     }
-    // setButtonState(false);
   }
-
-  // const insertSendIntentButton = 
 
   const insertSendButton = (turn === 3 && data !== null) ? (
     buttonState ? (
       <button className="buttons" style={{cursor: 'not-allowed'}} disabled><LoadingComponent /> {
         buttonPhase === 0 ? "Gửi" :
         buttonPhase === 1 ? "Xử lý audio..." :
-        buttonPhase === 1 ? "Lấy transcript..." : "????HOWWWW???"
+        buttonPhase === 2 ? "Lấy transcript..." : "????HOWWWW???"
       }</button>
     ) : (
       roomDone ? (
@@ -110,7 +141,7 @@ export default function ServantSendButton(props) {
         <button className="buttons" onClick={uploadAudioAWS} disabled={roomDone || buttonState}>{
           buttonPhase === 0 ? "Gửi" :
           buttonPhase === 1 ? "Xử lý audio..." :
-          buttonPhase === 1 ? "Lấy transcript..." : "????HOWWWW???"
+          buttonPhase === 2 ? "Lấy transcript..." : "????HOWWWW???"
         }</button>
       )
     )
@@ -122,7 +153,7 @@ export default function ServantSendButton(props) {
         userRole={userRole} 
         socket={socket}
         disabled={rejectButtonDisabled}/>
-      <button className="buttons" onClick={onConfirm} disabled={roomDone || buttonState}>Xác nhận</button>
+      <button className="buttons" onClick={onConfirm} disabled={roomDone || buttonState || !validateIntent()}>Xác nhận</button>
     </div>
     
   ) : "")

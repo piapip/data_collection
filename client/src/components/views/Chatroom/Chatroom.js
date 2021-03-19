@@ -370,6 +370,18 @@ export default function Chatroom(props) {
     setIsModalVisible(false);
   };
 
+  const generateRandomString = (length, allowedChars) => {
+    let text = '';
+    const possible =
+      allowedChars ||
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  
+    for (let i = 0; i < length; i += 1) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+  }
+
   const roomStatusContent = (
     <>
       {
@@ -446,7 +458,7 @@ export default function Chatroom(props) {
           <div>
             {room_content_type === '0' ?
               <AudioRecordingScreen
-                audioName={`${audioHistory.length}_${userID}.wav`}
+                audioName={`${audioHistory.length}_${userID}_${generateRandomString(16)}.wav`}
                 roomName={roomName}
                 roomDone={roomDone}
                 currentIntent={currentIntent}

@@ -138,7 +138,7 @@ export default function Dropdown(props) {
   const titleStyle = {
     paddingTop: "1px",
     lineHeight: "200%",
-    textAlign: "center",
+    textAlign: "left",
   }
 
   const innerCol2Style = {
@@ -180,12 +180,9 @@ export default function Dropdown(props) {
   )
 
   const emptyOption = (
-    // <Col xl={6} xs={24} style={{height: "65px"}}>
-    // </Col>
-
-    [1, 1, 1].map(() => {
+    [1, 2, 3].map((value) => {
       return (
-        <Col xl={8} xs={24} style={outerColStyle}>
+        <Col xl={8} xs={24} style={outerColStyle} key={`empty_${value}`}>
           <Row>
             <Col span={24} style={innerCol1Style}>
               <b>???</b>
