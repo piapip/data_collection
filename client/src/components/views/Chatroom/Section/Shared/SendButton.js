@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 
-// import { BACKEND_URL } from '../../../../Config'
-
 export default function Test(props) {
 
   const [ buttonState, setButtonState ] = useState(false);
@@ -41,34 +39,6 @@ export default function Test(props) {
         alert(error);
     }
   }
-
-  // const uploadAudioAWS = async (e) => {
-
-  //   // create data
-  //   let formdata = new FormData()
-  //   formdata.append('soundBlob', data.blob, 'test.wav')
-  //   formdata.append('userID', userID)
-  //   formdata.append('roomID', roomID)
-     
-  //   const requestConfig = {     
-  //     headers: new Headers({
-  //       enctype: "multipart/form-data"
-  //     })
-  //   }
-    
-  //   try {
-  //     await axios.post(
-  //       `${BACKEND_URL}/api/aws/upload`,
-  //       formdata,
-  //       requestConfig,
-  //     ).then(res => {
-  //       props.sendAudioSignal(res.data.Location)
-  //       // console.log(res.data)
-  //     })
-  //   } catch(error){
-  //     alert(error)
-  //   }
-  // }
 
   const insertButton = data !== null ? (
     <button className="buttons" onClick={uploadAudio} disabled={buttonState}>Gửi</button>

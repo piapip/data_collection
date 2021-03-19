@@ -3,8 +3,6 @@ const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
 const { Audio } = require("./../models/Audio");
 
-// const BACKEND_URL = (process.env.NODE_ENV === 'production') ? process.env.PUBLIC_URL : 'http://localhost:5000';
-
 sockets.init = function(server) {
   // socket.io setup
   const io = require('socket.io')(server, {cors: {origin: "http://localhost:3000"}});

@@ -2,16 +2,12 @@ const express = require('express');
 const router = express.Router();
 const uploadService = require('../services/upload');
 const multer = require('multer');
-// const tmp = require("tmp");
-// const fs = require("fs");
-// const request = require('request');
-// const { exec } = require('child_process');
 
 const DOMAIN_NAME = 'http://localhost:5000';
 
 const upload_local = uploadService.upload.single('soundBlob');
 
-router.post('/file', (req, res) => {
+router.post('/', (req, res) => {
   upload_local(req, res, async err => {
     if (err) {
       if (err instanceof multer.MulterError) {
@@ -30,22 +26,10 @@ router.post('/file', (req, res) => {
       }
     }
 
-    // const userID = req.body.userID;
-    // const roomID = req.body.roomID;
-
     try {
       let path_components = req.file.path.split('\\')
       console.log(req.file.path)
       let audio_link = `${DOMAIN_NAME}/${path_components[path_components.length-3]}/${path_components[path_components.length-2]}/${path_components[path_components.length-1]}`
-      // console.log(`Link: ${audio_link}`)
-
-      // // save the audio information 
-      // const audioID = await saveAudioMongo(userID, audio_link)
-      // err = updateRoomInfo(roomID, audioID)
-      // if (err) {
-      //   res.status(500).send(err)
-      //   throw err 
-      // }
   
       return res.status(200).send(
         {
@@ -53,7 +37,6 @@ router.post('/file', (req, res) => {
             link: audio_link
           },
           status: 1,
-          // success: true, link: audio_link, audioID: audioID 
         }
       );
     } catch (error) {
@@ -62,50 +45,5 @@ router.post('/file', (req, res) => {
     }
   })
 })
-
-// const { Audio } = require("./../models/Audio");
-// const { Chatroom } = require("./../models/Chatroom");
-
-// const saveAudioMongo = async (userID, link) => {
-
-//   const audio = await Audio.create({
-//     user: userID,
-//     link: link,
-//     intent: null,
-//     revertable: false,
-//     transcript: " ",
-//     fixBy: null,
-//   })
-
-//   // getTranscript(link, audio._id)
-
-//   return audio._id
-// }
-
-// const updateRoomInfo = (roomID, audioID) => {
-  
-//   Chatroom.findById(roomID)
-//   .then(roomFound => {
-//     if(!roomFound) {
-//       console.log("Room not found!!!")
-//       // IMPLEMENT ERROR HANDLING HERE!!
-//       return "Room not found!"
-//     } else {
-//       roomFound.audioList.push(audioID);
-//       return roomFound.save();
-//     }
-//   })
-//   .then((roomUpdated) => {
-//     if (!roomUpdated) { 
-//       console.log("Can't update room information after upload audio!!!")
-//       return
-//     }
-//   })
-//   .catch(err => {
-//     console.log("Unable to update audio information to room")
-//     console.log(err)
-//     return err
-//   });
-// }
 
 module.exports = router;
