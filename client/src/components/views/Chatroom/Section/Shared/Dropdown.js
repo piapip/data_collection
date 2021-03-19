@@ -138,7 +138,7 @@ export default function Dropdown(props) {
   const titleStyle = {
     paddingTop: "1px",
     lineHeight: "200%",
-    textAlign: "center",
+    textAlign: "left",
   }
 
   const innerCol2Style = {
