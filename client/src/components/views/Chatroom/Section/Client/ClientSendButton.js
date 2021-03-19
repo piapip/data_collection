@@ -8,6 +8,8 @@ import LoadingComponent from '../../../Loading/LoadingComponent';
 import { getTranscript, saveAudio } from '../../../../../_actions/audio_actions';
 import { updateRoom } from '../../../../../_actions/chatroom_actions';
 
+import { UPLOAD_API } from '../../../../Config';
+
 export default function ClientSendButton(props) {
 
   const data = props ? props.audio : null;
@@ -64,7 +66,7 @@ export default function ClientSendButton(props) {
       setButtonState(true);
       await axios.post(
         // '/api/aws/upload',
-        '/api/upload/file',
+        UPLOAD_API,
         formdata,
         requestConfig,
       ).then(res => {

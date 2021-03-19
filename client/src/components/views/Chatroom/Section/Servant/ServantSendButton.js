@@ -8,6 +8,8 @@ import { updateRoom } from '../../../../../_actions/chatroom_actions';
 import RejectAudioButton from './../Shared/RejectAudioButton';
 import LoadingComponent from './../../../Loading/LoadingComponent';
 
+import { UPLOAD_API } from '../../../../Config';
+
 export default function ServantSendButton(props) {
 
   const [ buttonState, setButtonState ] = useState(false);
@@ -72,7 +74,7 @@ export default function ServantSendButton(props) {
       setButtonState(true);
       await axios.post(
         // '/api/aws/upload',
-        '/api/upload/file',
+        UPLOAD_API,
         formdata,
         requestConfig,
       ).then(res => {
