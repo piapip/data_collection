@@ -16,6 +16,18 @@ export default function ProgressNote(props) {
     return slotIndex === -1 ? "" : intentInfo.SLOT_LABEL[slotIndex].name
   }
 
+  const showCity = (cityIndex) => {
+    return intentInfo.CITY[cityIndex];
+  }
+
+  const showDistrict = (districtIndex) => {
+    const cityIndex = currentIntent.findIndex(item => {
+      return item[0] === "city";
+    });
+    const cityName = showCity(currentIntent[cityIndex][1]);
+    return intentInfo.DISTRICT[cityName][districtIndex];
+  }
+
   const renderProgressNote = (
     currentIntent.length !== 0 && currentIntent[0][0] !== "generic_intent" ? (
       <Row>
@@ -27,13 +39,12 @@ export default function ProgressNote(props) {
             {intentInfo.INTENT[currentIntent[0][1]].name}
           </Col>
         </Row>
-         
+        
         {
           intentInfo.INTENT[currentIntent[0][1]].slot.map((property, index) => {
             const currentIntentIndex = currentIntent.findIndex(item => {
               return item[0] === property;
             })
-
             return (
               <Row style={{height: "50px", lineHeight: "50px"}} key={index}>
                 <Col span={8}>
@@ -41,7 +52,12 @@ export default function ProgressNote(props) {
                 </Col>
                 <Col span={16}>
                   {
-                    currentIntentIndex !== -1 ? intentInfo[currentIntent[currentIntentIndex][0].toUpperCase()][currentIntent[currentIntentIndex][1]].name : (
+                    currentIntentIndex !== -1 ? 
+                    (property === "name" || property === "cmnd" || property === "four_last_digits") ? currentIntent[currentIntentIndex][1] : 
+                    (property === "city") ? showCity(currentIntent[currentIntentIndex][1]) :
+                    (property === "district") ? showDistrict(currentIntent[currentIntentIndex][1]) :
+                    (property === "city" || property === "district") ? intentInfo[property.toUpperCase()][currentIntent[currentIntentIndex][1]] :
+                      intentInfo[currentIntent[currentIntentIndex][0].toUpperCase()][currentIntent[currentIntentIndex][1]].name : (
                       <img src={QuestionMark} alt="question-mark" style={{height: "50px"}}/>
                     )
                   }

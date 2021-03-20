@@ -461,13 +461,13 @@ sockets.init = function(server) {
               alternativeIntent.generic_intent = null;
               if (compareIntent(alternativeIntent, roomFound.intent)) {
                 roomFound.done = true;
-              } else {
-                // emit signal
-                io.to(roomID).emit('intent correct', {
-                  roomDone: roomFound.done,
-                  newIntent: newIntent,
-                });
               }
+
+              // emit signal
+              io.to(roomID).emit('intent correct', {
+                roomDone: roomFound.done,
+                newIntent: newIntent,
+              });
 
               // update turn
               roomFound.turn = 3;
@@ -666,10 +666,10 @@ const compareIntent = (intent1, intent2) => {
   const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits", "generic_intent"];
   let count = 0;
   for (let key in properties) {
-    if(intent1[properties[key]] === "-1") {
-      if(!intent2[properties[key]]) count++;
-    } else if(intent2[properties[key]] === "-1") {
-      if(!intent1[properties[key]]) count++;
+    if(intent1[properties[key]] === "-1" || intent1[properties[key]] === -1) {
+      if(intent2[properties[key]] === null) count++;
+    } else if(intent2[properties[key]] === "-1" || intent2[properties[key]] === -1) {
+      if(intent1[properties[key]] === null) count++;
     } else {
       if(intent1[properties[key]] !== intent2[properties[key]]) count++;
     }

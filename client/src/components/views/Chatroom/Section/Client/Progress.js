@@ -29,7 +29,7 @@ export default function Progress(props) {
 
     if (scenarioPropIndex === -1) return null;
     else {
-      if (scenarioProp[1] === "-1" && currentIntent[scenarioPropIndex][1]) return currentIntent[scenarioPropIndex][1];
+      if ((scenarioProp[1] === "-1" || scenarioProp[1] === -1) && currentIntent[scenarioPropIndex][1] !== null) return currentIntent[scenarioPropIndex][1];
       else {
         if (scenarioProp[1] === currentIntent[scenarioPropIndex][1]) return currentIntent[scenarioPropIndex][1];
         return null;
@@ -46,32 +46,53 @@ export default function Progress(props) {
     return slotIndex === -1 ? "" : intentInfo.SLOT_LABEL[slotIndex].name
   }
 
+  const showCity = (cityIndex) => {
+    return intentInfo.CITY[cityIndex];
+  }
+
+  const showDistrict = (districtIndex) => {
+    const cityIndex = currentIntent.findIndex(item => {
+      return item[0] === "city";
+    });
+    const cityName = showCity(currentIntent[cityIndex][1]);
+    return intentInfo.DISTRICT[cityName][districtIndex];
+  }
+
   const renderProgress = (
     (scenario && scenario.length !== 0) ? (
       scenario.map((property, index) => {
         const slotValue = compareProperty(property, currentIntent);
-        return slotValue ? (
+        // console.log(`property: ${property} slotValue: ${slotValue} show: ${intentInfo[property[0].toUpperCase()][slotValue]}`);
+        return slotValue !== null ? (
           <Col xl={6} xs={24} key={property[0]}>
-            <Row style={{textAlign: "center"}}>
+            <Row style={{textAlign: "center", marginBottom: "15px"}}>
               {index === 0 ? "Ý định" : getLabel(property[0])}
             </Row>
-            <Row style={{textAlign: "center"}}>
+            <Row style={{textAlign: "center", marginBottom: "15px"}}>
               <img src={CorrectSign} alt="done" style={{height: "50px"}}/>
             </Row>
             <Row style={{textAlign: "center"}}>
-              {property[1] === "-1" ? slotValue : intentInfo[property[0].toUpperCase()][slotValue].name}
+              <p style={{marginBottom: "0px"}}>
+              {
+                (property[0] === "name" || property[0] === "cmnd" || property[0] === "four_last_digits") ? slotValue : 
+                (property[0] === "city") ? showCity(slotValue) :
+                (property[0] === "district") ? showDistrict(slotValue) :
+                // (property[0] === "city" || property[0] === "district") ? intentInfo[property[0].toUpperCase()][slotValue] : 
+                intentInfo[property[0].toUpperCase()][slotValue].name
+              }
+              </p>
             </Row>
           </Col>
         ) : (
           <Col xl={6} xs={24} key={property[0]}>
-            <Row style={{textAlign: "center"}}>
+            <Row style={{textAlign: "center", marginBottom: "15px"}}>
             {index === 0 ? "Ý định" : getLabel(property[0])}
             </Row>
-            <Row style={{textAlign: "center"}}>
+            <Row style={{textAlign: "center", marginBottom: "15px"}}>
               <img src={RedCrossSign} alt="not done" style={{height: "50px"}}/>
             </Row>
             <Row style={{textAlign: "center"}}>
-              {property[1] === "-1" ? "?" : intentInfo[property[0].toUpperCase()][property[1]].name}
+              <p style={{marginBottom: "0px"}}>{(property[1] === "-1" || property[1] === -1) ? "?" : intentInfo[property[0].toUpperCase()][property[1]].name}</p>
             </Row>
           </Col>
         )
@@ -85,7 +106,8 @@ export default function Progress(props) {
 
   return (
     <>
-      <Row style={{height: "50px", lineHeight: "50px"}}>
+      {/* <Row style={{height: "50px", lineHeight: "50px"}}> */}
+      <Row style={{height: "50px"}}>
         {renderProgress}
       </Row>
     </>
