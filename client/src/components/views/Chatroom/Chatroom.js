@@ -461,14 +461,12 @@ export default function Chatroom(props) {
                 audioName={`${audioHistory.length}_${userID}_${generateRandomString(16)}.wav`}
                 roomName={roomName}
                 roomDone={roomDone}
-                currentIntent={currentIntent}
                 latestAudio={latestAudio}
                 message={message}
                 turn={turn}
                 canvasRef={canvasRef}
                 socket={socket}
                 user={user}
-                scenario={scenario}
                 roomContentType={room_content_type}
                 chatroomID={chatroomID}
                 userRole={userRole}

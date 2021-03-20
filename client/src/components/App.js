@@ -19,8 +19,6 @@ import { BACKEND_URL } from './Config';
 let socket
 
 function App(props) {
-  console.log(process.env);
-
   // const [ idle, setIdle ] = useState(0);
   // const [ inQueue, setInQueue ] = useState(0);
   // const [ inRoom, setInRoom ] = useState(0);

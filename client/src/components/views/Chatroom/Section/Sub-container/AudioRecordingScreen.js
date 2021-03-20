@@ -1,23 +1,20 @@
 import React, {useRef, useEffect, useState} from 'react';
 
-// import { Row, Col, Tooltip, Checkbox } from 'antd';
 import { Row, Col, Tooltip } from 'antd';
 import {/*ShareIcon,*/ RedoIcon, PlayOutlineIcon, StopIcon} from '../../../../ui/icons';
 
 import RecordButton from '../../../CustomRecorder/Recorder';
 
 import Wave from '../Shared/Wave';
-// import RecordButton from '../Shared/RecordButton';
 import Status from '../Shared/Status';
 import CustomAudioPlayer from '../Shared/CustomAudioPlayer';
 import Dropdown from '../Shared/Dropdown';
 
 import ClientSendButton from '../Client/ClientSendButton';
-// import ClientCheckbox from '../Client/ClientCheckbox';
 
 import ServantSendButton from '../Servant/ServantSendButton';
 
-// import LoadingComponent from './../../../Loading/LoadingComponent';
+import LoadingComponent from '../../../Loading/LoadingComponent';
 
 export default function AudioRecordingScreen(props) {
   const canvasRef = props.canvasRef;
@@ -25,7 +22,6 @@ export default function AudioRecordingScreen(props) {
 
   let socket = props ? props.socket : null;
   const roomDone = props ? props.roomDone : false;
-  // const currentIntent = props ? props.currentIntent : [];
   const audioName = props ? props.audioName : "";
   const chatroomID = props ? props.chatroomID : "";
   const roomName = props ? props.roomName : "";
@@ -33,7 +29,6 @@ export default function AudioRecordingScreen(props) {
   const userRole = props ? props.userRole : "";
   const turn = props ? props.turn : false;
   const message = props ? props.message : "Loading";
-  // const scenario = props ? props.scenario : [];
   const latestAudio = props ? props.latestAudio : null;
   const [ isPlaying, setIsPlaying ] = useState(false);
   const [ audio, setAudio ] = useState(null);
@@ -252,12 +247,14 @@ export default function AudioRecordingScreen(props) {
                       userID={user.userData ? user.userData._id : ""}
                       roomID={chatroomID}
                       sendAudioSignal={sendAudioSignal}/>
-                  ) : (
+                  ) : 
+                  userRole === "servant" ? (
                     <ServantSendButton
                       roomName={roomName}
                       audioName={audioName}
                       socket={socket}
                       roomDone={roomDone}
+                      disable={(intent === null && tagVisibility) || roomDone}
                       turn={turn}
                       audio={audio}
                       rejectButtonDisabled={latestAudio === null}
@@ -266,6 +263,8 @@ export default function AudioRecordingScreen(props) {
                       userID={user.userData ? user.userData._id : ""}
                       roomID={chatroomID}
                       sendAudioSignal={sendAudioSignal}/>
+                  ) : (
+                    <LoadingComponent />
                   )
                 }
                 

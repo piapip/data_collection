@@ -73,9 +73,6 @@ export default function ReadyButton(props) {
                 <Row>
                   <Button shape="round" style={{marginTop: "45px", marginBottom: "45px"}}>Sẵn sàng</Button>
                 </Row>
-                <Row>
-                  {timeConverter(timer)}
-                </Row>
               </Link>
             )
           }

@@ -17,7 +17,7 @@ export default function ProgressNote(props) {
   }
 
   const renderProgressNote = (
-    currentIntent.length !== 0 ? (
+    currentIntent.length !== 0 && currentIntent[0][0] !== "generic_intent" ? (
       <Row>
         <Row style={{height: "50px", lineHeight: "50px"}}>
           <Col span={8}>

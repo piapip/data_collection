@@ -438,21 +438,22 @@ sockets.init = function(server) {
                   console.log("... Some shenanigan.. CurrentIntent doesn't even exist.");
                 } else {
                   // no need to update if it's just a generic intent.
-                  if (intentDetailed.generic_intent) return currentIntentFound; 
-
-                  if (intentDetailed.intent !== null && intentDetailed.intent !== currentIntentFound.intent) {
-                    currentIntentFound = transferObject(currentIntentFound, intentDetailed);
-                  } else {
-                    for (const property in intentDetailed) {
-                      if(intentDetailed[property] !== null) {
-                        currentIntentFound[property] = intentDetailed[property];
+                  if (intentDetailed.generic_intent !== null) return currentIntentFound; 
+                  else {
+                    if (intentDetailed.intent !== null && intentDetailed.intent !== currentIntentFound.intent) {
+                      currentIntentFound = transferObject(currentIntentFound, intentDetailed);
+                    } else {
+                      for (const property in intentDetailed) {
+                        if(intentDetailed[property] !== null) {
+                          currentIntentFound[property] = intentDetailed[property];
+                        }
                       }
                     }
+                    return currentIntentFound.save();
                   }
-                  return currentIntentFound.save();
                 }
               })
-              .catch(err => console.log("Having trouble updating currenting intent...",err))
+              .catch(err => console.log("Having trouble updating currenting intent...",err));
               
               // Have to change this, since the definition of a finished room is different now.
               // remember that roomFound.intent.generic_intent will always be null because it doesn't really matter, so we need to create an alternative that also has such pattern.
@@ -494,14 +495,7 @@ sockets.init = function(server) {
         } else {
 
           // create intent, servant intent is always null. Not having any intention is an intent.
-          const newIntent = await Intent.create({
-            action: null,
-            device: null,
-            floor: null,
-            room: null,
-            scale: null,
-            level: null,
-          });
+          const newIntent = await Intent.create({});
 
           // save intent to audio
           Audio.findById(audioID)
