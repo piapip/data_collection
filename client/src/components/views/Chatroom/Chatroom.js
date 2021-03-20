@@ -49,17 +49,17 @@ export default function Chatroom(props) {
   const [ loading, setLoading ] = useState(true);
   const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
   const [ message, setMessage ] = useState("Loading");
-  const [ screenHeight, setScreenHeight ] = useState(0);
+  // const [ screenHeight, setScreenHeight ] = useState(0);
   // const [ screenWidth, setScreenWidth ] = useState(0);
   const [ roomDone, setRoomDone ] = useState(false);
   const [ roomName, setRoomName ] = useState("");
 
   const [ isModalVisible, setIsModalVisible ] = useState(false);
 
-  useEffect(() => {
-    setScreenHeight(window.innerHeight);
-    // setScreenWidth(window.innerWidth);
-  }, [])
+  // useEffect(() => {
+  //   setScreenHeight(window.innerHeight);
+  //   // setScreenWidth(window.innerWidth);
+  // }, [])
 
   const dispatch = useDispatch();
 
@@ -426,37 +426,41 @@ export default function Chatroom(props) {
 
   return (
     <>
-    <PromptLeaving 
-      onLeave={handleLeaveChatroom}
-      when={!roomDone}/>
-    <div className="chatroom"
-      style={{
-        height: `${screenHeight-69}px`,
-      }}>
-      <Row>
-        <Col xs={24} xl={16} 
-          style={{
-            backgroundRepeat: "no-repeat",
-            height: `${screenHeight-69}px`,
-            backgroundSize: "cover",  
-            backgroundImage: 
-            userRole === "client" ? `url(${ClientBG})`:
-            userRole === "servant" ? `url(${ServantBG})` : 
-            'linear-gradient(0deg, #fff 20%, #f3f2f1)'
-          }}>
-          <div style={{position: "absolute", zIndex: "1001"}}>
-            <RoomStatusPopover 
-              content={(
-                // <div style={{width: "100vh"}}>
-                <div>
-                  <Guide 
-                    turn={turn} 
-                    cheatSheet={cheatSheet}/>
-                </div>
-              )}/>
-          </div>
-          <div>
-            {room_content_type === '0' ?
+      <PromptLeaving 
+        onLeave={handleLeaveChatroom}
+        when={!roomDone}/>
+      <div className="chatroom"
+      // style={{ height: `${screenHeight-69}px` }}
+        style={{height: "100%"}}
+      >
+        <img className="bg" alt="background"
+          src={
+            userRole === "client" ? ClientBG:
+            userRole === "servant" ? ServantBG : ""} />
+        <Row>
+          <Col xs={24} xl={16} 
+            style={{
+              // backgroundRepeat: "no-repeat",
+              // // height: `${screenHeight-69}px`,
+              // backgroundSize: "cover",  
+              // backgroundImage: 
+              // userRole === "client" ? `url(${ClientBG})`:
+              // userRole === "servant" ? `url(${ServantBG})` : 
+              // 'linear-gradient(0deg, #fff 20%, #f3f2f1)'
+            }}>
+            <div style={{position: "absolute", zIndex: "1001"}}>
+              <RoomStatusPopover 
+                content={(
+                  // <div style={{width: "100vh"}}>
+                  <div>
+                    <Guide 
+                      turn={turn} 
+                      cheatSheet={cheatSheet}/>
+                  </div>
+                )}/>
+            </div>
+            <div>
+              {room_content_type === '0' ?
               <AudioRecordingScreen
                 audioName={`${audioHistory.length}_${userID}_${generateRandomString(16)}.wav`}
                 roomName={roomName}
@@ -472,18 +476,18 @@ export default function Chatroom(props) {
                 userRole={userRole}
               /> :
               <ErrorNotFound />}
-          </div>
-        </Col>
-        <Col xs={24} xl={8} style={{
-          paddingRight: "10px", 
-          paddingTop: "10px",
-          borderLeft: "1px solid #dedede",
-        }}>
+            </div>
+          </Col>
+          <Col xs={24} xl={8} style={{
+            // paddingRight: "10px", 
+            paddingTop: "10px",
+            borderLeft: "1px solid #dedede",
+          }}>
           <Tabs defaultActiveKey="1" centered>
             <TabPane tab="Trạng thái" key="1">
               <Row>
                 <div style={{
-                  height: "calc(100vh - 170px)",
+                  height: "calc(100vh - 140px)",
                   backgroundColor: "white",
                 }}>
                   {roomStatusContent}

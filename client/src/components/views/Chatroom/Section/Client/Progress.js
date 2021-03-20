@@ -64,7 +64,7 @@ export default function Progress(props) {
         const slotValue = compareProperty(property, currentIntent);
         // console.log(`property: ${property} slotValue: ${slotValue} show: ${intentInfo[property[0].toUpperCase()][slotValue]}`);
         return slotValue !== null ? (
-          <Col xl={6} xs={24} key={property[0]}>
+          <Col xl={6} xs={6} key={property[0]}>
             <Row style={{textAlign: "center", marginBottom: "15px"}}>
               {index === 0 ? "Ý định" : getLabel(property[0])}
             </Row>
@@ -84,7 +84,7 @@ export default function Progress(props) {
             </Row>
           </Col>
         ) : (
-          <Col xl={6} xs={24} key={property[0]}>
+          <Col xl={6} xs={6} key={property[0]}>
             <Row style={{textAlign: "center", marginBottom: "15px"}}>
             {index === 0 ? "Ý định" : getLabel(property[0])}
             </Row>

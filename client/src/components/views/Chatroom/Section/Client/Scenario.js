@@ -31,13 +31,13 @@ export default function Scenario(props) {
         <p>Bạn muốn tìm hiểu về <b>{intentInfo.INTENT[scenario[0][1]].name}</b> ở ngân hàng. Bạn hãy miêu tả yêu cầu của bạn càng ngắn gọn càng tốt bằng tiếng Việt. Bạn có thể hỏi thêm thông tin về các vấn đề khác nếu bạn thấy cần thiết. <b>Mục đích vay</b> của bạn là <b>{intentInfo.LOAN_PURPOSE[scenario[1][1]].name}</b> và <b>hình thức vay</b> bạn dự định là <b>{intentInfo.LOAN_TYPE[scenario[2][1]].name}</b>.</p>
       ) : 
       (scenario[0][1] === 3 || scenario[0][1] === 4) ? (
-        <p>Bạn muốn tìm <b>{intentInfo.INTENT[scenario[0][1]].name}</b> gần chỗ bạn. Bạn hãy miêu tả yêu cầu của bạn càng ngắn gọn càng tốt bằng tiếng Việt. Bạn có thể hỏi thêm thông tin về các vấn đề khác nếu bạn thấy cần thiết. Bạn cần mô tả <b>vị trí</b> của bạn cho servant để được cung cấp thông tin chi tiết nhất.</p>
+        <p>Bạn muốn tìm <b>{intentInfo.INTENT[scenario[0][1]].name}</b> gần chỗ bạn. Bạn hãy miêu tả yêu cầu của bạn càng ngắn gọn càng tốt bằng tiếng Việt. Bạn có thể hỏi thêm thông tin về các vấn đề khác nếu bạn thấy cần thiết. Bạn cần mô tả <b>vị trí</b> của bạn cho agent để được cung cấp thông tin chi tiết nhất.</p>
       ) : 
       (scenario[0][1] === 5 || scenario[0][1] === 9) ? (
         <p>Bạn muốn tìm hiểu về <b>{intentInfo.INTENT[scenario[0][1]].name}</b> từ ngân hàng. Bạn hãy miêu tả yêu cầu của bạn càng ngắn gọn càng tốt bằng tiếng Việt. Bạn có thể hỏi thêm thông tin về các vấn đề khác nếu bạn thấy cần thiết. <b>Nhóm thẻ</b> bạn muốn tìm hiểu là <b>{intentInfo.CARD_TYPE[scenario[1][1]].name}</b> và <b>hình thức thẻ</b> bạn dự định là <b>{intentInfo.LOAN_TYPE[scenario[2][1]].name}</b>.</p>
       ) : 
       (scenario[0][1] === 7 || scenario[0][1] === 10 || scenario[0][1] === 11 || scenario[0][1] === 12 || scenario[0][1] === 16 || scenario[0][1] === 17) ? (
-        <p>Bạn muốn thực hiện  <b>{intentInfo.INTENT[scenario[0][1]].name}</b> tại ngân hàng. Bạn hãy miêu tả yêu cầu của bạn càng ngắn gọn càng tốt bằng tiếng Việt. Bạn có thể hỏi thêm thông tin về các vấn đề khác nếu bạn thấy cần thiết. Bạn cần cung cấp <b>thông tin cá nhân</b> của bạn cho servant để được cung cấp thông tin chi tiết nhất.</p>
+        <p>Bạn muốn thực hiện  <b>{intentInfo.INTENT[scenario[0][1]].name}</b> tại ngân hàng. Bạn hãy miêu tả yêu cầu của bạn càng ngắn gọn càng tốt bằng tiếng Việt. Bạn có thể hỏi thêm thông tin về các vấn đề khác nếu bạn thấy cần thiết. Bạn cần cung cấp <b>thông tin cá nhân</b> của bạn cho agent để được cung cấp thông tin chi tiết nhất.</p>
       ) : 
       scenario[0][1] === 8 ? (
         <p>Bạn muốn tìm hiểu về thủ tục <b>hướng dẫn mở thẻ</b>. Bạn hãy miêu tả yêu cầu của bạn càng ngắn gọn càng tốt bằng tiếng Việt. Bạn có thể hỏi thêm thông tin về các vấn đề khác nếu bạn thấy cần thiết. Hình thức mở thẻ bạn cần tìm hiểu là <b>{intentInfo.CARD_ACTIVATION_TYPE[scenario[1][1]].name}</b>.</p>

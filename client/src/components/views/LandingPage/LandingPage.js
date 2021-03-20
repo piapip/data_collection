@@ -168,29 +168,19 @@ function LandingPage(props) {
               <div className="column-title">
                 <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Client</h1>
                 <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Người ra lệnh</h1>
-                <p className="content-hover">Mô tả ý muốn cho Smarthome để thực hiện những yêu cầu.<br/>
+                <p className="content-hover">Mô tả ý muốn cho Agent để thực hiện những yêu cầu.<br/>
                 </p>
-                {/* <a href="https://www.w3schools.com/" className="guide" target="_blank" rel="noopener noreferrer">Guide</a> */}
               </div>
-              
-              {/* <div className="column-cta">
-                
-              </div> */}
             </div>
 
 
             <div className="box1">
               <div className="column-title">
-                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Servant</h1>
-                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Smarthome nhận lệnh</h1>
+                <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Agent</h1>
+                <h1 style={{fontSize: "20px", fontWeight: "normal"}}>Agent nhận lệnh</h1>
                 <p className="content-hover">Hỏi Client cho đến khi xác định đúng yêu cầu thì thôi.<br/>
                 </p>
-                {/* <a href="https://www.w3schools.com/" className="guide">Guide</a> */}
               </div>
-
-              {/* <div className="column-cta">
-                
-              </div> */}
             </div>
 
           </div>
