@@ -5,6 +5,7 @@ const chatroomSchema = new mongoose.Schema({
     type:String,
     maxlength:50,
     default: 'An unnamed room',
+    unique: true,
   },
   task: {
     type:String,

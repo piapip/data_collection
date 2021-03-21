@@ -174,19 +174,47 @@ router.post("/", async (req, res) => {
 
   const { name, task, content_type } = req.body;
 
-  const chatroom = new Chatroom({
-    name,
-    task,
-    content_type,
+  Chatroom.create({ name, task, content_type })
+  .then(roomCreated => {
+    if (!roomCreated) {
+      res.status(500).send({ success: false, error: "Can't create room!"});
+    } else {
+      return res.status(201).send({
+        success: false,
+        roomCreated: roomCreated,
+      });
+    }
   })
+  .catch(err => {
+    if (err.name === "MongoError") {
+      if (err.code === 11000) {
+        Chatroom.create({ name: `${name}_1`, task, content_type })
+        .then(roomCreated => {
+          res.status(201).send({ success: true, roomCreated: roomCreated});
+        })
+        .catch (err => {
+          res.status(500).send({ success: false, error: "Can't create room! Please try again after 2 seconds!!"})
+        })
+        
+      }
+      
+      throw err
+    } else {
+      res.status(500).send({ success: false, error: "Can't create room!"});
+    }
+    throw err;
+  })
+  // .finally(() => {
+  //   console.log("Let's do this!");
+  // });
 
-  chatroom.save((err, roomCreated) => {
-    if (err) return res.json({ success: false, err});
-    return res.status(201).json({
-      success: true,
-      roomCreated
-    });
-  });
+  // chatroom.save((err, roomCreated) => {
+  //   if (err) return res.json({ success: false, err});
+  //   return res.status(201).json({
+  //     success: true,
+  //     roomCreated
+  //   });
+  // });
 })
 
 // Update room Status with given information

@@ -702,6 +702,28 @@ const createRoom = async (userID1, userID2, roomType) => {
     intent: intent._id,
     currentIntent: currentIntent._id,
     turn: 1,
+  })
+  .catch(async err => {
+    if (err.name === "MongoError") {
+      if (err.code === 11000) {
+        return await Chatroom.create({
+          name: await generateName(6),
+          task: generateTask(),
+          content_type: content_type,
+          user1: userID1,
+          user2: userID2,
+          client: [userID1],
+          servant: [userID2],
+          cheat_sheet: [],
+          intent: intent._id,
+          currentIntent: currentIntent._id,
+          turn: 1,
+        })
+      }
+    } else {
+      console.log(err);
+      return null;
+    }
   });
 
   return chatroom._id;
