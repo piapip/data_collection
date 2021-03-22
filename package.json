@@ -16,7 +16,6 @@
   "author": "John ahn",
   "license": "ISC",
   "dependencies": {
-    "antd": "^4.9.2",
     "aws-sdk": "^2.838.0",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.18.3",
