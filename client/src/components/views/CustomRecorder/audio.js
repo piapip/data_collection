@@ -43,17 +43,17 @@ function getAudioStream() {
  * https://aws.amazon.com/blogs/machine-learning/capturing-voice-input-in-a-browser/
  */
 
-const recordSampleRate = 44100;
+// const recordSampleRate = 44100;
 
 /**
  * Samples the buffer at 16 kHz.
  */
-function downsampleBuffer(buffer, exportSampleRate) {
-  if (exportSampleRate === recordSampleRate) {
+function downsampleBuffer(buffer, originalSampleRate, exportSampleRate) {
+  if (exportSampleRate === originalSampleRate) {
     return buffer;
   }
 
-  const sampleRateRatio = recordSampleRate / exportSampleRate;
+  const sampleRateRatio = originalSampleRate / exportSampleRate;
   const newLength = Math.round(buffer.length / sampleRateRatio);
   const result = new Float32Array(newLength);
 
@@ -121,8 +121,8 @@ function encodeWAV(samples) {
  * Encodes the buffer as a WAV file.
  * Returns the encoded audio as a Blob.
  */
-function exportBuffer(recBuffer) {
-  const downsampledBuffer = downsampleBuffer(recBuffer, 16000);
+function exportBuffer(recBuffer, originalSampleRate) {
+  const downsampledBuffer = downsampleBuffer(recBuffer, originalSampleRate, 16000);
   const encodedWav = encodeWAV(downsampledBuffer);
   const audioBlob = new Blob([encodedWav], {
     type: 'audio/wav'

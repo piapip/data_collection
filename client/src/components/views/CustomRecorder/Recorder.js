@@ -13,6 +13,7 @@ export default function Recorder(props) {
 
   const [ stream, setStream ] = useState(null);
   const [ recorder, setRecorder ] = useState(null);
+  const [ originalSampleRate, setOriginalSampleRate ] = useState(44100);
 
   // this [] needs to be watched out for.
   useEffect(() => {
@@ -33,6 +34,8 @@ export default function Recorder(props) {
 
   const startRecord = () => {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    // console.log(audioContext.sampleRate);
+    setOriginalSampleRate(audioContext.sampleRate);
     const recorder = new RecorderJS(audioContext);
     recorder.init(stream);
     props.setIsRecording(true);
@@ -47,9 +50,9 @@ export default function Recorder(props) {
   }
 
   const stopRecord = async () => {
-    const { buffer } = await recorder.stop()
-    const blob = exportBuffer(buffer[0]);
-    const blobURL = window.URL.createObjectURL(blob)
+    const { buffer } = await recorder.stop();
+    const blob = exportBuffer(buffer[0], originalSampleRate);
+    const blobURL = window.URL.createObjectURL(blob);
 
     const audio = {
       blob: blob,
