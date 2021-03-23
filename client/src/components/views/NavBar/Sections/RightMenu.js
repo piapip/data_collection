@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
-import { Menu } from 'antd';
+// import { Menu } from 'antd';
+import { MenuItem, MenuList } from '@material-ui/core';
 import axios from 'axios';
 import { USER_SERVER } from '../../../Config';
 import { withRouter, Link } from 'react-router-dom';
@@ -12,6 +13,10 @@ function RightMenu(props) {
   // const inQueue = props ? props.inQueue : 0;
   // const inRoom = props ? props.inRoom : 0;
   const user = useSelector(state => state.user)
+
+  const MenuItemStyle = {
+    display: props.display,
+  }
 
   const logoutHandler = () => {
     axios.get(`${USER_SERVER}/logout`).then(response => {
@@ -25,35 +30,29 @@ function RightMenu(props) {
 
   if (user.userData && !user.userData.isAuth) {
     return (
-      <Menu mode={props.mode}>
-        {/* <Menu.Item key="stat">
-        <a style={{lineHeight: "17px"}}><span className="dot dot_idle"></span> {idle} online<br/>
-          <span className="dot dot_inQueue"></span> {inQueue} in queue<br/>
-          <span className="dot dot_inRoom"></span> {inRoom} in room</a>
-        </Menu.Item> */}
-        <Menu.Item key="mail">
-          <Link to="/login">Signin</Link>
-        </Menu.Item>
-        <Menu.Item key="app">
-          <Link to="/register">Signup</Link>
-        </Menu.Item>
-      </Menu>
+      <>
+        <MenuList >
+          <MenuItem style={MenuItemStyle}>
+            <Link to="/login">Login</Link>
+          </MenuItem>
+          <MenuItem style={MenuItemStyle}>
+            <Link to="/register">Sign up</Link>
+          </MenuItem>
+        </MenuList>
+      </>
     )
   } else {
     return (
-      <Menu mode={props.mode}>
-        {/* <Menu.Item key="stat">
-        <a style={{lineHeight: "17px"}}><span className="dot dot_idle"></span> {idle} online<br/>
-          <span className="dot dot_inQueue"></span> {inQueue} in queue<br/>
-          <span className="dot dot_inRoom"></span> {inRoom} in room</a>
-        </Menu.Item> */}
-        <Menu.Item>
-          <a>Xin chào {user.userData && user.userData.name}</a>
-        </Menu.Item>
-        <Menu.Item key="logout">
-          <a onClick={logoutHandler}>Logout</a>
-        </Menu.Item>
-      </Menu>
+      <>
+        <MenuList >
+          <MenuItem style={MenuItemStyle}>
+            <a>Xin chào {user.userData && user.userData.name}</a>
+          </MenuItem>
+          <MenuItem style={MenuItemStyle}>
+            <a onClick={logoutHandler}>Logout</a>
+          </MenuItem>
+        </MenuList>
+      </>
     )
   }
 }
