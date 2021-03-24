@@ -3,29 +3,25 @@ import  { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getAllRooms } from '../../../../_actions/chatroom_actions';
 
-import { Table, Row, Col, Button, Popover } from 'antd';
-// import { CheckCircleTwoTone, MinusCircleTwoTone , MinusOutlined } from '@ant-design/icons';
+import { Grid, Button, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, TablePagination } from '@material-ui/core';
 
 import RandomRoomButton from './RandomRoomButton';
 import LoadingComponent from './../../Loading/LoadingComponent';
 import ErrorInternalSystem from '../../Error/ErrorInternalSystem';
 
-const { Column } = Table;
 
 function RoomList(props) {
 
   const [ loading, setLoading ] = useState(true);
   const [ roomList, setRoomList ] = useState([]);
+  const [ page, setPage ] = useState(0);
+  const [ roomListShown, setRoomListShown ] = useState([]);
   const isAuth = props ? props.isAuth : false;
   const pageSize = props ? props.pageSize : 4;
   const userID = props ? props.userID : "";
   const readyStatus = props ? props.readyStatus : true;
   const dispatch = useDispatch();
 
-  // !!! POTENTIAL BUG!!! 
-  // IF THE ROOM COUNT IS TOO BIG, IT MAY NOT LOAD EVERYTHING.
-  // as they say, there's some problem with setState that I need to clean up so I'll just drop a bomb here as a mark
-  // vvvvv Flood gate to make sure dispatch is fired only once.
   if (roomList.length === 0) {
     dispatch(getAllRooms())
     .then(response => {
@@ -60,6 +56,7 @@ function RoomList(props) {
         })
 
         setRoomList(response.payload.roomFound.filter(room => room.done === false))
+        setRoomListShown(response.payload.roomFound.filter(room => room.done === false).slice(page*pageSize, (page+1)*pageSize))
       } else {
         alert("Something's wrong with the server. We are very sorry for the inconvenience!")
       }
@@ -67,25 +64,15 @@ function RoomList(props) {
     })
   }
 
-  const content = (
-    <div>
-      Bạn phải "Dừng tìm kiếm" nếu bạn muốn dùng chức năng này.
-    </div>
-  )
-
-  let lastIndex = 0
-  const updateIndex = () => {
-    let index = roomList[lastIndex] ? `${roomList[lastIndex].content_type}/${roomList[lastIndex]._id}` : "";
-    lastIndex++;
-    return index
-  }
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+    setRoomListShown(roomList.slice(newPage*pageSize, (newPage+1)*pageSize))
+  };
 
   if (loading) {
     return (
-      <div style={{ height: "100px" }}>
-        <Col style={{textAlign: "center"}}>
-          <LoadingComponent />
-        </Col>
+      <div style={{ height: "100px", textAlign: "center" }}>
+        <LoadingComponent />
       </div>
       
     )
@@ -101,77 +88,72 @@ function RoomList(props) {
         {
           roomList.length > 0 ? 
             !readyStatus ? (
-            <Row style={{marginBottom: "10px"}}>
-              <Col style={{textAlign: "center"}}>
-                <RandomRoomButton 
-                  isAuth={isAuth}
-                  userID={userID}/>
-              </Col>
-            </Row>
+              <>
+                <Grid container direction="column" alignItems="center" style={{marginBottom: "10px"}}>
+                  <Grid item>
+                    <RandomRoomButton 
+                      isAuth={isAuth}
+                      userID={userID}/>
+                  </Grid>
+                </Grid>
+              </>
           ) : (
-            <Row style={{marginBottom: "10px"}}>
-              <Col style={{textAlign: "center"}}>
-                <Popover trigger="hover" content={content}>
-                  <Button disabled>Chọn phòng ngẫu nhiên</Button>
-                </Popover>
-              </Col>
-            </Row>
+            <Grid container direction="column" alignItems="center" style={{marginBottom: "10px", padding: "1px"}}>
+              <Grid item>
+                <Button disabled>Chọn phòng ngẫu nhiên</Button>
+              </Grid>
+            </Grid>
           ) : ""
         }
-
-        <Row>
-          <Col>
-            <Table
-              dataSource={roomList} 
-              pagination={{ pageSize: parseInt(pageSize) }}
-              onRow={(record) => {
-                return {
-                  style: { 
-                    background: record.superPrior === 1 ? "#F3F0AD" : "white",
-                    fontWeight: record.superPrior === 1 ? "bold" : "norma",
-                  }
-                }
-              }} >
-              <Column dataIndex='name' key='name' />
-              <Column 
-                title='Người tham gia' 
-                dataIndex='capacity' 
-                align='center' 
-                key='capacity' 
-                render={(capacity) => (
-                <>
-                  {capacity}/2
-                </>
-              )}/>
-
-              <Column render={() => {
-                return (
-                  <>
-                    {/* !!! A BUG !!! CHAT ROOM INDEX DOESN'T REFRESH AFTER {LOG OUT THEN RE LOGIN}*/}
-                    {
-                      readyStatus ? (
-                        <Popover trigger="hover" content={content}>
-                          <p style={{color: "#1890ff", fontSize: "14px"}}>Join</p>
-                        </Popover>
-                      ) : (
+        <div style={{position: "absolute", bottom: "10px", width: "100%"}}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Tên phòng</TableCell>
+                  <TableCell align="center">Người tham gia</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {roomListShown.map((room, index) => (
+                  <TableRow key={`room_${index}`} style={{ background: room.superPrior === 1 ? "#F3F0AD" : "white" }}>
+                    <TableCell component="th" scope="row" style={{ fontWeight: room.superPrior === 1 ? "bold" : "normal" }}>{room.name}</TableCell>
+                    <TableCell align="center" style={{ fontWeight: room.superPrior === 1 ? "bold" : "normal" }}>{room.capacity}/2</TableCell>
+                    <TableCell>
+                      {
                         isAuth ? (
-                          <Link to={`/chatroom/${updateIndex()}`}>
-                            Join
-                          </Link>
+                          room.capacity === 2 ? (
+                            <div style={{color: "grey"}}>Tham gia</div>
+                          ) : 
+                          readyStatus ? (
+                            <div style={{color: "grey"}}>Tham gia</div>
+                          ) : (
+                            <Link to={`/chatroom/0/${room._id}`}>
+                              Tham gia
+                            </Link>
+                          )
                         ) : (
                           <Link to={`/login`}>
-                            Join
+                            Tham gia
                           </Link>
                         )
-                        
-                      )
-                    }
-                  </>
-                )
-              }} />
+                      }
+                    </TableCell>
+                  </TableRow>
+                  ) 
+                )}
+              </TableBody>
             </Table>
-            </Col>
-        </Row>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[]}
+            component="div"
+            page={page}
+            count={roomList.length}
+            rowsPerPage={parseInt(pageSize, 10)}
+            onChangePage={handleChangePage}/>
+        </div>
       </>
     )
   }

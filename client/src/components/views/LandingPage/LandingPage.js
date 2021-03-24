@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSelector } from "react-redux";
 import { Redirect } from 'react-router-dom';
 
-import { Col, Row, Popover, Button } from "antd";
+// import { Col, Row, Popover, Button } from "antd";
+import { Grid, Button, Popover } from '@material-ui/core';
 
 import RoomList from './Section/RoomList';
 import ReadyButton from './Section/ReadyButton';
@@ -11,21 +12,36 @@ import LoadingPage from './../Loading/LoadingPage';
 import './LandingPage.css';
 
 function LandingPage(props) {
-  const role = useRef("")
-  const content_type = useRef("")
+  const role = useRef("");
+  const content_type = useRef("");
 
   // const [ inputType, setInputType ] = useState("audio")
-  let inputType = "audio"
-  const [ readyStatus, setReadyStatus ] = useState(false)
+  let inputType = "audio";
+  const [ readyStatus, setReadyStatus ] = useState(false);
   // 0 - nothing, 1 - waiting for the other person to accept
-  const [ promptStatus, setPromptStatus ] = useState(0)
-  const [ promptDuration, setPromptDuration ] = useState(10)
+  const [ promptStatus, setPromptStatus ] = useState(0);
+  const [ promptDuration, setPromptDuration ] = useState(10);
 
-  const [ matchFound, setMatchFound ] = useState(false)
-  const [ redirect, setRedirect ] = useState(false) // redirect is the substitute of history.
-  const [ roomLink, setRoomLink ] = useState('')
+  const [ matchFound, setMatchFound ] = useState(false);
+  const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
+  const [ roomLink, setRoomLink ] = useState('');
   const [ loading, setLoading ] = useState(true);
-  
+  const [ anchorEl, setAnchorEl ] = useState(null);
+  const [ popoverOpenStatus, setPopoverOpenStatus ] = useState(false);
+
+  const [ timer, setTimer ] = useState(0);
+  const increment = useRef(null);
+
+  const openPopover = (event) => {
+    setAnchorEl(event.currentTarget);
+    setPopoverOpenStatus(true);
+  };
+
+  const closePopover = () => {
+    setAnchorEl(null);
+    setPopoverOpenStatus(false);
+  };
+
   const user = useSelector(state=>state.user)
   let socket = props ? props.socket : null;
 
@@ -41,30 +57,51 @@ function LandingPage(props) {
         let yourRole = ""
         if (user.userData && client.userID === user.userData._id) yourRole = "client"
         if (user.userData && servant.userID === user.userData._id) yourRole = "servant"
-        // console.log(`Found match! You are ${yourRole}. Your room type is ${roomType}`)
+        console.log(`Found match! You are ${yourRole}. Your room type is ${roomType}`)
         role.current = yourRole
         content_type.current = roomType
         setMatchFound(true)
+        setAnchorEl(null);
+        setPopoverOpenStatus(false);
       });
 
       socket.on('prompt successful', ({ roomID }) => {
         let link = `/chatroom/${content_type.current === "audio" ? 0 : 1}/${roomID}`
-        setMatchFound(false)
-        setReadyStatus(false)
-        setRoomLink(link)
-        setRedirect(true)
+        setMatchFound(false);
+        setReadyStatus(false);
+        setRoomLink(link);
+        setRedirect(true);
       });
 
       // when the other user miss or doesn't accept the second prompt, get back to queueing
       socket.on('requeue', () => {
-        setMatchFound(false)
-        setPromptStatus(0)
-        setPromptDuration(10)
+        setMatchFound(false);
+        setPromptStatus(0);
+        setPromptDuration(10);
+      });
+
+      socket.on('too late', () => {
+        setMatchFound(false);
+        setReadyStatus(false);
+        setPromptDuration(10);
+        clearInterval(increment.current);
+        setTimer(0);
       });
     }
-  }, [socket, user.userData])
+  }, [socket, user.userData]);
 
-  const readySignal = () => {
+  useEffect(() => {
+    let isMount = true;
+    if (!readyStatus) {
+      clearInterval(increment.current);
+      if (isMount) setTimer(0);
+    }
+
+    return () => { isMount = false }
+  }, [ readyStatus ])
+
+  const ready = () => {
+    // readySignal
     if (socket) {
       setReadyStatus(true)
       let userID = user.userData ? user.userData._id : "";
@@ -77,9 +114,14 @@ function LandingPage(props) {
         inputType,
       })
     }
+    // start counting
+    increment.current = setInterval(() => {
+      setTimer((timer) => timer + 1)
+    }, 1000)
   }
 
-  const cancelReadySignal = () => {
+  const cancelReady = () => {
+    // cancelReadySignal
     if (socket) {
       setReadyStatus(false)
       let userID = user.userData ? user.userData._id : "";
@@ -92,6 +134,17 @@ function LandingPage(props) {
         inputType,
       })
     }
+    // stop counting
+    clearInterval(increment.current);
+    setTimer(0);
+  }
+
+  const timeConverter = (seconds) => {
+    const format = val => `0${Math.floor(val)}`.slice(-2)
+    const hours = seconds / 3600
+    const minutes = (seconds % 3600) / 60
+
+    return [hours, minutes, seconds % 60].map(format).join(':')
   }
 
   // when the user confirm the second prompt, be ready for the conversation to start.
@@ -105,6 +158,7 @@ function LandingPage(props) {
       userID,
       username,
       inputType,
+      timer,
     })
   }
 
@@ -126,27 +180,23 @@ function LandingPage(props) {
   }
 
   const popoverMenu = (
-    <div style={{backgroundColor: "white", borderColor: "white", width: "500px", height: "400px", zIndex: "1000"}}>
-      <Row>
-        <Col style={{textAlign: "center"}}>
-          <ReadyButton 
-          isAuth={user.userData ? user.userData.isAuth : false}
-          readyStatus={readyStatus}
-          readySignal={readySignal}
-          cancelReadySignal={cancelReadySignal}/>
-        </Col>
-      </Row>
-      
-      <Row>
-        <Col>
-          <RoomList
-            readyStatus={readyStatus}
+    <div style={{backgroundColor: "white", borderColor: "white", width: "500px", height: "420px", zIndex: "1000"}}>
+      <Grid container direction="column" alignItems="center">
+        <Grid item>
+          <ReadyButton
             isAuth={user.userData ? user.userData.isAuth : false}
-            userID={user.userData ? user.userData._id : ""}
-            pageSize="2"/>
-        </Col>
-      </Row>
-      
+            timer={timer}
+            ready={ready}
+            cancelReady={cancelReady}
+            readyStatus={readyStatus}/>
+        </Grid>
+      </Grid>
+
+      <RoomList
+        readyStatus={readyStatus}
+        isAuth={user.userData ? user.userData.isAuth : false}
+        userID={user.userData ? user.userData._id : ""}
+        pageSize="2"/>
     </div>
   )
 
@@ -161,9 +211,7 @@ function LandingPage(props) {
           redirect ? (<Redirect to={roomLink} userRole={role.current} />) : ""
         }
         <div>
-
           <div className="container">
-            
             <div className="box">
               <div className="column-title">
                 <h1 style={{fontSize: "48px", fontWeight: "normal"}}>Client</h1>
@@ -182,14 +230,12 @@ function LandingPage(props) {
                 </p>
               </div>
             </div>
-
           </div>
-
         </div>
 
-        <Row>
-          <Col span={8} style={{textAlign: "center"}}>
-            <ConfirmModal 
+        <Grid container>
+          <Grid item sm={4} style={{textAlign: "center"}}>
+            <ConfirmModal
               socket={socket}
               visible={matchFound}
               roomType={content_type.current}
@@ -198,33 +244,44 @@ function LandingPage(props) {
               setPromptStatus={setPromptStatus}
               handleOk={handleConfirmPromptModal}
               handleCancel={handleDenyPromptModal}/>
-          </Col>
-        </Row>
-
-        <Row style={{marginTop: "50px"}}>
-          <Col xl={12} xs={24} style={{
-            padding: "30px", 
-            // fontSize: "24px", 
-            fontFamily:'"Open Sans",sans-serif', 
-            }}>
+          </Grid>
+        </Grid>
+        
+        <Grid container style={{marginTop: "30px"}}>
+          <Grid item sm={12} md={6} style={{ padding: "30px", fontFamily:'"Open Sans",sans-serif' }}>
             <h1>Trang web này để làm gì?</h1>
-          </Col>
-          <Col xl={12} xs={24} style={{padding: "30px", fontSize: "16px"}}>
-          Mình cần data cho đồ án tốt nghiệp. Trang web này lấy giọng nói của các bạn làm dữ liệu phục vụ cho nghiên cứu của mình. Mình cảm ơn vì sự hợp tác của các bạn.<br/>
-          </Col>
-        </Row>
+          </Grid>
+
+          <Grid item sm={12} md={6} style={{padding: "30px", fontSize: "16px"}}>
+            Mình cần data cho đồ án tốt nghiệp. Trang web này lấy giọng nói của các bạn làm dữ liệu phục vụ cho nghiên cứu của mình. Mình cảm ơn vì sự hợp tác của các bạn.<br/>
+          </Grid>
+        </Grid>
 
         {/* Add some statistic down here! And some credits. */}
 
         <div className="landing-menu" 
-        style={{
-          position: "fixed", 
-          bottom: "0px", 
-          left: "50%",
-          transform: "translate(-50%, 0%)",
-          margin: "0 auto"}}>
-          <Popover content={popoverMenu} trigger="click" getPopupContainer={trigger => trigger.parentNode}>
-            <Button style={{border: "1px solid black", zIndex: "600"}}>Bắt đầu</Button>
+          style={{
+            position: "fixed", 
+            bottom: "0px", 
+            left: "50%",
+            transform: "translate(-50%, 0%)",
+            margin: "0 auto"}}>
+          <Button onClick={openPopover} style={{border: "1px solid black", zIndex: "600"}}>
+            {readyStatus ? timeConverter(timer) : "Bắt đầu"}
+          </Button>
+          <Popover
+            open={popoverOpenStatus}
+            anchorEl={anchorEl}
+            onClose={closePopover}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'center',
+            }}
+            transformOrigin={{
+              vertical: 'bottom',
+              horizontal: 'center',
+            }}>
+            {popoverMenu}
           </Popover>
         </div>
       </>

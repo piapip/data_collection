@@ -3,13 +3,36 @@ import { withRouter, Link } from "react-router-dom";
 import { loginUser } from "../../../_actions/user_actions";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { Form, Icon, Input, Button, Checkbox, Typography } from 'antd';
+import { Grid, TextField, Button, FormControlLabel, Checkbox } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch } from "react-redux";
 
-const { Title } = Typography;
+const useStyle = makeStyles(() => ({
+  root: {
+    "& .MuiFormControl-root": {
+      minWidth: '400px',
+    }
+  },
+}));
 
 function LoginPage(props) {
+
+  const GridItemStyle = {
+    marginBottom: "20px",
+  };
+
+  const ErrorStyle = {
+    marginTop: "5px",
+  };
+
+  const SubmitButtonStyle = {
+    textAlign: "center",
+    // width: "100%",
+  };
+  
   const dispatch = useDispatch();
+  const classes = useStyle();
+  
   const rememberMeChecked = localStorage.getItem("rememberMe") ? true : false;
 
   const [formErrorMessage, setFormErrorMessage] = useState('')
@@ -55,11 +78,11 @@ function LoginPage(props) {
                 }
                 props.history.push("/");
               } else {
-                setFormErrorMessage('Check out your Account or Password again')
+                setFormErrorMessage('Sai email hoặc mật khẩu!')
               }
             })
             .catch(err => {
-              setFormErrorMessage('Check out your Account or Password again')
+              setFormErrorMessage('Sai email hoặc mật khẩu!')
               setTimeout(() => {
                 setFormErrorMessage("")
               }, 3000);
@@ -83,61 +106,59 @@ function LoginPage(props) {
         return (
           <div className="app">
 
-            <Title level={2}>Log In</Title>
-            <form onSubmit={handleSubmit} style={{ width: '350px' }}>
+            {/* <Title level={2}>Log In</Title> */}
+            <h1>Log in</h1>
+            <form className={classes.root} onSubmit={handleSubmit}>
+              <Grid container justify="center" style={{display: "block"}}>
+                <Grid item style={GridItemStyle}>
+                  <TextField
+                    variant="outlined"
+                    label="Email"
+                    id="email"
+                    placeholder="Email của bạn"
+                    type="email"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={
+                      errors.confirmPassword && touched.confirmPassword ? 'text-input error' : 'text-input'
+                    }/>
+                    {errors.email && touched.email && (
+                      <div className="input-feedback" style={ErrorStyle}>{errors.email}</div>
+                    )}
+                </Grid>
 
-              <Form.Item required>
-                <Input
-                  id="email"
-                  prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                  placeholder="Enter your email"
-                  type="email"
-                  value={values.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={
-                    errors.email && touched.email ? 'text-input error' : 'text-input'
-                  }
-                />
-                {errors.email && touched.email && (
-                  <div className="input-feedback">{errors.email}</div>
-                )}
-              </Form.Item>
+                <Grid item style={GridItemStyle}>
+                  <TextField
+                    variant="outlined"
+                    label="Password"
+                    id="password"
+                    placeholder="Nhập mật khẩu"
+                    type="password"
+                    value={values.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={
+                      errors.password && touched.password ? 'text-input error' : 'text-input'
+                    }/>
+                    {errors.password && touched.password && (
+                      <div className="input-feedback" style={ErrorStyle}>{errors.password}</div>
+                    )}
+                </Grid>
 
-              <Form.Item required>
-                <Input
-                  id="password"
-                  prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                  placeholder="Enter your password"
-                  type="password"
-                  value={values.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={
-                    errors.password && touched.password ? 'text-input error' : 'text-input'
-                  }
-                />
-                {errors.password && touched.password && (
-                  <div className="input-feedback">{errors.password}</div>
-                )}
-              </Form.Item>
-
-              {formErrorMessage && (
-                <label ><p style={{ color: '#ff0000bf', fontSize: '0.7rem', border: '1px solid', padding: '1rem', borderRadius: '10px' }}>{formErrorMessage}</p></label>
-              )}
-
-              <Form.Item>
-                <Checkbox id="rememberMe" onChange={handleRememberMe} checked={rememberMe} >Remember me</Checkbox>
-                <Link className="login-form-forgot" to="/reset_user" style={{ float: 'right' }}>
-                  forgot password
-                  </Link>
-                <div>
-                  <Button type="primary" htmlType="submit" className="login-form-button" style={{ minWidth: '100%' }} disabled={isSubmitting} onSubmit={handleSubmit}>
-                    Log in
-                </Button>
-                </div>
-                Or <Link to="/register">register now!</Link>
-              </Form.Item>
+                <FormControlLabel label="Remember me" 
+                  control={
+                    <Checkbox id="rememberMe" color="primary" onChange={handleRememberMe} checked={rememberMe} />  
+                  }/>
+                <Grid item style={SubmitButtonStyle}>
+                  {formErrorMessage && (
+                    <label ><p style={{ color: '#ff0000bf', fontSize: '0.7rem', border: '1px solid', padding: '1rem', borderRadius: '10px' }}>{formErrorMessage}</p></label>
+                  )}
+                  <Button onClick={handleSubmit} color="primary" variant="contained" disabled={isSubmitting} style={{width: "100%"}}>
+                    Login
+                  </Button>
+                </Grid>
+                Hoặc <Link to="/register">đăng ký ngay!</Link>
+              </Grid>
             </form>
           </div>
         );

@@ -78,12 +78,12 @@ export default function Chatroom(props) {
     setCurrentIntent(tempCurrentIntent);
   }
 
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message: message,
-      description: description,
-    });
-  };
+  // const openNotificationWithIcon = (type, message, description) => {
+  //   notification[type]({
+  //     message: message,
+  //     description: description,
+  //   });
+  // };
 
   useEffect(() => {
     if (userRole !== "" && socket !== null && user !== null) {
@@ -192,19 +192,19 @@ export default function Chatroom(props) {
     if (socket) {
       socket.on('room full', () => {
         setRedirect(true)
-        openNotificationWithIcon('error', 'Phòng không còn chỗ', 'Phòng hoặc đã hết chỗ, hoặc chỗ cũ của bạn đang có người khác dùng!')
+        // openNotificationWithIcon('error', 'Phòng không còn chỗ', 'Phòng hoặc đã hết chỗ, hoặc chỗ cũ của bạn đang có người khác dùng!')
       });
   
       socket.on('joinRoom announce', ({ username }) => {
         // console.log(`User ${username} has joined the room`);
         setMessage(`${username} đã vào phòng.`);
-        openNotificationWithIcon('info', `${username} đã vào phòng.`, '')
+        // openNotificationWithIcon('info', `${username} đã vào phòng.`, '')
       });
   
       socket.on('leaveRoom announce', ({ username }) => {
         // console.log(`User ${username} has left the room`);
         setMessage(`${username} đã rời phòng.`);
-        openNotificationWithIcon('info', `${username} đã rời phòng.`, '')
+        // openNotificationWithIcon('info', `${username} đã rời phòng.`, '')
       });
   
       socket.on('intent incorrect', () => {

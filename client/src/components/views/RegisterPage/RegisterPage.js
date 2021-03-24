@@ -139,7 +139,7 @@ function RegisterPage(props) {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className={
-                      errors.confirmPassword && touched.confirmPassword ? 'text-input error' : 'text-input'
+                      errors.email && touched.email ? 'text-input error' : 'text-input'
                     }/>
                     {errors.email && touched.email && (
                       <div className="input-feedback" style={ErrorStyle}>{errors.email}</div>
@@ -183,8 +183,8 @@ function RegisterPage(props) {
                 </Grid>
 
                 <Grid item style={SubmitButtonStyle}>
-                  <Button onClick={handleSubmit} color="primary" variant="contained" disabled={isSubmitting}>
-                    Đăng ký
+                  <Button onClick={handleSubmit} color="primary" variant="contained" disabled={isSubmitting} style={{width: "100%"}}>
+                    Sign up
                   </Button>
                 </Grid>
               </Grid>
