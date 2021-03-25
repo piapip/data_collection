@@ -56,7 +56,7 @@ const INTENT = [
     slot: ["digital_bank"],
   },
   {
-    name: "Phương thức hủy dịch vụ Ngân hàng điện tử",
+    name: "Phương thức hủy dịch vụ NHĐT",
     slot: ["digital_bank"],
   },
   {

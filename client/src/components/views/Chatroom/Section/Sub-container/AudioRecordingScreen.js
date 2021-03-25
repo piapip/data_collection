@@ -1,6 +1,7 @@
 import React, {useRef, useEffect, useState} from 'react';
 
 import { Row, Col, Tooltip } from 'antd';
+import { Grid } from '@material-ui/core';
 import {/*ShareIcon,*/ RedoIcon, PlayOutlineIcon, StopIcon} from '../../../../ui/icons';
 
 import RecordButton from '../../../CustomRecorder/Recorder';
@@ -164,6 +165,7 @@ export default function AudioRecordingScreen(props) {
 
     setIntent(newIntent);
   }
+  console.log("intent: ", intent);
 
   const setNewGenericIntent = (genericIntentValue) => {
     let newGenericIntent = {
@@ -182,13 +184,13 @@ export default function AudioRecordingScreen(props) {
   return (
     <>
       {/* <div style={{position: 'absolute', width: "100%"}}> */}
-      <div style={{ position: "-webkit-sticky", position: 'sticky', top:"80px", width: "100%" }}>
+      <div style={{ position: 'sticky', top:"80px", width: "100%" }}>
         <Status
           userRole={userRole}
           message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message} />
       </div>
 
-      <Row style={{textAlign: "center", paddingTop: "20vh"}}>
+      <Grid container justify="center" style={{paddingTop: "8vh"}}>
         <div className="primary-buttons">
           <canvas className="primary-buttons canvas" ref={canvasRef}/>
           <RecordButton
@@ -199,17 +201,17 @@ export default function AudioRecordingScreen(props) {
             setAudio={setAudio}
             setIsRecording={setIsRecording}/>
         </div>
-      </Row>
+      </Grid>
 
       {/* latest audio */}
-      <Row type="flex" justify="center" style={{textAlign: "center"}}>
-        <CustomAudioPlayer 
+      <Grid container justify="center">
+        <CustomAudioPlayer
           audioLink={latestAudio}
           turn={turn}
           userrole={userRole}
           // remember to change this to true 
-          autoPlay={true}/>
-      </Row>
+          autoPlay={false}/>
+      </Grid>
 
       <Row type="flex">
         <Col xl={12} xs={24}>

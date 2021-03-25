@@ -2,10 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
-// import { Row, Col, Modal, notification, Tabs } from 'antd';
-// import { Row, Col, Modal, notification } from 'antd';
 import { Grid, Tabs, Tab, AppBar } from '@material-ui/core';
-// import { makeStyles } from '@material-ui/core/styles';
 
 import './Section/Shared/RecordButton.css';
 import './Chatroom.css';
@@ -431,14 +428,13 @@ export default function Chatroom(props) {
         when={!roomDone}/>
       <div className="chatroom"
         style={{height: "100%"}}
-      >
-        <img className="bg" alt="background"
-          src={
-            userRole === "client" ? ClientBG:
-            userRole === "servant" ? ServantBG : ""} />
-        
+      > 
         <Grid container>
           <Grid item sm={12} md={8}>
+            <img className="bg" alt="background"
+            src={
+              userRole === "client" ? ClientBG:
+              userRole === "servant" ? ServantBG : ""} />
             {/* <div style={{position: "absolute", zIndex: "1001"}}>
               <RoomStatusPopover
                 content={(
@@ -514,72 +510,6 @@ export default function Chatroom(props) {
             </div>
           </Grid>
         </Grid>
-
-        {/* <Row>
-          <Col xs={24} xl={16} >
-            <div style={{position: "absolute", zIndex: "1001"}}>
-              <RoomStatusPopover 
-                content={(
-                  // <div style={{width: "100vh"}}>
-                  <div>
-                    <Guide 
-                      turn={turn} 
-                      cheatSheet={cheatSheet}/>
-                  </div>
-                )}/>
-            </div>
-            <div>
-              {room_content_type === '0' ?
-              <AudioRecordingScreen
-                audioName={`${audioHistory.length}_${userID}_${generateRandomString(16)}.wav`}
-                roomName={roomName}
-                roomDone={roomDone}
-                latestAudio={latestAudio}
-                message={message}
-                turn={turn}
-                canvasRef={canvasRef}
-                socket={socket}
-                user={user}
-                roomContentType={room_content_type}
-                chatroomID={chatroomID}
-                userRole={userRole}
-              /> :
-              <ErrorNotFound />}
-            </div>
-          </Col>
-          <Col xs={24} xl={8} style={{
-            // paddingRight: "10px", 
-            paddingTop: "10px",
-            borderLeft: "1px solid #dedede",
-          }}>
-          <Tabs defaultActiveKey="1" centered>
-            <TabPane tab="Trạng thái" key="1">
-              <Row>
-                <div style={{
-                  height: "calc(100vh - 140px)",
-                  backgroundColor: "white",
-                }}>
-                  {roomStatusContent}
-                </div>
-              </Row>
-            </TabPane>
-            <TabPane tab="Lịch sử" key="2"> 
-              <Row> 
-                <Col>
-                  <AudioList
-                    socket={socket}
-                    roomID={chatroomID}
-                    userID={userID}
-                    username={username}
-                    userRole={userRole}
-                    transcript={transcriptHistory}
-                    audioList={audioHistory}/>
-                </Col> 
-              </Row>
-            </TabPane>
-          </Tabs>
-        </Col>
-      </Row> */}
     </div>
     </>
   )

@@ -197,6 +197,7 @@ button.share:hover path{
 } */
 
 img.bg{
+    z-index: -1;
     /* Set rules to fill background */
     min-height: 100%;
     min-width: 1024px;

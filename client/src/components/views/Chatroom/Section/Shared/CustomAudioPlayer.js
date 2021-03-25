@@ -1,7 +1,5 @@
 import React, { useState, useRef } from 'react';
 
-import { Tooltip } from 'antd';
-
 import LoadingComponent from './../../../Loading/LoadingComponent';
 import { PlayOutlineIcon, StopIcon } from '../../../../ui/icons';
 
@@ -11,8 +9,6 @@ export default function CustomAudioPlayer(props) {
   const autoPlay = props ? props.autoPlay : false;
   const audioRef = useRef(null);
   const [ isPlaying, setIsPlaying ] = useState(false);
-
-  const tooltipPlay = <span>Play</span>;
 
   const toggleIsPlaying = () => {
     const {current: audio} = audioRef;
@@ -55,22 +51,15 @@ export default function CustomAudioPlayer(props) {
               ref={audioRef}>
               <source src={audioLink} type={getAudioFormat()}/>
             </audio>
-            <Tooltip
-              title={tooltipPlay}
-              arrow
-              open={isPlaying}
-              theme="grey-tooltip">
-              <button
-                className="play"
-                type="button"
-                onClick={toggleIsPlaying}
-              >
-                <span className="padder">
-                  {isPlaying ? <StopIcon/> : <PlayOutlineIcon/>}
-                </span>
-              </button>
-            </Tooltip>
-            
+            <button
+              className="play"
+              type="button"
+              onClick={toggleIsPlaying}
+            >
+              <span className="padder">
+                {isPlaying ? <StopIcon/> : <PlayOutlineIcon/>}
+              </span>
+            </button>
           </div>
         </div>
       </div>
