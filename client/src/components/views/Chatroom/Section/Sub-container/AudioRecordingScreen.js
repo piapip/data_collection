@@ -181,7 +181,8 @@ export default function AudioRecordingScreen(props) {
 
   return (
     <>
-      <div style={{position: 'absolute', width: "100%"}}>
+      {/* <div style={{position: 'absolute', width: "100%"}}> */}
+      <div style={{ position: "-webkit-sticky", position: 'sticky', top:"0", width: "100%" }}>
         <Status
           userRole={userRole}
           message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message} />

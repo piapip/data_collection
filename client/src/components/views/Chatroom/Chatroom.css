@@ -1,8 +1,6 @@
-.ant-popover-inner-content {
+/* .ant-popover-inner-content {
     background-color: black;
-    /* width: 100px;
-    height: 100px; */
-}
+} */
 
 .chatroom {
     /* background-image: linear-gradient(0deg, #fff 20%, #f3f2f1);
@@ -14,9 +12,9 @@
     background-size: cover;
 }
 
-.ant-popover-arrow {
+/* .ant-popover-arrow {
     color: black;
-}
+} */
 
 .primary-buttons {
     /* margin-top: 20vh; */
@@ -185,7 +183,7 @@ button.share:hover path{
     background: #555;
 }
 
-.ant-tabs-nav {
+/* .ant-tabs-nav {
     width: 100%;
 }
 
@@ -196,7 +194,7 @@ button.share:hover path{
 
 .ant-tabs-ink-bar.ant-tabs-ink-bar-animated {
     width: 100%;
-}
+} */
 
 img.bg{
     /* Set rules to fill background */

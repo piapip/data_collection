@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { Affix } from 'antd';
 import "./Status.css";
 
 export default function Status(props) {
@@ -28,12 +27,12 @@ export default function Status(props) {
 
   return (
     <>
-      <Affix offsetTop={69}>
-        <div style={{paddingTop: "10px", paddingRight: "20px", paddingLeft: "20px", zIndex: "1000", textAlign: "center"}}>
+      <div>
+        <div style={{paddingRight: "20px", paddingLeft: "20px", zIndex: "1000"}}>
           {/* <p className={`glow glow_${userRole}`}>{convertMessage(message)}</p> */}
           <p className={`glow glow_${userRole}`}>{message}</p>
         </div>
-      </Affix>
+      </div>
     </>
   )
 }

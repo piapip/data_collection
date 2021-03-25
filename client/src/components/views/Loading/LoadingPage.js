@@ -1,6 +1,5 @@
 import React from 'react';
 import { Spin } from 'antd';
-// import { Loading } from 'react-loading-dot';
 
 export default function LoadingPage() {
   return (
