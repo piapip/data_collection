@@ -28,8 +28,9 @@ export default function AudioList(props) {
       style={{
         display: "flex", 
         flexDirection: "column", 
-        justifyContent: "space-between", 
-        height: "calc(100vh - 140px)",
+        justifyContent: "space-between",
+        // width: "100%"
+        // height: "calc(100vh - 140px)",
         backgroundColor: "white",
         overflowX: "hidden", 
         overflowY: "scroll",

@@ -35,4 +35,6 @@
     font-size: 40px;
     color: black;
     text-align: center;
+    margin-block-end: 0em;
+    margin-block-start: 0.2em;
 }

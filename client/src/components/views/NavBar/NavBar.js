@@ -39,7 +39,7 @@ function NavBar() {
   };
 
   return (
-    <nav className="menu" style={{ position: 'fixed', zIndex: 5, width: '100%' }}>
+    <nav className="menu" style={{ position: 'fixed', zIndex: 5, width: '100%', top: 0 }}>
       <div className="menu__logo">
         <a href="/">SLU</a>
       </div>
