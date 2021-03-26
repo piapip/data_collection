@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-// import {Col, Row} from "antd";
-import { Grid } from '@material-ui/core';
+
+import Grid from '@material-ui/core/Grid';
 
 import Progress from "./Progress";
 

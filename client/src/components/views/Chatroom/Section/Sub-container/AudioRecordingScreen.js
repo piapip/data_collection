@@ -99,10 +99,6 @@ export default function AudioRecordingScreen(props) {
   //   console.log("Shared");
   // }
 
-  // const toggleTagVisibility = (e) => {
-  //   setTagVisibility(!e.target.checked)
-  // }
-
   const toggleTagVisibility = (value) => {
     setTagVisibility(value)
   }

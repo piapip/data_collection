@@ -382,10 +382,10 @@ export default function Chatroom(props) {
     <>
       {
         userRole === "client" ? (
-          <div>
+          <>
             <Scenario scenario={scenario} currentIntent={currentIntent}/>
             <ProgressNote currentIntent={currentIntent} scenario={scenario}/>
-          </div>
+          </>
         ) : 
         userRole === "servant" ? (
         <ProgressNote currentIntent={currentIntent} scenario={scenario}/>) : 
@@ -487,7 +487,7 @@ export default function Chatroom(props) {
                 backgroundColor: "white",
               }}>
               <Grid container>
-                <div>
+                <div style={{ width: "100%" }}>
                   {roomStatusContent}
                 </div>
               </Grid>

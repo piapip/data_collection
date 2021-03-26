@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { Row, Col } from 'antd';
+import Grid from '@material-ui/core/Grid';
+
 import QuestionMark from './question-mark.png';
 import intentInfo from '../Shared/intent';
 
@@ -30,43 +31,47 @@ export default function ProgressNote(props) {
 
   const renderProgressNote = (
     currentIntent.length !== 0 && currentIntent[0][0] !== "generic_intent" ? (
-      <Row>
-        <Row style={{height: "50px", lineHeight: "50px"}}>
-          <Col span={8}>
-            <b>Ý định:</b>
-          </Col>
-          <Col span={16}>
-            {intentInfo.INTENT[currentIntent[0][1]].name}
-          </Col>
-        </Row>
-        
-        {
-          intentInfo.INTENT[currentIntent[0][1]].slot.map((property, index) => {
-            const currentIntentIndex = currentIntent.findIndex(item => {
-              return item[0] === property;
+      <>
+        <Grid container style={{lineHeight: "40px"}}>
+          <Grid container>
+            <Grid item sm={3}>
+              <b>Ý định:</b>
+            </Grid>
+
+            <Grid item sm={9}>
+              {intentInfo.INTENT[currentIntent[0][1]].name}
+            </Grid>
+          </Grid>
+
+          {
+            intentInfo.INTENT[currentIntent[0][1]].slot.map((property, index) => {
+              const currentIntentIndex = currentIntent.findIndex(item => {
+                return item[0] === property;
+              })
+              return (
+                <Grid container>
+                  <Grid item sm={3}>
+                    <b>{getLabel(property)}:</b>
+                  </Grid>
+
+                  <Grid item sm={9}>
+                    {
+                      currentIntentIndex !== -1 ? 
+                      (property === "name" || property === "cmnd" || property === "four_last_digits") ? currentIntent[currentIntentIndex][1] : 
+                      (property === "city") ? showCity(currentIntent[currentIntentIndex][1]) :
+                      (property === "district") ? showDistrict(currentIntent[currentIntentIndex][1]) :
+                      (property === "city" || property === "district") ? intentInfo[property.toUpperCase()][currentIntent[currentIntentIndex][1]] :
+                        intentInfo[currentIntent[currentIntentIndex][0].toUpperCase()][currentIntent[currentIntentIndex][1]].name : (
+                        <img src={QuestionMark} alt="question-mark" style={{height: "40px"}}/>
+                      )
+                    }
+                  </Grid>
+                </Grid>
+              )
             })
-            return (
-              <Row style={{height: "50px", lineHeight: "50px"}} key={index}>
-                <Col span={8}>
-                  <b>{getLabel(property)}:</b>
-                </Col>
-                <Col span={16}>
-                  {
-                    currentIntentIndex !== -1 ? 
-                    (property === "name" || property === "cmnd" || property === "four_last_digits") ? currentIntent[currentIntentIndex][1] : 
-                    (property === "city") ? showCity(currentIntent[currentIntentIndex][1]) :
-                    (property === "district") ? showDistrict(currentIntent[currentIntentIndex][1]) :
-                    (property === "city" || property === "district") ? intentInfo[property.toUpperCase()][currentIntent[currentIntentIndex][1]] :
-                      intentInfo[currentIntent[currentIntentIndex][0].toUpperCase()][currentIntent[currentIntentIndex][1]].name : (
-                      <img src={QuestionMark} alt="question-mark" style={{height: "50px"}}/>
-                    )
-                  }
-                </Col>
-              </Row>
-            )
-          })
-        }
-      </Row>
+          }
+        </Grid>
+      </>
     ) : (
       <p>Chưa có thông tin!!!</p>
     )
@@ -74,14 +79,12 @@ export default function ProgressNote(props) {
 
   return (
     <>
-      {/* <Row>
-        <Col>
-        </Col>
-      </Row> */}
-      <Row style={{padding: "10px"}}>
-        <h3 style={{fontWeight:'bold',fontSize:'18px',textAlign: "center"}}>Hiện trạng</h3>
-        {renderProgressNote}
-      </Row>
+      <Grid container style={{padding: "10px"}}>
+        <Grid item sm={12} md={12}>
+          <h3 style={{fontWeight:'bold',fontSize:'18px',textAlign: "center"}}>Hiện trạng</h3>
+          {renderProgressNote}
+        </Grid>
+      </Grid>
     </>
   )
 }

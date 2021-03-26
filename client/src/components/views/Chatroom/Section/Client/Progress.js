@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Checkbox from '@material-ui/core/Checkbox';
 
-import CorrectSign from './green-correct-sign.png';
-import RedCrossSign from './red-cross-sign.png';
+// import CorrectSign from './green-correct-sign.png';
+// import RedCrossSign from './red-cross-sign.png';
 
 import LoadingComponent from './../../../Loading/LoadingComponent';
 
