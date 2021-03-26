@@ -423,11 +423,11 @@ export default function Chatroom(props) {
 
   return (
     <>
-      <PromptLeaving 
+      {/* <PromptLeaving 
         onLeave={handleLeaveChatroom}
-        when={!roomDone}/>
+        when={!roomDone}/> */}
       <div className="chatroom"
-        style={{height: "100%"}}
+        style={{height: "100%", minHeight: 'calc(100vh - 69px)'}}
       > 
         <Grid container>
           <Grid item sm={12} md={8}>
@@ -473,8 +473,8 @@ export default function Chatroom(props) {
           >
             <AppBar position="static" color="transparent">
               <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth" style={{border: "1px solid #dedede"}}>
-                <Tab label="Trạng thái" style={{ textTransform: "none", color: tabValue === 0 ? "#1890ff" : "inherit" }} />
-                <Tab label="Lịch sử" style={{ textTransform: "none", color: tabValue === 1 ? "#1890ff" : "inherit" }} />
+                <Tab label="Trạng thái" style={{ textTransform: "none", color: tabValue === 0 ? "#f50057" : "inherit" }} />
+                <Tab label="Lịch sử" style={{ textTransform: "none", color: tabValue === 1 ? "#f50057" : "inherit" }} />
               </Tabs>
             </AppBar>
 

@@ -123,9 +123,9 @@ function RoomList(props) {
                     <TableCell>
                       {
                         isAuth ? (
-                          room.capacity === 2 ? (
-                            <div style={{color: "grey"}}>Tham gia</div>
-                          ) : 
+                          // room.capacity === 2 ? (
+                          //   <div style={{color: "grey"}}>Tham gia</div>
+                          // ) : 
                           readyStatus ? (
                             <div style={{color: "grey"}}>Tham gia</div>
                           ) : (

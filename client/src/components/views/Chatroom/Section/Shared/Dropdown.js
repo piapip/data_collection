@@ -144,7 +144,7 @@ export default function Dropdown(props) {
 
   const renderMainIntent = (
     <FormControl className={classes.formControl}>
-      <InputLabel>Ý định</InputLabel>
+      <InputLabel>Ý định nghiệp vụ</InputLabel>
       <Select sm={12} md={4}
         defaultValue=""
         onChange={handleIntentChange}
