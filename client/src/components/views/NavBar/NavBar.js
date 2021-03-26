@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
-import { IconButton, Drawer, Hidden } from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
+import Drawer from '@material-ui/core/Drawer';
+import Hidden from '@material-ui/core/Hidden';
 import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 
-// import LeftMenu from './Sections/LeftMenu';
 import RightMenu from './Sections/RightMenu';
-// import { Drawer, Button, Icon } from 'antd';
 import './Sections/Navbar.css';
 
 const drawerWidth = 180;

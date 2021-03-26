@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSelector } from "react-redux";
 import { Redirect } from 'react-router-dom';
 
-// import { Col, Row, Popover, Button } from "antd";
-import { Grid, Button, Popover } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import Popover from '@material-ui/core/Popover';
 
 import RoomList from './Section/RoomList';
 import ReadyButton from './Section/ReadyButton';
