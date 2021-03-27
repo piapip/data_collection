@@ -49,7 +49,7 @@ export default function ProgressNote(props) {
                 return item[0] === property;
               })
               return (
-                <Grid container>
+                <Grid container key={`ProgressNote_${index}`}>
                   <Grid item sm={3}>
                     <b>{getLabel(property)}:</b>
                   </Grid>

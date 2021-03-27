@@ -178,14 +178,13 @@ export default function AudioRecordingScreen(props) {
 
   return (
     <>
-      {/* <div style={{position: 'absolute', width: "100%"}}> */}
-      <div style={{ position: 'sticky', top:"80px", width: "100%" }}>
+      <div style={{ position: 'absolute', top:"80px", width: "66%" }}>
         <Status
           userRole={userRole}
           message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message} />
       </div>
 
-      <Grid container justify="center" style={{paddingTop: "8vh"}}>
+      <Grid container justify="center" style={{paddingTop: "15vh"}}>
         <div className="primary-buttons">
           <canvas className="primary-buttons canvas" ref={canvasRef}/>
           <RecordButton
@@ -221,7 +220,7 @@ export default function AudioRecordingScreen(props) {
           </div>
         </Grid>
 
-        <Grid item  sm={24} md={12}>
+        <Grid item sm={12} md={12}>
           <div className="submit-button">
             {renderAudio(audio)}
             {

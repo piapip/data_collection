@@ -1,12 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from "react-redux";
 
-import { Comment, Input, Button } from 'antd';
+import Grid from '@material-ui/core/Grid';
+import EditIcon from '@material-ui/icons/Edit';
+import Button from '@material-ui/core/Button';
+import Input from '@material-ui/core/Input';
 
 import { fixTranscript } from '../../../../../_actions/audio_actions';
 import LoadingComponent from './../../../Loading/LoadingComponent';
-import { PlayOutlineIcon, StopIcon } from '../../../../ui/icons';
-import { EditOutlined } from '@ant-design/icons';
 
 export default function AudioPlayerWithTranscript(props) {
 
@@ -18,29 +19,14 @@ export default function AudioPlayerWithTranscript(props) {
   let socket = props ? props.socket : null;
 
   const audioLink = props ? props.audioLink : "";
-  const audioRole = props ? props.audioRole : "Loading..."; 
-  const autoPlay = props ? props.autoPlay : false;
+  const offset = props ? props.offset : "right";
+  const audioRole = props ? props.audioRole : "Loading...";
   let transcript = props ? props.transcript : {};
 
   if (transcript && (transcript.content === "" || transcript.content === " ")) transcript.content = "...";
 
-  const audioRef = useRef(null);
-  const [ isPlaying, setIsPlaying ] = useState(false);
   const [ editMode, setEditMode ] = useState(false);
-  const [ editContent, setEditContent ] = useState("")
-
-  const toggleIsPlaying = () => {
-    const {current: audio} = audioRef;
-
-    let status = !isPlaying;
-    if (status) {
-      audio.play();
-    } else {
-      audio.pause();
-      audio.currentTime = 0;
-    }
-    setIsPlaying(status);
-  };
+  const [ editContent, setEditContent ] = useState("");
 
   const getAudioFormat = (() => {
     const preferredFormat = 'audio/ogg; codecs=opus';
@@ -77,6 +63,26 @@ export default function AudioPlayerWithTranscript(props) {
     // setEditMode(false)
   }
 
+  const renderAudio = (
+    <>
+      <audio 
+        controls
+        key={audioLink}
+        preload="auto"
+        style={{ display: "block", height: "30px", width: editMode ? "344px" : ""  }}
+      >
+        <source src={audioLink} type={getAudioFormat()}/>
+      </audio>
+    </>
+  )
+
+  const renderEditButton = (
+    <button style={{backgroundColor: "transparent"}} onClick={() => {
+      setEditContent(transcript ? transcript.content : "...")
+      setEditMode(true)
+    }}><EditIcon/></button>
+  )
+
   if (audioLink === undefined || audioLink === null) return "";
 
   if (
@@ -92,73 +98,118 @@ export default function AudioPlayerWithTranscript(props) {
 
   return (
     <>
-      <Comment
-        author={(transcript && transcript.yours) ? <p>Bạn</p> : <p>{audioRole}</p>}
-        avatar={
-          <>
-            <audio 
-              key={audioLink}
-              autoPlay={autoPlay}
-              preload="auto" 
-              onEnded={toggleIsPlaying} 
-              ref={audioRef}>
-              <source src={audioLink} type={getAudioFormat()}/>
-            </audio>
-            <button
-              style={{
-                display: "inline-block",
-                backgroundColor: "white",
-                borderRadius: "50%",
-                height: "50px",
-                width: "50px",
-                lineHeight: "0px",
-                justifyContent: "center",
-                boxSizing: "border-box",
-                // border: '1px solid #dedede',
-                alignItems: "center",
-              }}
-              // type="button"
-              onClick={toggleIsPlaying}
-            >
-              <div>
-                {isPlaying ? <StopIcon/> : <PlayOutlineIcon/>}
-              </div>
-            </button>
-          </>
-        }
-        content={
-          editMode ?  (
-            <div>
-              <Input value={editContent} onChange={(e) => {
-                setEditContent(e.target.value)}
-              }/>
-              {
-                transcript ? (
-                  editContent === transcript.content ? (
-                    <Button disabled>Save</Button>
-                  ) : <Button onClick={() => onSaveTranscript()}>Save</Button>
-                ) : (
-                  editContent === "..." ? (
-                    <Button disabled>Save</Button>
+      {
+        (!editMode && offset === "left") ? (
+          <Grid item style={{ marginRight: "7px", alignItems: "center" }}>
+            {renderEditButton}
+          </Grid>
+        ) : ""
+      }
+      
+      <Grid item style={{
+        border: "1px solid #dedede",
+        borderRadius: "16px",
+      }}>
+        <Grid container style={{ display: "inline-block" }}>
+          <Grid container>
+            {renderAudio}
+          </Grid>
+          <Grid container style={{ padding: "10px 10px 15px" }}>
+            <Grid item>
+              {/* <Grid container>
+                {(transcript && transcript.yours) ? <p>Bạn</p> : <p>{audioRole}</p>}
+              </Grid> */}
+              <Grid container>
+                {
+                  editMode ? (
+                    <div>
+                      <Input value={editContent} onChange={(e) => {
+                        console.log(e.target.value);
+                        setEditContent(e.target.value);
+                      }}/>
+                      {
+                        transcript ? (
+                          editContent === transcript.content ? (
+                            <Button disabled>Lưu</Button>
+                          ) : <Button onClick={() => onSaveTranscript()}>Lưu</Button>
+                        ) : (
+                          editContent === "..." ? (
+                            <Button disabled>Lưu</Button>
+                          ) : (
+                            <Button onClick={() => onSaveTranscript()}>Lưu</Button>
+                          )
+                        ) 
+                      }
+
+                      <Button onClick={() => setEditMode(false)}>Hủy</Button>
+                    </div>
                   ) : (
-                    <Button onClick={() => onSaveTranscript()}>Save</Button>
+                    <div>
+                      {transcript ? (
+                        `${transcript.content}`
+                      ): "---"}
+                    </div>
                   )
-                ) 
+                }
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Grid container>
+            <Grid item>
+              {
+                editMode ? "" : (
+                  <i style={{paddingLeft: "10px", paddingRight: "10px"}}>Fix by {transcript.fixBy}</i>
+                )
               }
-              <Button onClick={() => setEditMode(false)}>Cancel</Button>
-            </div>
-          ) : (
-            <div>
-              <p>{transcript ? (
-                `${transcript.content} (Fix by ${transcript.fixBy})`
-              ): "---"}</p>
-              <button style={{backgroundColor: "transparent"}} onClick={() => {
-                setEditContent(transcript ? transcript.content : "...")
-                setEditMode(true)
-              }}><EditOutlined /> Sửa text</button>
-            </div>
-          )
-        }/>
+            </Grid>
+          </Grid>
+        </Grid>
+        {/* <Comment
+          
+          }
+          content={
+            editMode ?  (
+              <div>
+                <Input value={editContent} onChange={(e) => {
+                  setEditContent(e.target.value)}
+                }/>
+                {
+                  transcript ? (
+                    editContent === transcript.content ? (
+                      <Button disabled>Save</Button>
+                    ) : <Button onClick={() => onSaveTranscript()}>Save</Button>
+                  ) : (
+                    editContent === "..." ? (
+                      <Button disabled>Save</Button>
+                    ) : (
+                      <Button onClick={() => onSaveTranscript()}>Save</Button>
+                    )
+                  ) 
+                }
+                <Button onClick={() => setEditMode(false)}>Cancel</Button>
+              </div>
+            ) : (
+              <div>
+                <p>{transcript ? (
+                  `${transcript.content} (Fix by ${transcript.fixBy})`
+                ): "---"}</p>
+                <button style={{backgroundColor: "transparent"}} onClick={() => {
+                  setEditContent(transcript ? transcript.content : "...")
+                  setEditMode(true)
+                }}><EditOutlined /> Sửa text</button>
+              </div>
+            )
+          }/> */}
+      </Grid>
+
+      {
+        (!editMode && offset === "right") ? (
+          <Grid item style={{ marginLeft: "7px", alignItems: "center" }}>
+            {renderEditButton}
+          </Grid>
+        ) : ""
+      }
     </>
   )
 }

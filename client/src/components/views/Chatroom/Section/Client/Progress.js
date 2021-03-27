@@ -65,28 +65,24 @@ export default function Progress(props) {
       scenario.map((property, index) => {
         const slotValue = compareProperty(property, currentIntent);
         return slotValue !== null ? (
-          <>
-            <Grid item sm={12} md={6} key={property[0]}>
-              <Checkbox color="primary" checked={true}/>
-              {/* <img src={CorrectSign} alt="done" style={{height: "20px"}}/>  */}
-              <b>{index === 0 ? "Ý định" : getLabel(property[0])}</b>: {
-                (property[0] === "name" || property[0] === "cmnd" || property[0] === "four_last_digits") ? slotValue : 
-                (property[0] === "city") ? showCity(slotValue) :
-                (property[0] === "district") ? showDistrict(slotValue) :
-                intentInfo[property[0].toUpperCase()][slotValue].name
-              }
-            </Grid>
-          </>
+          <Grid item sm={12} md={6} key={property[0]}>
+            <Checkbox color="primary" checked={true}/>
+            {/* <img src={CorrectSign} alt="done" style={{height: "20px"}}/>  */}
+            <b>{index === 0 ? "Ý định" : getLabel(property[0])}</b>: {
+              (property[0] === "name" || property[0] === "cmnd" || property[0] === "four_last_digits") ? slotValue : 
+              (property[0] === "city") ? showCity(slotValue) :
+              (property[0] === "district") ? showDistrict(slotValue) :
+              intentInfo[property[0].toUpperCase()][slotValue].name
+            }
+          </Grid>
         ) : (
-          <>
-            <Grid item sm={12} md={6} key={property[0]}>
-              <Checkbox color="primary" checked={false}/>
-              {/* <img src={RedCrossSign} alt="not done" style={{height: "20px"}}/> */}
-              <b>{index === 0 ? "Ý định" : getLabel(property[0])}</b>: {
-                (property[1] === "-1" || property[1] === -1) ? "<Tùy chọn>" : intentInfo[property[0].toUpperCase()][property[1]].name
-              }
-            </Grid>
-          </>
+          <Grid item sm={12} md={6} key={property[0]}>
+            <Checkbox color="primary" checked={false}/>
+            {/* <img src={RedCrossSign} alt="not done" style={{height: "20px"}}/> */}
+            <b>{index === 0 ? "Ý định" : getLabel(property[0])}</b>: {
+              (property[1] === "-1" || property[1] === -1) ? "<Tùy chọn>" : intentInfo[property[0].toUpperCase()][property[1]].name
+            }
+          </Grid>
         )
       })
     ) : <LoadingComponent />

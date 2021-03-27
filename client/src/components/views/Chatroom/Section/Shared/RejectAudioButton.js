@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from "react-redux";
 
-import { Popconfirm } from 'antd';
 import Button from '@material-ui/core/Button';
 import Popover from '@material-ui/core/Popover';
 
@@ -26,8 +25,8 @@ export default function RejectAudioButton(props) {
   };
 
   const closePopover = () => {
-    setAnchorEl(null);
     setPopoverOpenStatus(false);
+    setAnchorEl(null);
   };
 
   const onReject = async () => {
@@ -57,9 +56,9 @@ export default function RejectAudioButton(props) {
   }
 
   const popoverPrompt = (
-    <>
+    <div style={{ padding: "10px" }}>
       <p>Bạn sẽ xóa audio mà bên kia vừa gửi tới cho bạn, bạn chắc chắn là sẽ xóa không?</p>
-      <div style={{float: "right"}}>
+      <div style={{ float: "right", padding: "0px 10px 10px 10px" }}>
         <Button variant="contained" color="secondary" onClick={closePopover}>Không xóa</Button>
         {
           buttonState ? (
@@ -69,7 +68,7 @@ export default function RejectAudioButton(props) {
           )
         }
       </div>
-    </>
+    </div>
   )
 
   const insertButton = (

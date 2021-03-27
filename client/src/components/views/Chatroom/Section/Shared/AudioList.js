@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
-import { Col, Row, List } from "antd";
+// import { Col, Row, List } from "antd";
+import Grid from '@material-ui/core/Grid';
 import AudioPlayerWithTranscript from './AudioPlayerWithTranscript';
 
 export default function AudioList(props) {
@@ -29,14 +30,43 @@ export default function AudioList(props) {
         display: "flex", 
         flexDirection: "column", 
         justifyContent: "space-between",
-        // width: "100%"
-        // height: "calc(100vh - 140px)",
+        height: "calc(100vh - 119px)",
         backgroundColor: "white",
-        overflowX: "hidden", 
+        overflowX: "hidden",
         overflowY: "scroll",
+        paddingLeft: "10px",
+        paddingRight: "20px",
       }}
     >
-      <Row style={{marginLeft: "10px", marginRight: "10px", paddingBottom: "10px"}}>
+      <Grid container>
+        <Grid item sm={12}>
+          {
+            audioList.map((audio, index) => {
+              return (
+                <div key={`audio_${index}`}>
+                  <Grid container 
+                    style={{ margin: "10px 5px" }} 
+                    justify={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? "flex-end" : "flex-start"}>
+                    <AudioPlayerWithTranscript
+                      index={index}
+                      offset={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? "left" : "right"}
+                      socket={socket}
+                      roomID={roomID}
+                      userID={userID}
+                      username={username}
+                      audioRole={index % 2 === 0 ? "Client" : "Servant"}
+                      audioLink={audio}
+                      transcript={transcript[index]}/>
+                  </Grid>
+                </div>
+              )
+            })
+          }
+        </Grid>
+      </Grid>
+      <div ref={audioEndRef}/>
+      
+      {/* <Row style={{marginLeft: "10px", marginRight: "10px", paddingBottom: "10px"}}>
         <Col>
           <List
             itemLayout="horizontal"
@@ -67,7 +97,7 @@ export default function AudioList(props) {
         </Col>
         
         <div ref={audioEndRef}/>
-      </Row>
+      </Row> */}
     </div>
   )
 }

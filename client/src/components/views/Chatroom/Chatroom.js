@@ -49,7 +49,8 @@ export default function Chatroom(props) {
   const [ message, setMessage ] = useState("Loading");
   const [ roomDone, setRoomDone ] = useState(false);
   const [ roomName, setRoomName ] = useState("");
-  const [ tabValue, setTabValue ] = useState(0);
+  // fix this to 0.
+  const [ tabValue, setTabValue ] = useState(1);
 
   const [ isModalVisible, setIsModalVisible ] = useState(false);
 
@@ -423,13 +424,13 @@ export default function Chatroom(props) {
 
   return (
     <>
-      {/* <PromptLeaving 
+      <PromptLeaving 
         onLeave={handleLeaveChatroom}
-        when={!roomDone}/> */}
+        when={!roomDone}/>
       <div className="chatroom"
-        style={{height: "100%", minHeight: 'calc(100vh - 69px)'}}
+        style={{ height: 'calc(100vh - 69px)' }}
       > 
-        <Grid container>
+        <Grid container style={{ height: "100%" }}>
           <Grid item sm={12} md={8}>
             <img className="bg" alt="background"
             src={
@@ -482,7 +483,6 @@ export default function Chatroom(props) {
               hidden={tabValue !== 0}
               style={{
                 width: "100%",
-                // height: "calc(100vh - 140px)",
                 height: "100%",
                 backgroundColor: "white",
               }}>
@@ -496,7 +496,7 @@ export default function Chatroom(props) {
             <div
               hidden={tabValue !== 1}>
               <Grid container>
-                <Grid item>
+                <Grid item xs={12}>
                   <AudioList
                     socket={socket}
                     roomID={chatroomID}
