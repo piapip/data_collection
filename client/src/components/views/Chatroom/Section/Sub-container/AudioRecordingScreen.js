@@ -8,7 +8,6 @@ import RecordButton from '../../../CustomRecorder/Recorder';
 
 import Wave from '../Shared/Wave';
 import Status from '../Shared/Status';
-import CustomAudioPlayer from '../Shared/CustomAudioPlayer';
 import Dropdown from '../Shared/Dropdown';
 
 import ClientSendButton from '../Client/ClientSendButton';
@@ -199,12 +198,15 @@ export default function AudioRecordingScreen(props) {
 
       {/* latest audio */}
       <Grid container justify="center">
-        <CustomAudioPlayer
-          audioLink={latestAudio}
-          turn={turn}
-          userrole={userRole}
-          // remember to change this to true 
-          autoPlay={false}/>
+        <audio 
+          controls
+          key={latestAudio}
+          autoPlay={true}
+          preload="auto"
+          style={{ display: "block" }}
+        >
+          <source src={latestAudio} type={getAudioFormat()}/>
+        </audio>
       </Grid>
 
       <Grid container>

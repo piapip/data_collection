@@ -499,10 +499,12 @@ export default function Chatroom(props) {
               hidden={tabValue !== 0}
               style={{
                 width: "100%",
-                height: "100%",
                 backgroundColor: "white",
               }}>
-              <Grid container>
+              <Grid container style={{
+                height: "calc(100vh - 119px)",
+                overflowY: "scroll",
+              }}>
                 <div style={{ width: "100%" }}>
                   {roomStatusContent}
                 </div>

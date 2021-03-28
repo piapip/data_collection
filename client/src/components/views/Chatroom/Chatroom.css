@@ -218,3 +218,7 @@ img.bg{
         margin-left: -512px;   /* 50% */
     }
 }
+
+audio::-webkit-media-controls-enclosure {
+    background-color: transparent;
+}

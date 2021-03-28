@@ -20,9 +20,9 @@ const useStyles = makeStyles((theme) => ({
   formControl: {
     // margin: theme.spacing(1),
     // marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(2),
     minWidth: 200,
-    // width: "100%",
+    width: "31%",
   },
   selectEmpty: {
     // width: "100%",
@@ -251,7 +251,7 @@ export default function Dropdown(props) {
   };
 
   const renderGenericIntent = (
-    <FormControl className={classes.formControl} fullWidth={true}>
+    <FormControl className={classes.mainFormControl} fullWidth={true}>
       {/* <InputLabel>Ý định khác</InputLabel> */}
       <Select
         defaultValue=""
@@ -270,14 +270,16 @@ export default function Dropdown(props) {
   const emptyOption = (
     [1, 2, 3].map((value) => {
       return (
-        <FormControl className={classes.formControl} key={`empty_${value}`}>
-          <InputLabel>Phải chọn ý định trước!</InputLabel>
-          <Select
-            defaultValue=""
-            // className={classes.selectEmpty}
-            disabled={true}>
-          </Select>
-        </FormControl>
+        // <Grid item xs={3}>
+          <FormControl className={classes.formControl} key={`empty_${value}`}>
+            <InputLabel>Phải chọn ý định trước!</InputLabel>
+            <Select
+              defaultValue=""
+              // className={classes.selectEmpty}
+              disabled={true}>
+            </Select>
+          </FormControl>
+        // </Grid>
       )
     })
   )
@@ -288,17 +290,17 @@ export default function Dropdown(props) {
         <FormControlLabel value="1" control={<Radio style={{ paddingBottom: "75px" }} disabled={disabled}/>} 
         label={(
           <Grid container alignItems="center">
-            <Grid item style={{marginBottom: "13px"}} xs={2}>
+            <Grid item style={{marginBottom: "13px"}} xs={3}>
               <div>Ý định nghiệp vụ</div>
             </Grid>
 
-            <Grid item xs={10}>
+            <Grid item xs={9}>
               {renderMainIntent}
             </Grid>
             
-            <Grid item xs={2}></Grid>
+            <Grid item xs={3}></Grid>
 
-            <Grid item sm={10}>
+            <Grid item sm={9}>
               {
                 intentData[selectedIntent] ? intentData[selectedIntent].slot.map(slot => {
                   const slotValuePool = intentInfo[slot.toUpperCase()];
@@ -311,14 +313,14 @@ export default function Dropdown(props) {
           </Grid>
         )} />
 
-        <FormControlLabel value="2" control={<Radio />} style={{ marginTop: "10px"}}
+        <FormControlLabel value="2" control={<Radio disabled={disabled}/>} style={{ marginTop: "10px"}}
         label={(
           <Grid container alignItems="center">
-            <Grid item xs={2}>
+            <Grid item xs={3}>
               <div>Ý định khác</div>
             </Grid>
 
-            <Grid item xs={10}>
+            <Grid item xs={9}>
               {renderGenericIntent}
             </Grid>
           </Grid>
