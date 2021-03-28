@@ -43,6 +43,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Chatroom(props) {
+
+  const classes = useStyles();
   const canvasRef = useRef(null);
   let socket = props ? props.socket : null;
   const room_content_type = window.location.href.split("/")[4]
