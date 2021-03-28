@@ -120,7 +120,7 @@ export default function ClientSendButton(props) {
       <button className="buttons" style={{cursor: 'not-allowed'}} disabled>Gửi</button>
     ) : (
       buttonState ? (
-        <button className="buttons" style={{ cursor: 'not-allowed', display: "flex", alignItems: "center", padding: "10px" }} disabled><LoadingComponent /> {
+        <button className="buttons" style={{ cursor: 'not-allowed', display: "flex", alignItems: "center", padding: "10px" }} disabled><LoadingComponent style={{paddingRight: "2px"}}/> {
           buttonPhase === 0 ? "Gửi" :
           buttonPhase === 1 ? "Xử lý audio..." :
           buttonPhase === 2 ? "Lấy transcript..." : "????HOWWWW???"
