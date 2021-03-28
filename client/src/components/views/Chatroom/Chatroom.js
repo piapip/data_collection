@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
-import { Grid, Tabs, Tab, AppBar } from '@material-ui/core';
+import { Grid, Tabs, Tab, AppBar, Modal, Divider, Button } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 import './Section/Shared/RecordButton.css';
 import './Chatroom.css';
@@ -27,6 +28,19 @@ import LoadingComponent from '../Loading/LoadingComponent';
 
 import ClientBG from './../LandingPage/Section/images/speak.svg';
 import ServantBG from './../LandingPage/Section/images/listen.svg';
+
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    top: "40%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    position: 'absolute',
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    // border: '1px solid #dedede',
+    padding: theme.spacing(2, 4, 3),
+  },
+}));
 
 export default function Chatroom(props) {
   const canvasRef = useRef(null);
@@ -287,7 +301,7 @@ export default function Chatroom(props) {
           let tempTranscriptList = [...transcriptHistory];
           tempTranscriptList[index].content = transcript;
           tempTranscriptList[index].fixBy = username;
-          console.log(index)
+          // console.log(index)
           setTranscriptHistory(tempTranscriptList);
         }
       })
@@ -398,15 +412,16 @@ export default function Chatroom(props) {
 
   if (redirect) {
     return (
-      ""
-      // <Modal 
-      //   closable={false}
-      //   visible={isModalVisible} 
-      //   onOk={handleOk}
-      //   okText="Rời phòng"
-      //   onCancel={handleCancel}>
-      //   <p>Cảm ơn bạn đã hoàn thành xong nhiệm vụ này! Giờ bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác!</p>
-      // </Modal>
+      <Modal
+        disableBackdropClick={true}
+        open={isModalVisible}>
+        <div className={classes.paper}>
+          <p>Cảm ơn bạn đã hoàn thành xong nhiệm vụ này! Giờ bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác!</p>
+          <Divider />
+          <Button variant="contained" color="default" onClick={handleCancel}>Ở lại phòng</Button>
+          <Button variant="contained" style={{marginLeft: "10px", backgroundColor: "#90caf9", color: "#585D5E"}} onClick={handleOk}>Rời phòng</Button>
+        </div>
+      </Modal>
     )
   }
 

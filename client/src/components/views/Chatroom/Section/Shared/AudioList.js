@@ -65,39 +65,6 @@ export default function AudioList(props) {
         </Grid>
       </Grid>
       <div ref={audioEndRef}/>
-      
-      {/* <Row style={{marginLeft: "10px", marginRight: "10px", paddingBottom: "10px"}}>
-        <Col>
-          <List
-            itemLayout="horizontal"
-            dataSource={audioList}
-            renderItem={(audio, index) => {
-              return (
-                <div key={`audio_${index}`}>
-                  <Row style={{
-                    fontWeight: 'bold',
-                    flexGrow: '1'}}>
-                    <Col span={12} offset={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? 12 : 0}>
-                      <AudioPlayerWithTranscript
-                        index={index}
-                        socket={socket}
-                        roomID={roomID}
-                        userID={userID}
-                        username={username}
-                        audioRole={index % 2 === 0 ? "Client" : "Servant"}
-                        audioLink={audio}
-                        autoPlay={false}
-                        transcript={transcript[index]}/>
-                    </Col>
-                  </Row>
-                </div>
-              )
-            }}>
-          </List>
-        </Col>
-        
-        <div ref={audioEndRef}/>
-      </Row> */}
     </div>
   )
 }

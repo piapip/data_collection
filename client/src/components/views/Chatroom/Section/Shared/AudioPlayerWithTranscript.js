@@ -159,7 +159,9 @@ export default function AudioPlayerWithTranscript(props) {
             <Grid item>
               {
                 editMode ? "" : (
-                  <i style={{paddingLeft: "10px", paddingRight: "10px"}}>Fix by {transcript.fixBy}</i>
+                  <i style={{paddingLeft: "10px", paddingRight: "10px"}}>{
+                    transcript ? `Fix by ${transcript.fixBy}` : "---"
+                  }</i>
                 )
               }
             </Grid>
