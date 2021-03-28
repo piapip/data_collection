@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 
-// import { Col, Row, List } from "antd";
 import Grid from '@material-ui/core/Grid';
 import AudioPlayerWithTranscript from './AudioPlayerWithTranscript';
 

@@ -1,7 +1,5 @@
 import React from 'react';
 
-// import { Affix, Popover, Button } from 'antd';
-
 // import LoadingComponent from './../../../Loading/LoadingComponent';
 
 export default function RoomStatusPopover() {

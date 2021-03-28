@@ -1,6 +1,5 @@
 import React, {useRef, useEffect, useState} from 'react';
 
-// import { Tooltip } from 'antd';
 import { Grid } from '@material-ui/core';
 import {/*ShareIcon,*/ RedoIcon, PlayOutlineIcon, StopIcon} from '../../../../ui/icons';
 
