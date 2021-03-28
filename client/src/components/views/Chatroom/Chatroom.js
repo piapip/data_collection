@@ -49,8 +49,7 @@ export default function Chatroom(props) {
   const [ message, setMessage ] = useState("Loading");
   const [ roomDone, setRoomDone ] = useState(false);
   const [ roomName, setRoomName ] = useState("");
-  // fix this to 0.
-  const [ tabValue, setTabValue ] = useState(1);
+  const [ tabValue, setTabValue ] = useState(0);
 
   const [ isModalVisible, setIsModalVisible ] = useState(false);
 
