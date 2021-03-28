@@ -34,7 +34,8 @@ export default function Dropdown(props) {
 
   const classes = useStyles();
   const tagVisible = props ? props.visible : true;
-  const disabled = props ? props.disabled : false;
+  // const disabled = props ? props.disabled : false;
+  const disabled = false;
 
   const [ radioValue, setRadioValue ] = useState("1");
 
@@ -177,59 +178,86 @@ export default function Dropdown(props) {
 
     if (slot === "city") {
       return (
-        <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
-          <InputLabel>{getLabel(slot)}</InputLabel>
-          <Select
-            defaultValue=""
-            onChange={handleCityChange}
-            // className={classes.selectEmpty}
-            disabled={disabled || !tagVisible}>
-            {
-              intentInfo.CITY.map(city => (
-                <MenuItem value={city} key={city}><p>{city}</p></MenuItem>
-              ))
-            }
+        <Grid container alignItems="center">
+          <Grid item xs={4}>
+            <div>{getLabel(slot)}</div>
+          </Grid>
 
-          </Select>
-        </FormControl>
+          <Grid item xs={8}>
+            <Grid container>
+              <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
+                <Select
+                  defaultValue=""
+                  onChange={handleCityChange}
+                  // className={classes.selectEmpty}
+                  disabled={disabled || !tagVisible}>
+                  {
+                    intentInfo.CITY.map(city => (
+                      <MenuItem value={city} key={city}><p>{city}</p></MenuItem>
+                    ))
+                  }
+
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </Grid>
       )
     }
 
     if (slot === "district") {
       return (
-        <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
-          <InputLabel>{getLabel(slot)}</InputLabel>
-          <Select
-            value={selectedDistrict}
-            onChange={handleDistrictChange}
-            // className={classes.selectEmpty}
-            disabled={disabled || !tagVisible}>
-            {
-              districtList.map(district => (
-                <MenuItem value={district} key={district}><p>{district}</p></MenuItem>
-              ))
-            }
-          </Select>
-        </FormControl>
+        <Grid container alignItems="center">
+          <Grid item xs={4}>
+            <div>{getLabel(slot)}</div>
+          </Grid>
+
+          <Grid item xs={8}>
+            <Grid container>
+              <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
+                <Select
+                  value={selectedDistrict}
+                  onChange={handleDistrictChange}
+                  // className={classes.selectEmpty}
+                  disabled={disabled || !tagVisible}>
+                  {
+                    districtList.map(district => (
+                      <MenuItem value={district} key={district}><p>{district}</p></MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </Grid>
       )
     }
 
     if (slotValuePool !== undefined) {
       return (
-        <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
-          <InputLabel>{getLabel(slot)}</InputLabel>
-          <Select
-            defaultValue=""
-            onChange={onSlotSelectChange}
-            // className={classes.selectEmpty}
-            disabled={disabled || !tagVisible}>
-            {
-              slotValuePool.map(item => (
-                <MenuItem value={item.name} key={`${slot} ${item.tag}`}><p>{item.name}</p></MenuItem>
-              ))
-            }
-          </Select>
-        </FormControl>
+        <Grid container alignItems="center">
+          <Grid item xs={4}>
+            <div>{getLabel(slot)}</div>
+          </Grid>
+
+          <Grid item xs={8}>
+            <Grid container>
+              <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
+                <Select
+                  defaultValue=""
+                  onChange={onSlotSelectChange}
+                  // className={classes.selectEmpty}
+                  disabled={disabled || !tagVisible}>
+                  {
+                    slotValuePool.map(item => (
+                      <MenuItem value={item.name} key={`${slot} ${item.tag}`}><p>{item.name}</p></MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </Grid>
       )
     }
 

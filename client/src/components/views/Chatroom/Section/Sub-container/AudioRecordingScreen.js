@@ -111,39 +111,24 @@ export default function AudioRecordingScreen(props) {
               <audio preload="auto" onEnded={toggleIsPlaying} ref={audioRef}>
                 <source src={audio.blobURL} type={getAudioFormat()}/>
               </audio>
-              {/* <Tooltip
-                title={tooltipPlay}
-                arrow
-                open={isPlaying}
-                theme="grey-tooltip"> */}
-                <button
-                  className="play"
-                  type="button"
-                  onClick={toggleIsPlaying}
-                >
-                  <span className="padder">
-                    {isPlaying ? <StopIcon/> : <PlayOutlineIcon/>}
-                  </span>
-                </button>
-              {/* </Tooltip> */}
+              <button
+                className="play"
+                type="button"
+                onClick={toggleIsPlaying}
+              >
+                <span className="padder">
+                  {isPlaying ? <StopIcon/> : <PlayOutlineIcon/>}
+                </span>
+              </button>
               {isPlaying ? (
                 <div className="placeholder"/>
               ) : (
                 <>
-                  {/* <Tooltip arrow title={tooltipRerecord}> */}
-                    <button className="redo" type="button" onClick={onRerecord}>
-                      <span className="padder">
-                        <RedoIcon/>
-                      </span>
-                    </button>
-                  {/* </Tooltip> */}
-                  {/* <Tooltip arrow title={text}>
-                    <button className="share" type="button" onClick={onShare}>
-                      <span className="padder">
-                        <ShareIcon/>
-                      </span>
-                    </button>
-                  </Tooltip> */}
+                  <button className="redo" type="button" onClick={onRerecord}>
+                    <span className="padder">
+                      <RedoIcon/>
+                    </span>
+                  </button>
                 </>
               )}
             </div>
@@ -197,17 +182,22 @@ export default function AudioRecordingScreen(props) {
       </Grid>
 
       {/* latest audio */}
-      <Grid container justify="center">
-        <audio 
-          controls
-          key={latestAudio}
-          autoPlay={true}
-          preload="auto"
-          style={{ display: "block" }}
-        >
-          <source src={latestAudio} type={getAudioFormat()}/>
-        </audio>
-      </Grid>
+      {
+        audio === null ? (
+          <Grid container justify="center">
+            <audio 
+              controls
+              key={latestAudio}
+              autoPlay={true}
+              preload="auto"
+              style={{ display: "block" }}
+            >
+              <source src={latestAudio} type={getAudioFormat()}/>
+            </audio>
+          </Grid>
+        ) : ""
+      }
+      
 
       <Grid container>
         <Grid item sm={12} md={12}>

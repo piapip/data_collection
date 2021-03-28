@@ -502,7 +502,8 @@ export default function Chatroom(props) {
                 backgroundColor: "white",
               }}>
               <Grid container style={{
-                height: "calc(100vh - 119px)",
+                // height: "calc(100vh - 119px)",
+                minHeight: "calc(100vh - 119px)",
                 overflowY: "scroll",
               }}>
                 <div style={{ width: "100%" }}>
