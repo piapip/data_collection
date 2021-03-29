@@ -11,6 +11,7 @@ import ReadyButton from './Section/ReadyButton';
 import ConfirmModal from './Section/ConfirmModal';
 import LoadingPage from './../Loading/LoadingPage';
 import './LandingPage.css';
+import WarningTrack from './league_queue-pop.mp3';
 
 function LandingPage(props) {
   const role = useRef("");
@@ -39,7 +40,7 @@ function LandingPage(props) {
   };
 
   const closePopover = () => {
-    setAnchorEl(null);
+    // setAnchorEl(null);
     setPopoverOpenStatus(false);
   };
 
@@ -52,6 +53,8 @@ function LandingPage(props) {
     }
   }, [socket, user])
 
+  const notificationAudio = new Audio(WarningTrack);
+
   useEffect(() => {
     if (socket) {
       socket.on('match', ({ client, servant, roomType }) => {
@@ -59,10 +62,20 @@ function LandingPage(props) {
         if (user.userData && client.userID === user.userData._id) yourRole = "client"
         if (user.userData && servant.userID === user.userData._id) yourRole = "servant"
         console.log(`Found match! You are ${yourRole}. Your room type is ${roomType}`)
-        role.current = yourRole
-        content_type.current = roomType
+        role.current = yourRole;
+        content_type.current = roomType;
+        const promise = notificationAudio.play();
+        if (promise !== undefined) {
+          promise.then(_ => {
+            // Autoplay started!
+          }).catch(error => {
+            // Autoplay was prevented.
+            // Show a "Play" button so that user can start playback.
+            console.log("Error play warning: ", error);
+          });
+        }
         setMatchFound(true)
-        setAnchorEl(null);
+        // setAnchorEl(null);
         setPopoverOpenStatus(false);
       });
 
@@ -240,6 +253,7 @@ function LandingPage(props) {
               socket={socket}
               visible={matchFound}
               roomType={content_type.current}
+              notificationAudio={notificationAudio}
               promptStatus={promptStatus}
               promptDuration={promptDuration}
               setPromptStatus={setPromptStatus}

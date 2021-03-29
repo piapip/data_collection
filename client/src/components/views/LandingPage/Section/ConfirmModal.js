@@ -29,6 +29,8 @@ export default function ConfirmModal(props) {
     if (socket) {
       socket.on('wait for other prompt', () => {
         props.setPromptStatus(1);
+        props.notificationAudio.pause();
+        props.notificationAudio.currentTime = 0;
       })
     }
   })
