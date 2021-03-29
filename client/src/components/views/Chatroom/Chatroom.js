@@ -427,22 +427,22 @@ export default function Chatroom(props) {
     )
   }
 
-  if (loading) {
-    return (
-      <>
-        <PromptLeaving 
-          when={true}
-          onLeave={handleLeaveChatroom}/>
-        <LoadingPage />
-      </>
-    )
-  } 
+  // if (loading) {
+  //   return (
+  //     <>
+  //       <PromptLeaving 
+  //         when={true}
+  //         onLeave={handleLeaveChatroom}/>
+  //       <LoadingPage />
+  //     </>
+  //   )
+  // } 
 
   return (
     <>
-      <PromptLeaving 
+      {/* <PromptLeaving 
         onLeave={handleLeaveChatroom}
-        when={!roomDone}/>
+        when={!roomDone}/> */}
       <div className="chatroom"
         style={{ height: 'calc(100vh - 69px)' }}
       > 
@@ -488,10 +488,10 @@ export default function Chatroom(props) {
               borderLeft: "1px solid #dedede",
             }}
           >
-            <AppBar position="static" color="transparent">
+            <AppBar position="static" style={{ background: "white" }}>
               <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth" style={{border: "1px solid #dedede"}}>
-                <Tab label="Trạng thái" style={{ textTransform: "none", color: tabValue === 0 ? "#f50057" : "inherit" }} />
-                <Tab label="Lịch sử" style={{ textTransform: "none", color: tabValue === 1 ? "#f50057" : "inherit" }} />
+                <Tab label="Trạng thái" style={{ textTransform: "none", color: tabValue === 0 ? "#f50057" : "black" }} />
+                <Tab label="Lịch sử" style={{ textTransform: "none", color: tabValue === 1 ? "#f50057" : "black" }} />
               </Tabs>
             </AppBar>
 

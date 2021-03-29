@@ -196,17 +196,29 @@ export default function AudioRecordingScreen(props) {
       </Grid>
 
       {/* latest audio */}
-      <Grid container justify="center">
-        <audio 
-          controls
-          key={latestAudio}
-          autoPlay={true}
-          preload="auto"
-          style={{ display: "block" }}
-        >
-          <source src={latestAudio} type={getAudioFormat()}/>
-        </audio>
-      </Grid>
+      {
+        audio === null ? (
+          <Grid container justify="center">
+            <Grid item>
+              <p style={{ border: "1px solid #dedede", borderRadius: "25px", padding: "5px" }}>Audio {
+                turn === 1 ? "agent" : "client"
+              } vừa gửi</p>
+            </Grid>
+            <Grid item>
+              <audio
+                controls
+                key={latestAudio}
+                autoPlay={true}
+                preload="auto"
+                style={{ display: "block" }}
+              >
+                <source src={latestAudio} type={getAudioFormat()}/>
+              </audio>
+            </Grid>
+          </Grid>
+        ) : ""
+      }
+      
 
       <Grid container>
         <Grid item sm={12} md={12}>

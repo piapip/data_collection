@@ -50,11 +50,11 @@ export default function ProgressNote(props) {
               })
               return (
                 <Grid container key={`ProgressNote_${index}`}>
-                  <Grid item sm={3}>
+                  <Grid item sm={4}>
                     <b>{getLabel(property)}:</b>
                   </Grid>
 
-                  <Grid item sm={9}>
+                  <Grid item sm={8}>
                     {
                       currentIntentIndex !== -1 ? 
                       (property === "name" || property === "cmnd" || property === "four_last_digits") ? currentIntent[currentIntentIndex][1] : 

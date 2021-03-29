@@ -26,7 +26,7 @@ export default function RejectAudioButton(props) {
 
   const closePopover = () => {
     setPopoverOpenStatus(false);
-    setAnchorEl(null);
+    // setAnchorEl(null);
   };
 
   const onReject = async () => {
@@ -73,17 +73,17 @@ export default function RejectAudioButton(props) {
 
   const insertButton = (
     disabled ? (
-      <button className="reject-buttons" disabled>Không hiểu audio</button>
+      <button className="reject-buttons" disabled>Reset audio</button>
     ) : (
       buttonState ? (
         <button className="reject-buttons" style={{cursor: 'not-allowed'}} disabled>{
-          buttonPhase === 0 ? "Không hiểu audio" :
+          buttonPhase === 0 ? "Reset audio" :
           buttonPhase === 1 ? "Đang xóa audio..." : "????HOWWWW???"
         }</button>
       ) : (
         <>
           <button className="reject-buttons" onClick={openPopover}>{
-            buttonPhase === 0 ? "Không hiểu audio" :
+            buttonPhase === 0 ? "Reset audio" :
             buttonPhase === 1 ? "Đang xóa audio..." : "????HOWWWW???"
           }</button>
           <Popover

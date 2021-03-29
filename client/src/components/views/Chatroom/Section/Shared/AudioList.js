@@ -43,20 +43,17 @@ export default function AudioList(props) {
             audioList.map((audio, index) => {
               return (
                 <div key={`audio_${index}`}>
-                  <Grid container 
-                    style={{ margin: "10px 5px" }} 
-                    justify={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? "flex-end" : "flex-start"}>
-                    <AudioPlayerWithTranscript
-                      index={index}
-                      offset={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? "left" : "right"}
-                      socket={socket}
-                      roomID={roomID}
-                      userID={userID}
-                      username={username}
-                      audioRole={index % 2 === 0 ? "Client" : "Servant"}
-                      audioLink={audio}
-                      transcript={transcript[index]}/>
-                  </Grid>
+                  <AudioPlayerWithTranscript
+                    index={index}
+                    backgroundColor={index % 2 === 0 ? "#FABFC6" : "#D5F8DC"}
+                    offset={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? "left" : "right"}
+                    socket={socket}
+                    roomID={roomID}
+                    userID={userID}
+                    username={username}
+                    audioRole={index % 2 === 0 ? "Client" : "Servant"}
+                    audioLink={audio}
+                    transcript={transcript[index]}/>
                 </div>
               )
             })

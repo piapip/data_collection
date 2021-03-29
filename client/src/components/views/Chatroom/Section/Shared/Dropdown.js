@@ -17,10 +17,17 @@ const useStyles = makeStyles((theme) => ({
     // width: "100%",
     marginBottom: "10px",
   },
-  formControl: {
+  formSelectControl: {
     // margin: theme.spacing(1),
     // marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(1),
+    marginTop: "5px",
+    marginBottom: "20px",
+    minWidth: 200,
+    width: "31%",
+  },
+  formTypeControl: {
+    marginRight: theme.spacing(1),
     minWidth: 200,
     width: "31%",
   },
@@ -153,6 +160,13 @@ export default function Dropdown(props) {
     return slotIndex === -1 ? "" : intentInfo.SLOT_LABEL[slotIndex].name
   }
 
+  const menuItemStyle = {
+    minHeight:"10px",
+    lineHeight: "18px",
+    paddingTop: "3px",
+    paddingBottom: "3px",
+  };
+
   const renderMainIntent = (
     <Grid container>
       <FormControl className={classes.mainFormControl} fullWidth={true}>
@@ -164,7 +178,9 @@ export default function Dropdown(props) {
           disabled={disabled || !tagVisible}>
           {
             intentData.map((intent, index) => (
-              <MenuItem value={intent.name} key={`intent_${index}`}><p>{intent.name}</p></MenuItem>
+              <MenuItem style={menuItemStyle} value={intent.name} key={`intent_${index}`}>
+                {intent.name}
+              </MenuItem>
             ))
           }
         </Select>
@@ -177,7 +193,7 @@ export default function Dropdown(props) {
 
     if (slot === "city") {
       return (
-        <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
+        <FormControl className={classes.formSelectControl} key={`${selectedIntent} ${slot}`}>
           <InputLabel>{getLabel(slot)}</InputLabel>
           <Select
             defaultValue=""
@@ -186,7 +202,7 @@ export default function Dropdown(props) {
             disabled={disabled || !tagVisible}>
             {
               intentInfo.CITY.map(city => (
-                <MenuItem value={city} key={city}><p>{city}</p></MenuItem>
+                <MenuItem style={menuItemStyle} value={city} key={city}>{city}</MenuItem>
               ))
             }
 
@@ -197,7 +213,7 @@ export default function Dropdown(props) {
 
     if (slot === "district") {
       return (
-        <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
+        <FormControl className={classes.formSelectControl} key={`${selectedIntent} ${slot}`}>
           <InputLabel>{getLabel(slot)}</InputLabel>
           <Select
             value={selectedDistrict}
@@ -206,7 +222,7 @@ export default function Dropdown(props) {
             disabled={disabled || !tagVisible}>
             {
               districtList.map(district => (
-                <MenuItem value={district} key={district}><p>{district}</p></MenuItem>
+                <MenuItem style={menuItemStyle} value={district} key={district}>{district}</MenuItem>
               ))
             }
           </Select>
@@ -216,7 +232,7 @@ export default function Dropdown(props) {
 
     if (slotValuePool !== undefined) {
       return (
-        <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
+        <FormControl className={classes.formSelectControl} key={`${selectedIntent} ${slot}`}>
           <InputLabel>{getLabel(slot)}</InputLabel>
           <Select
             defaultValue=""
@@ -225,7 +241,7 @@ export default function Dropdown(props) {
             disabled={disabled || !tagVisible}>
             {
               slotValuePool.map(item => (
-                <MenuItem value={item.name} key={`${slot} ${item.tag}`}><p>{item.name}</p></MenuItem>
+                <MenuItem style={menuItemStyle} value={item.name} key={`${slot} ${item.tag}`}>{item.name}</MenuItem>
               ))
             }
           </Select>
@@ -234,12 +250,12 @@ export default function Dropdown(props) {
     }
 
     return (
-      <FormControl className={classes.formControl} key={`${selectedIntent} ${slot}`}>
+      <FormControl className={classes.formTypeControl} key={`${selectedIntent} ${slot}`}>
         <TextField
           autoComplete='off'
           // className={classes.selectEmpty}
           error={validator[slot] !== " "}
-          helperText={validator[slot] !== " " ? validator[slot] : ""}
+          helperText={validator[slot] !== " " ? validator[slot] : " "}
           variant="outlined"
           name={slot}
           label={getLabel(slot)}
@@ -260,7 +276,7 @@ export default function Dropdown(props) {
         disabled={disabled || tagVisible}>
         {
           genericIntentData.map((intent, index) => (
-            <MenuItem value={intent} key={`generic_intent_${index}`}><p>{intent}</p></MenuItem>
+            <MenuItem style={menuItemStyle} value={intent} key={`generic_intent_${index}`}>{intent}</MenuItem>
           ))
         }
       </Select>
@@ -268,10 +284,10 @@ export default function Dropdown(props) {
   )
 
   const emptyOption = (
-    [1, 2, 3].map((value) => {
-      return (
-        // <Grid item xs={3}>
-          <FormControl className={classes.formControl} key={`empty_${value}`}>
+    // [1, 2, 3].map((value) => {
+    //   return (
+          // <FormControl className={classes.formControl} key={`empty_${value}`}>
+          <FormControl className={classes.formSelectControl}>
             <InputLabel>Phải chọn ý định trước!</InputLabel>
             <Select
               defaultValue=""
@@ -279,18 +295,19 @@ export default function Dropdown(props) {
               disabled={true}>
             </Select>
           </FormControl>
-        // </Grid>
-      )
-    })
+    //   )
+    // })
   )
 
   return (
     <FormControl fullWidth={true}>
       <RadioGroup onChange={onRadioGroupChange} value={radioValue} disabled={disabled}>
-        <FormControlLabel value="1" control={<Radio style={{ paddingBottom: "75px" }} disabled={disabled}/>} 
+        <FormControlLabel value="1" control={<Radio style={{ paddingBottom: "85px" }} disabled={disabled}/>} 
         label={(
           <Grid container alignItems="center">
-            <Grid item style={{marginBottom: "13px"}} xs={3}>
+            <Grid item xs={3}
+              // style={{marginBottom: "13px"}}
+              >
               <div>Ý định nghiệp vụ</div>
             </Grid>
 
@@ -301,14 +318,17 @@ export default function Dropdown(props) {
             <Grid item xs={3}></Grid>
 
             <Grid item sm={9}>
-              {
-                intentData[selectedIntent] ? intentData[selectedIntent].slot.map(slot => {
-                  const slotValuePool = intentInfo[slot.toUpperCase()];
-                  return renderSlots(slot, slotValuePool);
-                }) : (
-                  emptyOption
-                )
-              }
+              <Grid container alignItems="flex-end">
+                {
+                  intentData[selectedIntent] ? intentData[selectedIntent].slot.map(slot => {
+                    const slotValuePool = intentInfo[slot.toUpperCase()];
+                    return renderSlots(slot, slotValuePool);
+                  }) : (
+                    emptyOption
+                  )
+                }
+              </Grid>
+              
             </Grid>
           </Grid>
         )} />
