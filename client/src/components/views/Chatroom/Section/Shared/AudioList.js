@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-import { Col, Row, List } from "antd";
+import Grid from '@material-ui/core/Grid';
 import AudioPlayerWithTranscript from './AudioPlayerWithTranscript';
 
 export default function AudioList(props) {
@@ -28,45 +28,39 @@ export default function AudioList(props) {
       style={{
         display: "flex", 
         flexDirection: "column", 
-        justifyContent: "space-between", 
-        height: "calc(100vh - 140px)",
+        justifyContent: "space-between",
+        height: "calc(100vh - 119px)",
         backgroundColor: "white",
-        overflowX: "hidden", 
+        overflowX: "hidden",
         overflowY: "scroll",
+        paddingLeft: "10px",
+        paddingRight: "20px",
       }}
     >
-      <Row style={{marginLeft: "10px", marginRight: "10px", paddingBottom: "10px"}}>
-        <Col>
-          <List
-            itemLayout="horizontal"
-            dataSource={audioList}
-            renderItem={(audio, index) => {
+      <Grid container>
+        <Grid item sm={12}>
+          {
+            audioList.map((audio, index) => {
               return (
                 <div key={`audio_${index}`}>
-                  <Row style={{
-                    fontWeight: 'bold',
-                    flexGrow: '1'}}>
-                    <Col span={12} offset={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? 12 : 0}>
-                      <AudioPlayerWithTranscript
-                        index={index}
-                        socket={socket}
-                        roomID={roomID}
-                        userID={userID}
-                        username={username}
-                        audioRole={index % 2 === 0 ? "Client" : "Servant"}
-                        audioLink={audio}
-                        autoPlay={false}
-                        transcript={transcript[index]}/>
-                    </Col>
-                  </Row>
+                  <AudioPlayerWithTranscript
+                    index={index}
+                    backgroundColor={index % 2 === 0 ? "#FABFC6" : "#D5F8DC"}
+                    offset={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? "left" : "right"}
+                    socket={socket}
+                    roomID={roomID}
+                    userID={userID}
+                    username={username}
+                    audioRole={index % 2 === 0 ? "Client" : "Servant"}
+                    audioLink={audio}
+                    transcript={transcript[index]}/>
                 </div>
               )
-            }}>
-          </List>
-        </Col>
-        
-        <div ref={audioEndRef}/>
-      </Row>
+            })
+          }
+        </Grid>
+      </Grid>
+      <div ref={audioEndRef}/>
     </div>
   )
 }

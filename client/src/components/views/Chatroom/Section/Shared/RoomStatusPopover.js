@@ -1,18 +1,16 @@
 import React from 'react';
 
-import { Affix, Popover, Button } from 'antd';
+// import LoadingComponent from './../../../Loading/LoadingComponent';
 
-import LoadingComponent from './../../../Loading/LoadingComponent';
-
-export default function RoomStatusPopover(props) {
+export default function RoomStatusPopover() {
   
-  const content = (
-    <LoadingComponent />
-  );
+  // const content = (
+  //   <LoadingComponent />
+  // );
 
   return (
     <>
-       <Affix offsetTop={120}>
+       {/* <Affix offsetTop={120}>
         <div style={{paddingTop: "10px"}}>
           <Popover placement="right" content={props ? props.content : content} trigger="click">
             <Button style={{width: "20px", height: "60px", fontSize: "30px", }}>
@@ -20,7 +18,7 @@ export default function RoomStatusPopover(props) {
             </Button>
           </Popover>  
         </div>
-      </Affix>
+      </Affix> */}
     </>
   )
 }

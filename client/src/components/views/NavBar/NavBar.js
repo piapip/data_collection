@@ -1,15 +1,33 @@
 import React, { useState } from 'react';
-// import { Link } from 'react-router-dom';
-import LeftMenu from './Sections/LeftMenu';
+
+import IconButton from '@material-ui/core/IconButton';
+import Drawer from '@material-ui/core/Drawer';
+import Hidden from '@material-ui/core/Hidden';
+import MenuIcon from '@material-ui/icons/Menu';
+import { makeStyles } from '@material-ui/core/styles';
+
 import RightMenu from './Sections/RightMenu';
-import { Drawer, Button, Icon } from 'antd';
 import './Sections/Navbar.css';
 
-function NavBar(props) {
+const drawerWidth = 180;
+const useStyles = makeStyles((theme) => ({
+  drawer: {
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+      flexShrink: 0,
+    },
+  },
+  // necessary for content to be below app bar
+  toolbar: theme.mixins.toolbar,
+  drawerPaper: {
+    width: drawerWidth,
+  },
+}));
 
-  // const idle = props ? props.idle : 0;
-  // const inQueue = props ? props.inQueue : 0;
-  // const inRoom = props ? props.inRoom : 0;
+
+function NavBar() {
+
+  const classes = useStyles();
   const [visible, setVisible] = useState(false)
 
   const showDrawer = () => {
@@ -21,40 +39,40 @@ function NavBar(props) {
   };
 
   return (
-    <nav className="menu" style={{ position: 'fixed', zIndex: 5, width: '100%' }}>
+    <nav className="menu" style={{ position: 'fixed', zIndex: 5, width: '100%', top: 0 }}>
       <div className="menu__logo">
         <a href="/">SLU</a>
       </div>
+
       <div className="menu__container">
-        <div className="menu_left">
-          <LeftMenu mode="horizontal" />
+        <div className="menu_right">
+          <RightMenu display="inline-block" />
         </div>
-        <div className="menu_rigth">
-          <RightMenu 
-            mode="horizontal"
-            // idle={idle}
-            // inQueue={inQueue}
-            // inRoom={inRoom} 
-            />
-        </div>
-        <Button
+
+        <IconButton
           className="menu__mobile-button"
           type="primary"
           onClick={showDrawer}
         >
-          <Icon type="align-right" />
-        </Button>
-        <Drawer
-          title="Basic Drawer"
-          placement="right"
-          className="menu_drawer"
-          closable={false}
-          onClose={onClose}
-          visible={visible}
-        >
-          <LeftMenu mode="inline" />
-          <RightMenu mode="inline" />
-        </Drawer>
+          <MenuIcon />
+        </IconButton>
+        <nav className={classes.drawer} aria-label="mailbox folders">
+          <Hidden smUp implementation="css">
+            <Drawer
+              variant="temporary"
+              anchor={'right'}
+              onClose={onClose}
+              open={visible}
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+              ModalProps={{
+                keepMounted: true, 
+              }}>
+              <RightMenu display="block" />
+            </Drawer>
+          </Hidden>
+        </nav>
       </div>
     </nav>
   )

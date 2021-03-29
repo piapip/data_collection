@@ -31,6 +31,15 @@ router.get("/random/:userID", (req, res) => {
       $and: [
         {done: 0},
         {$or: [
+          {user1: userID},
+          {user2: userID},
+        ]},
+      ]
+    },
+    {
+      $and: [
+        {done: 0},
+        {$or: [
           {
             $and: [
               {user1: null},
@@ -76,6 +85,15 @@ router.get("/random/:userID", (req, res) => {
     var random = Math.floor(Math.random() * count)
     Chatroom.findOne({
       $or: [
+        {
+          $and: [
+            {done: 0},
+            {$or: [
+              {user1: userID},
+              {user2: userID},
+            ]},
+          ]
+        },
         {
           $and: [
             {done: 0},

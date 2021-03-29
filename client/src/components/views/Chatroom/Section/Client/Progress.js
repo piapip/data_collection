@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-import { Row, Col } from 'antd';
-import CorrectSign from './green-correct-sign.png';
-import RedCrossSign from './red-cross-sign.png';
+import Grid from '@material-ui/core/Grid';
+import Checkbox from '@material-ui/core/Checkbox';
 
 import LoadingComponent from './../../../Loading/LoadingComponent';
 
 import intentInfo from './../Shared/intent';
+import "./Progress.css";
 
 export default function Progress(props) {
 
@@ -62,39 +62,23 @@ export default function Progress(props) {
     (scenario && scenario.length !== 0) ? (
       scenario.map((property, index) => {
         const slotValue = compareProperty(property, currentIntent);
-        // console.log(`property: ${property} slotValue: ${slotValue} show: ${intentInfo[property[0].toUpperCase()][slotValue]}`);
         return slotValue !== null ? (
-          <Col xl={6} xs={6} key={property[0]}>
-            <Row style={{textAlign: "center", marginBottom: "15px"}}>
-              {index === 0 ? "Ý định" : getLabel(property[0])}
-            </Row>
-            <Row style={{textAlign: "center", marginBottom: "15px"}}>
-              <img src={CorrectSign} alt="done" style={{height: "50px"}}/>
-            </Row>
-            <Row style={{textAlign: "center"}}>
-              <p style={{marginBottom: "0px"}}>
-              {
-                (property[0] === "name" || property[0] === "cmnd" || property[0] === "four_last_digits") ? slotValue : 
-                (property[0] === "city") ? showCity(slotValue) :
-                (property[0] === "district") ? showDistrict(slotValue) :
-                // (property[0] === "city" || property[0] === "district") ? intentInfo[property[0].toUpperCase()][slotValue] : 
-                intentInfo[property[0].toUpperCase()][slotValue].name
-              }
-              </p>
-            </Row>
-          </Col>
+          <Grid item sm={12} md={12} key={property[0]}>
+            <Checkbox color="primary" checked={true} style={{ padding: "0px 9px" }}/>
+            <b>{index === 0 ? "Ý định" : getLabel(property[0])}</b>: {
+              (property[0] === "name" || property[0] === "cmnd" || property[0] === "four_last_digits") ? slotValue : 
+              (property[0] === "city") ? showCity(slotValue) :
+              (property[0] === "district") ? showDistrict(slotValue) :
+              intentInfo[property[0].toUpperCase()][slotValue].name
+            }
+          </Grid>
         ) : (
-          <Col xl={6} xs={6} key={property[0]}>
-            <Row style={{textAlign: "center", marginBottom: "15px"}}>
-            {index === 0 ? "Ý định" : getLabel(property[0])}
-            </Row>
-            <Row style={{textAlign: "center", marginBottom: "15px"}}>
-              <img src={RedCrossSign} alt="not done" style={{height: "50px"}}/>
-            </Row>
-            <Row style={{textAlign: "center"}}>
-              <p style={{marginBottom: "0px"}}>{(property[1] === "-1" || property[1] === -1) ? "?" : intentInfo[property[0].toUpperCase()][property[1]].name}</p>
-            </Row>
-          </Col>
+          <Grid item sm={12} md={12} key={property[0]}>
+            <Checkbox color="primary" checked={false}/>
+            <b>{index === 0 ? "Ý định" : getLabel(property[0])}</b>: {
+              (property[1] === "-1" || property[1] === -1) ? "<Tùy chọn>" : intentInfo[property[0].toUpperCase()][property[1]].name
+            }
+          </Grid>
         )
       })
     ) : <LoadingComponent />
@@ -106,10 +90,9 @@ export default function Progress(props) {
 
   return (
     <>
-      {/* <Row style={{height: "50px", lineHeight: "50px"}}> */}
-      <Row style={{height: "50px"}}>
+      <Grid container>
         {renderProgress}
-      </Row>
+      </Grid>
     </>
   )
 }

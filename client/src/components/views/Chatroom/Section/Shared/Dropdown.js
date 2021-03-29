@@ -1,20 +1,49 @@
 import React, { useState } from 'react'
-import { Form, Select, Input, Row, Col, Radio } from 'antd';
+
+import { Grid, Select, InputLabel, MenuItem, TextField, RadioGroup, Radio, FormControl, FormControlLabel } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 import intentInfo from './intent';
 import "./Dropdown.css";
 
-const {Option} = Select;
-
 const intentData = intentInfo.INTENT;
 const genericIntentData = intentInfo.GENERIC_INTENT;
 
+const useStyles = makeStyles((theme) => ({
+  mainFormControl: {
+    // marginLeft: theme.spacing(1),
+    // marginRight: theme.spacing(1),
+    minWidth: 200,
+    // width: "100%",
+    marginBottom: "10px",
+  },
+  formSelectControl: {
+    // margin: theme.spacing(1),
+    // marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    marginTop: "5px",
+    marginBottom: "20px",
+    minWidth: 200,
+    width: "31%",
+  },
+  formTypeControl: {
+    marginRight: theme.spacing(1),
+    minWidth: 200,
+    width: "31%",
+  },
+  selectEmpty: {
+    // width: "100%",
+    // marginTop: theme.spacing(2),
+  },
+}));
+
 export default function Dropdown(props) {
 
+  const classes = useStyles();
   const tagVisible = props ? props.visible : true;
   const disabled = props ? props.disabled : false;
 
-  const [ radioValue, setRadioValue ] = useState(1);
+  const [ radioValue, setRadioValue ] = useState("1");
 
   const [ selectedIntent, setSelectedIntent ] = useState(null);
 
@@ -26,7 +55,8 @@ export default function Dropdown(props) {
     four_last_digits: " ",
   });
 
-  const handleIntentChange = (value) => {
+  const handleIntentChange = (event) => {
+    const value = event.target.value;
     const intentIndex = intentData.findIndex(item => {
       return item.name === value
     });
@@ -34,17 +64,19 @@ export default function Dropdown(props) {
     props.setIntent(intentIndex);
   }
 
-  const handleGenericIntentChange = (value) => {
+  const handleGenericIntentChange = (event) => {
+    const value = event.target.value;
     const genericIntentIndex = genericIntentData.findIndex(item => {
       return item === value
     });
     props.setGenericIntent(genericIntentIndex);
   }
 
-  const onSlotSelectChange = (key) => {
-    // const keyParsing = key.split(' ', 2);
-    const keyParsing = key.split(/(?<=^\S+)\s/)
-    const slot = keyParsing[0];
+  const onSlotSelectChange = (event, child) => {
+    const key = child.key;
+    // const keyParsing = key.split(/(?<=^\S+)\s/)
+    const keyParsing = key.split(" ");
+    const slot = keyParsing[0].substring(2);
     const tag = keyParsing[1];
     const tagIndex = intentInfo[slot.toUpperCase()].findIndex(item => {
       return item.tag === tag;
@@ -57,36 +89,44 @@ export default function Dropdown(props) {
     const slot = e.target.name;
     const slotValue = e.target.value;
 
-    if (slot === "cmnd") {
-      const re = '^[0-9]+$';
-      if (!(new RegExp(re).test(slotValue))) {
-        let newValidator = validator;
-        newValidator[slot] = "CMND chỉ nhận số!";
-        setValidator(newValidator);
-      } else {
-        let newValidator = validator;
-        newValidator[slot] = " ";
-        setValidator(newValidator);
+    if (slotValue === "") {
+      let newValidator = validator;
+      newValidator[slot] = " ";
+      setValidator(newValidator);
+    } else {
+      if (slot === "cmnd") {
+        const re = '^[0-9]+$';
+        if (!(new RegExp(re).test(slotValue))) {
+          let newValidator = validator;
+          newValidator[slot] = "CMND chỉ nhận số!";
+          setValidator(newValidator);
+        } else {
+          let newValidator = validator;
+          newValidator[slot] = " ";
+          setValidator(newValidator);
+        }
+      }
+  
+      if (slot === "four_last_digits") {
+        const re = '^[0-9]+$';
+        if (slotValue.length !== 4 || !(new RegExp(re).test(slotValue))) {
+          let newValidator = validator;
+          newValidator[slot] = "Phải nhập 4 số!";
+          setValidator(newValidator);
+        } else {
+          let newValidator = validator;
+          newValidator[slot] = " ";
+          setValidator(newValidator);
+        }
       }
     }
 
-    if (slot === "four_last_digits") {
-      const re = '^[0-9]+$';
-      if (slotValue.length !== 4 || !(new RegExp(re).test(slotValue))) {
-        let newValidator = validator;
-        newValidator[slot] = "Phải nhập 4 số!";
-        setValidator(newValidator);
-      } else {
-        let newValidator = validator;
-        newValidator[slot] = " ";
-        setValidator(newValidator);
-      }
-    }
+    
     props.setSlot(slot, slotValue);
   }
 
-  const handleCityChange = (value) => {
-    
+  const handleCityChange = (event) => {
+    const value = event.target.value;
     setDisctrictList(intentInfo.DISTRICT[value]);
     setSelectedDistrict(null);
     const cityIndex = intentInfo.CITY.findIndex(item => {
@@ -96,7 +136,8 @@ export default function Dropdown(props) {
     props.setSlot("city", cityIndex);
   }
 
-  const handleDistrictChange = (value) => {
+  const handleDistrictChange = (event) => {
+    const value = event.target.value;
     setSelectedDistrict(value);
     const districtIndex = districtList.findIndex(item => {
       return item === value;
@@ -104,46 +145,11 @@ export default function Dropdown(props) {
 
     props.setSlot("district", districtIndex);
   }
-
-  const radioStyle = {
-    width: '100%',
-    marginTop: '0',
-  };
-
-  const radioContextStyle = {
-    display: 'inline-block',
-    height: '100%',
-    width: "100%",
-    paddingLeft: "10px",
-    paddingRight: "10px",
-    verticalAlign: 'top',
-  };
-
+  
   const onRadioGroupChange = (e) => {
-    if(e.target.value === 1) props.toggleTagVisibility(true);
+    if(e.target.value === "1") props.toggleTagVisibility(true);
     else props.toggleTagVisibility(false);
     setRadioValue(e.target.value);
-  }
-
-  const outerColStyle = {
-    paddingLeft: "5px", 
-    paddingRight: "5px",
-  }
-
-  const innerCol1Style = {
-    // paddingTop: "15px", 
-    paddingBottom: "5px",
-  }
-
-  const titleStyle = {
-    paddingTop: "1px",
-    lineHeight: "200%",
-    textAlign: "left",
-  }
-
-  const innerCol2Style = {
-    // paddingBottom: "15px",
-    paddingBottom: "5px",
   }
 
   const getLabel = (slot) => {
@@ -154,191 +160,192 @@ export default function Dropdown(props) {
     return slotIndex === -1 ? "" : intentInfo.SLOT_LABEL[slotIndex].name
   }
 
+  const menuItemStyle = {
+    minHeight:"10px",
+    lineHeight: "18px",
+    paddingTop: "3px",
+    paddingBottom: "3px",
+  };
+
   const renderMainIntent = (
-    <Row justify={'center'}>
-      <Col span={24} style={innerCol1Style}>
-        <b>Ý định nghiệp vụ:</b>
-      </Col>
-      <Col span={4} style={titleStyle}>
-        <b>Ý định: </b>
-      </Col>
-      <Col span={20} style={innerCol2Style}>
+    <Grid container>
+      <FormControl className={classes.mainFormControl} fullWidth={true}>
+        {/* <InputLabel>Ý định nghiệp vụ</InputLabel> */}
         <Select
-          // defaultValue={null}
-          // style={{ width: "50%" }}
-          style={{ width: "100%" }}
+          defaultValue=""
           onChange={handleIntentChange}
+          // className={classes.selectEmpty}
           disabled={disabled || !tagVisible}>
           {
-            intentData.map(intent => (
-              <Option key={intent.name}><p style={{width: "100%", whiteSpace: "normal"}}>{intent.name}</p></Option>
+            intentData.map((intent, index) => (
+              <MenuItem style={menuItemStyle} value={intent.name} key={`intent_${index}`}>
+                {intent.name}
+              </MenuItem>
             ))
           }
         </Select>
-      </Col>
-    </Row>
+      </FormControl>
+    </Grid>
+  )
+
+  const renderSlots = (slot, slotValuePool) => {
+    if (slot === null) return emptyOption;
+
+    if (slot === "city") {
+      return (
+        <FormControl className={classes.formSelectControl} key={`${selectedIntent} ${slot}`}>
+          <InputLabel>{getLabel(slot)}</InputLabel>
+          <Select
+            defaultValue=""
+            onChange={handleCityChange}
+            // className={classes.selectEmpty}
+            disabled={disabled || !tagVisible}>
+            {
+              intentInfo.CITY.map(city => (
+                <MenuItem style={menuItemStyle} value={city} key={city}>{city}</MenuItem>
+              ))
+            }
+
+          </Select>
+        </FormControl>
+      )
+    }
+
+    if (slot === "district") {
+      return (
+        <FormControl className={classes.formSelectControl} key={`${selectedIntent} ${slot}`}>
+          <InputLabel>{getLabel(slot)}</InputLabel>
+          <Select
+            value={selectedDistrict}
+            onChange={handleDistrictChange}
+            // className={classes.selectEmpty}
+            disabled={disabled || !tagVisible}>
+            {
+              districtList.map(district => (
+                <MenuItem style={menuItemStyle} value={district} key={district}>{district}</MenuItem>
+              ))
+            }
+          </Select>
+        </FormControl>
+      )
+    }
+
+    if (slotValuePool !== undefined) {
+      return (
+        <FormControl className={classes.formSelectControl} key={`${selectedIntent} ${slot}`}>
+          <InputLabel>{getLabel(slot)}</InputLabel>
+          <Select
+            defaultValue=""
+            onChange={onSlotSelectChange}
+            // className={classes.selectEmpty}
+            disabled={disabled || !tagVisible}>
+            {
+              slotValuePool.map(item => (
+                <MenuItem style={menuItemStyle} value={item.name} key={`${slot} ${item.tag}`}>{item.name}</MenuItem>
+              ))
+            }
+          </Select>
+        </FormControl>
+      )
+    }
+
+    return (
+      <FormControl className={classes.formTypeControl} key={`${selectedIntent} ${slot}`}>
+        <TextField
+          autoComplete='off'
+          // className={classes.selectEmpty}
+          error={validator[slot] !== " "}
+          helperText={validator[slot] !== " " ? validator[slot] : " "}
+          variant="outlined"
+          name={slot}
+          label={getLabel(slot)}
+          onChange={onSlotTypeChange}
+          disabled={disabled || !tagVisible}/>
+      </FormControl>
+    )
+    
+  };
+
+  const renderGenericIntent = (
+    <FormControl className={classes.mainFormControl} fullWidth={true}>
+      {/* <InputLabel>Ý định khác</InputLabel> */}
+      <Select
+        defaultValue=""
+        onChange={handleGenericIntentChange}
+        // className={classes.selectEmpty}
+        disabled={disabled || tagVisible}>
+        {
+          genericIntentData.map((intent, index) => (
+            <MenuItem style={menuItemStyle} value={intent} key={`generic_intent_${index}`}>{intent}</MenuItem>
+          ))
+        }
+      </Select>
+    </FormControl>
   )
 
   const emptyOption = (
-    [1, 2, 3].map((value) => {
-      return (
-        <Col xl={8} xs={24} style={outerColStyle} key={`empty_${value}`}>
-          <Row>
-            <Col span={24} style={innerCol1Style}>
-              <b>???</b>
-            </Col>
-            <Col span={24} style={innerCol2Style}>
-              <Select
-                // placeholder="Phải chọn ý định trước!"
-                style={{ width: "100%" }}
-                disabled={true}>
-              </Select>
-            </Col>
-          </Row>
-        </Col>
-      )
-    })
+    // [1, 2, 3].map((value) => {
+    //   return (
+          // <FormControl className={classes.formControl} key={`empty_${value}`}>
+          <FormControl className={classes.formSelectControl}>
+            <InputLabel>Phải chọn ý định trước!</InputLabel>
+            <Select
+              defaultValue=""
+              // className={classes.selectEmpty}
+              disabled={true}>
+            </Select>
+          </FormControl>
+    //   )
+    // })
   )
 
   return (
-    <Radio.Group onChange={onRadioGroupChange} value={radioValue} 
-      style={{width: '95%', marginTop: '0px', verticalAlign: 'middle'}} 
-      disabled={disabled}>
-      <div style={{marginTop: '0px', verticalAlign: 'middle'}}>
-        
-      <Radio value={1} style={radioStyle}>
-      {/* <Radio value={1} style={{
-        display: 'inline-block',
-        width: '70%',
-        marginTop: '0',
-      }}> */}
-        <div style={radioContextStyle}>
-          {/* <Row style={{marginBottom: "5px"}}> */}
-          <Row>
-            <Col xl={24} xs={24} style={outerColStyle}>
+    <FormControl fullWidth={true}>
+      <RadioGroup onChange={onRadioGroupChange} value={radioValue} disabled={disabled}>
+        <FormControlLabel value="1" control={<Radio style={{ paddingBottom: "85px" }} disabled={disabled}/>} 
+        label={(
+          <Grid container alignItems="center">
+            <Grid item xs={3}
+              // style={{marginBottom: "13px"}}
+              >
+              <div>Ý định nghiệp vụ</div>
+            </Grid>
+
+            <Grid item xs={9}>
               {renderMainIntent}
-            </Col>
+            </Grid>
+            
+            <Grid item xs={3}></Grid>
 
-            {
-              intentData[selectedIntent] ? intentData[selectedIntent].slot.map(slot => {
-                const slotValuePool = intentInfo[slot.toUpperCase()];
-                return (
-                  <Col xl={8} xs={24} style={outerColStyle} key={slot}>
-                    <Row>
-                      <Col span={24} style={innerCol1Style}>
-                        <b>{getLabel(slot)}</b>
-                      </Col>
-                      <Col span={24} style={innerCol2Style}>
-                        {
-                          (
-                            slot === "city" ? (
-                              <Col span={24} style={innerCol2Style}>
-                                <Select
-                                  defaultValue={null}
-                                  style={{ width: "100%" }}
-                                  onChange={handleCityChange}
-                                  disabled={disabled || !tagVisible}>
-                                  {
-                                    intentInfo.CITY.map(city => (
-                                      <Option key={city}><p style={{width: "100%", whiteSpace: "normal"}}>{city}</p></Option>
-                                    ))
-                                  }
-                                </Select>
-                              </Col>
-                            ) : 
-                            slot === "district" ? (
-                              <Col span={24} style={innerCol2Style}>
-                                <Select
-                                  value={selectedDistrict}
-                                  defaultValue={null}
-                                  style={{ width: "100%" }}
-                                  onChange={handleDistrictChange}
-                                  disabled={disabled || !tagVisible}>
-                                  {
-                                    districtList.map(district => (
-                                      <Option key={district}><p style={{width: "100%", whiteSpace: "normal"}}>{district}</p></Option>
-                                    ))
-                                  }
-                                </Select>
-                              </Col>
-                            ) : slotValuePool ? (
-                              <Select
-                                defaultValue={null}
-                                style={{ width: "100%" }}
-                                onChange={onSlotSelectChange}
-                                disabled={disabled || !tagVisible}>
-                                {
-                                  slotValuePool.map(item => (
-                                    <Option key={`${slot} ${item.tag}`}><p style={{width: "100%", whiteSpace: "normal"}}>{item.name}</p></Option>
-                                  ))
-                                }
-                              </Select>
-                            ) : (
-                              <Form>
-                                <Form.Item
-                                  // name={slot}
-                                  style={{marginBottom: "0px"}}
-                                  validateStatus={validator[slot] !== " " ? "error" : "validating"}
-                                  help={validator[slot]}
-                                >
-                                  <Input
-                                    style={{ width: "100%" }}
-                                    name={slot}
-                                    onChange={onSlotTypeChange}
-                                    disabled={disabled || !tagVisible}
-                                  />
-                                </Form.Item>
-                              </Form>
-                            )
-                          )
-                        }
-                      </Col>
-                    </Row>
-                  </Col>
-                )
-              }) : (
-                emptyOption
-              )
-            }
-          </Row>
-        </div>
-      </Radio>
+            <Grid item sm={9}>
+              <Grid container alignItems="flex-end">
+                {
+                  intentData[selectedIntent] ? intentData[selectedIntent].slot.map(slot => {
+                    const slotValuePool = intentInfo[slot.toUpperCase()];
+                    return renderSlots(slot, slotValuePool);
+                  }) : (
+                    emptyOption
+                  )
+                }
+              </Grid>
+              
+            </Grid>
+          </Grid>
+        )} />
 
-      <Radio style={radioStyle} value={2}>
-      {/* <Radio value={2} style={{
-        width: '25%',
-        marginTop: '0',
-      }}> */}
-        <div style={radioContextStyle}>
-          <Row justify={'center'}>
-            {/* <Col xl={6} xs={24} style={outerColStyle}>
-              <Row> */}
-                <Col span={24} style={innerCol1Style}>
-                  <b>Ý định khác: </b>
-                </Col>
-                <Col span={4} style={titleStyle}>
-                  <b>Ý định: </b>
-                </Col>
-                <Col span={20} style={innerCol2Style}>
-                  <Select
-                    defaultValue={null}
-                    // style={{ width: "50%" }}
-                    style={{ width: "100%" }}
-                    onChange={handleGenericIntentChange}
-                    disabled={disabled || tagVisible}>
-                    {
-                      genericIntentData.map(intent => (
-                        <Option key={intent}><p style={{width: "100%", whiteSpace: "normal"}}>{intent}</p></Option>
-                      ))
-                    }
-                  </Select>
-                </Col>
-              {/* </Row>
-            </Col> */}
-          </Row>
-        </div>
-      </Radio>
-    </div>
-  </Radio.Group>
+        <FormControlLabel value="2" control={<Radio disabled={disabled}/>} style={{ marginTop: "10px"}}
+        label={(
+          <Grid container alignItems="center">
+            <Grid item xs={3}>
+              <div>Ý định khác</div>
+            </Grid>
+
+            <Grid item xs={9}>
+              {renderGenericIntent}
+            </Grid>
+          </Grid>
+        )} />
+      </RadioGroup>
+    </FormControl>
   )
 }

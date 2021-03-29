@@ -1,39 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import  { Link } from "react-router-dom";
 
-import { Button, Row, Col } from 'antd';
+import { Grid, Button } from '@material-ui/core';
 
 export default function ReadyButton(props) {
   
   const isAuth = props ? props.isAuth : false;
-  const [ timer, setTimer ] = useState(0);
-  const increment = useRef(null);
-
-  useEffect(() => {
-    // seems redundant but need it. So when the user denies their second queue confirmation, we'll reset the timer.
-    let isMount = true;
-    if (!props.readyStatus) {
-      clearInterval(increment.current);
-      if (isMount) setTimer(0);
-    }
-
-    return () => { isMount = false }
-  }, [ props.readyStatus ])
-
-  const ready = () => {
-    props.readySignal()
-    // start counting
-    increment.current = setInterval(() => {
-      setTimer((timer) => timer + 1)
-    }, 1000)
-  }
-
-  const cancelReady = () => {
-    props.cancelReadySignal()
-    // stop counting
-    clearInterval(increment.current);
-    setTimer(0);
-  }
 
   const timeConverter = (seconds) => {
     const format = val => `0${Math.floor(val)}`.slice(-2)
@@ -45,50 +17,45 @@ export default function ReadyButton(props) {
 
   return (
     <>
-      <Row 
-        type="flex"
-        style={{ alignItems: "center", marginTop: "7px", marginBottom: "7px" }}
-        justify="center"
-        gutter={10}>
-        <Col style={{textAlign: "center"}}>
+      <Grid container direction="column" justify="center">
+        <Grid item>
           {isAuth ? (
             !props.readyStatus ? (
-              <Button shape="round" onClick={ready} style={{marginTop: "45px", marginBottom: "45px"}}>Sẵn sàng</Button>
+              <div style={{ marginTop: "45px", marginBottom: "45px" }}>
+                <Grid container>
+                  <Button onClick={props.ready} style={{ borderRadius: "8", border: "1px solid #dedede" }}>
+                    Sẵn sàng
+                  </Button>
+                </Grid>
+                <Grid container justify="center">
+                  00:00:00
+                </Grid>
+                <Grid container>
+                  
+                </Grid>
+              </div>
             ) : (
               <div style={{marginTop: "45px", marginBottom: "45px"}}>
-                <Row>
-                  <Button shape="round" onClick={cancelReady}>
+                <Grid container>
+                  <Button onClick={props.cancelReady} style={{ borderRadius: "8", border: "1px solid #dedede" }}>
                     Dừng tìm kiếm
                   </Button>
-                </Row>
-                <Row>
-                  Đang tìm bạn: {timeConverter(timer)}
-                </Row>
-                
-                
+                </Grid>
+                <Grid container justify="center">
+                  Đang tìm bạn: {timeConverter(props ? props.timer : 0)}
+                </Grid>
               </div>
               
             )) : (
               <Link to={`/login`}>
-                <Row>
-                  <Button shape="round" style={{marginTop: "45px", marginBottom: "45px"}}>Sẵn sàng</Button>
-                </Row>
+                <Grid container>
+                  <Button style={{ marginTop: "45px", marginBottom: "45px", borderRadius: "8", border: "1px solid #dedede" }}>Sẵn sàng</Button>
+                </Grid>
               </Link>
             )
           }
-        </Col>
-      </Row>
-      
-      {/* {
-        props.readyStatus ? (
-          <Row>
-            <Col>
-              Đang tìm bạn: {timeConverter(timer)}
-            </Col>
-          </Row>    
-        ) : ""
-      } */}
-      
+        </Grid>
+      </Grid>
     </>
   )
 }

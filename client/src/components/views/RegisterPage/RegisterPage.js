@@ -5,38 +5,34 @@ import * as Yup from 'yup';
 import { registerUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
 
-import {
-  Form,
-  Radio,
-  Input,
-  Button,
-} from 'antd';
+import { Grid, TextField, RadioGroup, Radio, FormControl, FormLabel, FormControlLabel, Button } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
+const useStyle = makeStyles(() => ({
+  root: {
+    "& .MuiFormControl-root": {
+      minWidth: '400px',
+    }
   },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
-  },
-};
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
-};
+}));
 
 function RegisterPage(props) {
+
+  const GridItemStyle = {
+    marginBottom: "20px",
+  };
+
+  const ErrorStyle = {
+    marginTop: "5px",
+  };
+
+  const SubmitButtonStyle = {
+    textAlign: "center",
+  };
+
   const dispatch = useDispatch();
+  const classes = useStyle();
+
   return (
 
     <Formik
@@ -99,93 +95,100 @@ function RegisterPage(props) {
         return (
           <div className="app">
             <h2>Sign up</h2>
-            <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <form className={classes.root} onSubmit={handleSubmit}>
+              <Grid container justify="center" style={{display: "block"}}>
+                <Grid item style={GridItemStyle}>
+                  <TextField
+                    variant="outlined"
+                    label="Tên"
+                    id="name"
+                    placeholder="Họ và tên"
+                    value={values.name}
+                    type="text"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={
+                      errors.name && touched.name ? 'text-input error' : 'text-input'
+                    }/>
+                    {errors.name && touched.name && (
+                      <div className="input-feedback" style={ErrorStyle}>{errors.name}</div>
+                    )}                    
+                </Grid>
 
-              <Form.Item required label="Name">
-                <Input
-                  id="name"
-                  placeholder="Enter your name"
-                  type="text"
-                  value={values.name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={
-                    errors.name && touched.name ? 'text-input error' : 'text-input'
-                  }
-                />
-                {errors.name && touched.name && (
-                  <div className="input-feedback">{errors.name}</div>
-                )}
-              </Form.Item>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend">Giới tính</FormLabel>
+                  <RadioGroup row
+                    id="sex"
+                    value={values.sex} 
+                    onChange={handleChange("sex")}
+                    onBlur={handleBlur}
+                    >
+                    <FormControlLabel value="1" control={<Radio />} label="Nam" />
+                    <FormControlLabel value="2" control={<Radio />} label="Nữ" />
 
-              <Form.Item required label="Sex">
-                <Radio.Group 
-                  id="sex"
-                  value={values.sex} 
-                  onChange={handleChange("sex")}
-                  onBlur={handleBlur}>
-                  <Radio value={1}>Man</Radio>
-                  <Radio value={2}>Female</Radio>
-                </Radio.Group>
-              </Form.Item>
+                  </RadioGroup>
+                </FormControl>
 
-              <Form.Item required label="Email" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
-                <Input
-                  id="email"
-                  placeholder="Enter your Email"
-                  type="email"
-                  value={values.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={
-                    errors.email && touched.email ? 'text-input error' : 'text-input'
-                  }
-                />
-                {errors.email && touched.email && (
-                  <div className="input-feedback">{errors.email}</div>
-                )}
-              </Form.Item>
+                <Grid item style={GridItemStyle}>
+                  <TextField
+                    variant="outlined"
+                    label="Email"
+                    id="email"
+                    placeholder="Email của bạn"
+                    type="email"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={
+                      errors.email && touched.email ? 'text-input error' : 'text-input'
+                    }/>
+                    {errors.email && touched.email && (
+                      <div className="input-feedback" style={ErrorStyle}>{errors.email}</div>
+                    )}
+                </Grid>
 
-              <Form.Item required label="Password" hasFeedback validateStatus={errors.password && touched.password ? "error" : 'success'}>
-                <Input
-                  id="password"
-                  placeholder="Enter your password"
-                  type="password"
-                  value={values.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={
-                    errors.password && touched.password ? 'text-input error' : 'text-input'
-                  }
-                />
-                {errors.password && touched.password && (
-                  <div className="input-feedback">{errors.password}</div>
-                )}
-              </Form.Item>
+                <Grid item style={GridItemStyle}>
+                  <TextField
+                    variant="outlined"
+                    label="Password"
+                    id="password"
+                    placeholder="Nhập mật khẩu"
+                    type="password"
+                    value={values.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={
+                      errors.password && touched.password ? 'text-input error' : 'text-input'
+                    }/>
+                    {errors.password && touched.password && (
+                      <div className="input-feedback" style={ErrorStyle}>{errors.password}</div>
+                    )}
+                </Grid> 
 
-              <Form.Item required label="Confirm" hasFeedback>
-                <Input
-                  id="confirmPassword"
-                  placeholder="Enter your confirm password"
-                  type="password"
-                  value={values.confirmPassword}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={
-                    errors.confirmPassword && touched.confirmPassword ? 'text-input error' : 'text-input'
-                  }
-                />
-                {errors.confirmPassword && touched.confirmPassword && (
-                  <div className="input-feedback">{errors.confirmPassword}</div>
-                )}
-              </Form.Item>
+                <Grid item style={GridItemStyle}>
+                  <TextField
+                    variant="outlined"
+                    label="Xác nhận mật khẩu"
+                    id="confirmPassword"
+                    placeholder="Xác nhận mật khẩu"
+                    type="password"
+                    value={values.confirmPassword}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={
+                      errors.confirmPassword && touched.confirmPassword ? 'text-input error' : 'text-input'
+                    }/>
+                    {errors.confirmPassword && touched.confirmPassword && (
+                      <div className="input-feedback" style={ErrorStyle}>{errors.confirmPassword}</div>
+                    )}
+                </Grid>
 
-              <Form.Item {...tailFormItemLayout}>
-                <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
-                  Submit
-                </Button>
-              </Form.Item>
-            </Form>
+                <Grid item style={SubmitButtonStyle}>
+                  <Button onClick={handleSubmit} color="primary" variant="contained" disabled={isSubmitting} style={{width: "100%"}}>
+                    Sign up
+                  </Button>
+                </Grid>
+              </Grid>
+            </form>
           </div>
         );
       }}

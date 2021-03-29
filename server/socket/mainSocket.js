@@ -39,7 +39,7 @@ sockets.init = function(server) {
 
   // vvvvv client socket
   io.on('connection', (socket) => {
-    // console.log("Connected: " + socket.id);
+    console.log("Connected: " + socket.id);
 
     if (!idle.includes(socket.id)) idle.push(socket.id);
     // io.to(socket.id).emit("refresh status", {
@@ -124,7 +124,7 @@ sockets.init = function(server) {
     })
 
     // when both users confirm the second prompt, create a room and send them the information of the room.
-    socket.on('confirm prompt', ({ socketID, userID, username, inputType }) => {
+    socket.on('confirm prompt', ({ socketID, userID, username, inputType, timer }) => {
       let userInfo = {
         socketID: socketID,
         userID: userID,
@@ -139,6 +139,28 @@ sockets.init = function(server) {
           pair.accepted++
           // tell one of the user that need the other user's prompt to continue.
           io.to(socketID).emit('wait for other prompt', ({}))
+          setTimeout(async () => {
+            let promptQueueIndex = checkExist(promptQueue, userInfo);
+            if (promptQueueIndex !== -1) {
+              // remove those two mofo off the prompt queue
+              let pairUser = promptQueue[promptQueueIndex]
+              removeFromQueue(promptQueue, pairUser)
+
+              // add the other user back to the HEAD of the queue
+              let theOtherUser = pairUser.client.userID === userInfo.userID ? pairUser.servant : pairUser.client;
+              if (userInfo.inputType === "audio") {
+                addToQueue(audioQueue, userInfo)
+              } else if (userInfo.inputType === "text") {
+                addToQueue(textQueue, userInfo)
+              } else {
+                addToQueue(audioQueue, userInfo)
+                addToQueue(textQueue, userInfo)
+              }
+              
+              io.to(userInfo.socketID).emit('requeue', ({}));
+              io.to(theOtherUser.socketID).emit('too late', ({}));
+            }
+          }, 10000 - timer*1000);
         } else {
           // create a room for two, send them id.
           createRoom(pair.client.userID, pair.servant.userID, pair.roomType)
@@ -877,7 +899,7 @@ const addSlot = async (roomID, userID) => {
         else return -1;
       }
 
-      // check if the room has the user.
+      // check if the room has that user already.
       if ((roomFound.user1 !== null && roomFound.user1.equals(userID)) || 
           (roomFound.user2 !== null && roomFound.user2.equals(userID))) {
         // IMPLEMENT ANNOUNCEMENT!
@@ -939,7 +961,7 @@ const addSlot = async (roomID, userID) => {
       } else return -1;
     }
   })
-  .catch(err => console.log("Kicking user: ", err))
+  .catch(err => console.log("Adding user to slot: ", err))
 }
 
 const generateRandomString = (length, allowedChars) => {

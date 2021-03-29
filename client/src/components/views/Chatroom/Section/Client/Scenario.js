@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import {Col, Row} from "antd";
+
+import Grid from '@material-ui/core/Grid';
 
 import Progress from "./Progress";
 
@@ -51,9 +52,28 @@ export default function Scenario(props) {
   )
 
   return (
-    <div style={{display:"flex",flexDirection:"column",justifyContent:"space-between",alignItems:"stretch"}}>
-      {/* <Row style={{borderLeft:"1px solid",height:"100%",borderColor:"white",backgroundColor:"white"}}></Row> */}
-      <Row style={{height:"100%"}}>
+    <div style={{display:"flex",flexDirection:"column",justifyContent:"space-between",alignItems:"stretch", padding: "10px"}}>
+      <Grid container>
+        <Grid item sm={12} md={12}>
+          <h3 style={{fontWeight:'bold',fontSize:'18px', textAlign: "center"}}>Kịch bản hội thoại</h3>
+        </Grid>
+        <Grid item sm={12} md={12}>
+          {
+            loading ? (
+              <LoadingComponent />
+            ) : (
+              generateScript
+            )
+          }
+        </Grid>
+        <Grid item sm={12} md={12}>
+          <Progress
+            scenario={scenario}
+            currentIntent={currentIntent}/>
+        </Grid>
+      </Grid>
+
+      {/* <Row style={{height:"100%"}}>
         <h3 style={{fontWeight:'bold',fontSize:'18px',textAlign: "center"}}>Kịch bản hội thoại</h3>
         <Col span={24} style={{fontSize:"15px",marginTop:"auto", padding: "10px"}}>
           {
@@ -69,7 +89,7 @@ export default function Scenario(props) {
             scenario={scenario}
             currentIntent={currentIntent}/>
         </Col>
-      </Row>
+      </Row> */}
     </div>
   )
 }

@@ -1,13 +1,12 @@
 import React, {useRef, useEffect, useState} from 'react';
 
-import { Row, Col, Tooltip } from 'antd';
+import { Grid } from '@material-ui/core';
 import {/*ShareIcon,*/ RedoIcon, PlayOutlineIcon, StopIcon} from '../../../../ui/icons';
 
 import RecordButton from '../../../CustomRecorder/Recorder';
 
 import Wave from '../Shared/Wave';
 import Status from '../Shared/Status';
-import CustomAudioPlayer from '../Shared/CustomAudioPlayer';
 import Dropdown from '../Shared/Dropdown';
 
 import ClientSendButton from '../Client/ClientSendButton';
@@ -86,8 +85,8 @@ export default function AudioRecordingScreen(props) {
     return format;
   })
 
-  const tooltipPlay = <span>Play</span>;
-  const tooltipRerecord = <span>Re-record</span>;
+  // const tooltipPlay = <span>Play</span>;
+  // const tooltipRerecord = <span>Re-record</span>;
 
 
   function onRerecord() {
@@ -96,10 +95,6 @@ export default function AudioRecordingScreen(props) {
 
   // function onShare() {
   //   console.log("Shared");
-  // }
-
-  // const toggleTagVisibility = (e) => {
-  //   setTagVisibility(!e.target.checked)
   // }
 
   const toggleTagVisibility = (value) => {
@@ -115,11 +110,11 @@ export default function AudioRecordingScreen(props) {
               <audio preload="auto" onEnded={toggleIsPlaying} ref={audioRef}>
                 <source src={audio.blobURL} type={getAudioFormat()}/>
               </audio>
-              <Tooltip
+              {/* <Tooltip
                 title={tooltipPlay}
                 arrow
                 open={isPlaying}
-                theme="grey-tooltip">
+                theme="grey-tooltip"> */}
                 <button
                   className="play"
                   type="button"
@@ -129,18 +124,18 @@ export default function AudioRecordingScreen(props) {
                     {isPlaying ? <StopIcon/> : <PlayOutlineIcon/>}
                   </span>
                 </button>
-              </Tooltip>
+              {/* </Tooltip> */}
               {isPlaying ? (
                 <div className="placeholder"/>
               ) : (
                 <>
-                  <Tooltip arrow title={tooltipRerecord}>
+                  {/* <Tooltip arrow title={tooltipRerecord}> */}
                     <button className="redo" type="button" onClick={onRerecord}>
                       <span className="padder">
                         <RedoIcon/>
                       </span>
                     </button>
-                  </Tooltip>
+                  {/* </Tooltip> */}
                   {/* <Tooltip arrow title={text}>
                     <button className="share" type="button" onClick={onShare}>
                       <span className="padder">
@@ -181,13 +176,13 @@ export default function AudioRecordingScreen(props) {
 
   return (
     <>
-      <div style={{position: 'absolute', width: "100%"}}>
+      <div style={{ position: 'absolute', top:"80px", width: "66%" }}>
         <Status
           userRole={userRole}
           message={roomDone ? "Nhiệm vụ phòng đã kết thúc! Bạn có thể rời phòng và bắt đầu cuộc trò chuyện khác. Cảm ơn bạn." : message} />
       </div>
 
-      <Row style={{textAlign: "center", paddingTop: "20vh"}}>
+      <Grid container justify="center" style={{paddingTop: "15vh"}}>
         <div className="primary-buttons">
           <canvas className="primary-buttons canvas" ref={canvasRef}/>
           <RecordButton
@@ -198,81 +193,88 @@ export default function AudioRecordingScreen(props) {
             setAudio={setAudio}
             setIsRecording={setIsRecording}/>
         </div>
-      </Row>
+      </Grid>
 
       {/* latest audio */}
-      <Row type="flex" justify="center" style={{textAlign: "center"}}>
-        <CustomAudioPlayer 
-          audioLink={latestAudio}
-          turn={turn}
-          userrole={userRole}
-          // remember to change this to true 
-          autoPlay={true}/>
-      </Row>
+      {
+        audio === null ? (
+          <Grid container justify="center">
+            <Grid item>
+              <p style={{ border: "1px solid #dedede", borderRadius: "25px", padding: "5px" }}>Audio {
+                turn === 1 ? "agent" : "client"
+              } vừa gửi</p>
+            </Grid>
+            <Grid item>
+              <audio
+                controls
+                key={latestAudio}
+                autoPlay={true}
+                preload="auto"
+                style={{ display: "block" }}
+              >
+                <source src={latestAudio} type={getAudioFormat()}/>
+              </audio>
+            </Grid>
+          </Grid>
+        ) : ""
+      }
+      
 
-      <Row type="flex">
-        <Col xl={12} xs={24}>
-          <Row style={{marginBottom: "10px"}}>
-            <Col>
-              <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
-                <Dropdown 
-                  toggleTagVisibility={toggleTagVisibility}
-                  visible={tagVisibility}
-                  disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
-                  setIntent={setNewIntent}
-                  setGenericIntent={setNewGenericIntent}
-                  setSlot={setSlot}/>
-              </div>
-            </Col>
-          </Row>
-        </Col>
+      <Grid container>
+        <Grid item sm={12} md={12}>
+          <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
+            <Dropdown 
+              toggleTagVisibility={toggleTagVisibility}
+              visible={tagVisibility}
+              disabled={!((turn === 2 && userRole === "servant") || (turn === 1 && userRole === "client"))}
+              setIntent={setNewIntent}
+              setGenericIntent={setNewGenericIntent}
+              setSlot={setSlot}/>
+          </div>
+        </Grid>
 
-        <Col xl={12} xs={24} style={{display: "flex"}}>
-          <Row style={{display: 'flex', alignItems: 'center', width: "100%", justifyContent: "center"}}>
-            {/* <Col span={24}> */}
-              <div className="submit-button">
-                {renderAudio(audio)}
-                {
-                  userRole === "client" ? (
-                    <ClientSendButton
-                      roomName={roomName}
-                      audioName={audioName}
-                      turn={turn}
-                      disable={(intent === null && tagVisibility) || roomDone}
-                      rejectButtonDisabled={latestAudio === null}
-                      socket={socket}
-                      audio={audio} 
-                      intent={tagVisibility ? intent : genericIntent}
-                      userRole={userRole}
-                      userID={user.userData ? user.userData._id : ""}
-                      roomID={chatroomID}
-                      sendAudioSignal={sendAudioSignal}/>
-                  ) : 
-                  userRole === "servant" ? (
-                    <ServantSendButton
-                      roomName={roomName}
-                      audioName={audioName}
-                      socket={socket}
-                      roomDone={roomDone}
-                      disable={(intent === null && tagVisibility) || roomDone}
-                      turn={turn}
-                      audio={audio}
-                      rejectButtonDisabled={latestAudio === null}
-                      intent={tagVisibility ? intent : genericIntent}
-                      userRole={userRole}
-                      userID={user.userData ? user.userData._id : ""}
-                      roomID={chatroomID}
-                      sendAudioSignal={sendAudioSignal}/>
-                  ) : (
-                    <LoadingComponent />
-                  )
-                }
-                
-              </div>
-            {/* </Col> */}
-          </Row>
-        </Col>
-      </Row>
+        <Grid item sm={12} md={12}>
+          <div className="submit-button">
+            {renderAudio(audio)}
+            {
+              userRole === "client" ? (
+                <ClientSendButton
+                  roomName={roomName}
+                  audioName={audioName}
+                  turn={turn}
+                  disable={(intent === null && tagVisibility) || roomDone}
+                  rejectButtonDisabled={latestAudio === null}
+                  socket={socket}
+                  audio={audio} 
+                  intent={tagVisibility ? intent : genericIntent}
+                  userRole={userRole}
+                  userID={user.userData ? user.userData._id : ""}
+                  roomID={chatroomID}
+                  sendAudioSignal={sendAudioSignal}/>
+              ) : 
+              userRole === "servant" ? (
+                <ServantSendButton
+                  roomName={roomName}
+                  audioName={audioName}
+                  socket={socket}
+                  roomDone={roomDone}
+                  disable={(intent === null && tagVisibility) || roomDone}
+                  turn={turn}
+                  audio={audio}
+                  rejectButtonDisabled={latestAudio === null}
+                  intent={tagVisibility ? intent : genericIntent}
+                  userRole={userRole}
+                  userID={user.userData ? user.userData._id : ""}
+                  roomID={chatroomID}
+                  sendAudioSignal={sendAudioSignal}/>
+              ) : (
+                <LoadingComponent />
+              )
+            }
+            
+          </div>
+        </Grid>
+      </Grid>
     </>
   )
 }
