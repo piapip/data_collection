@@ -26,8 +26,8 @@ import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
 import LoadingComponent from '../Loading/LoadingComponent';
 
-import ClientBG from './../LandingPage/Section/images/speak.svg';
-import ServantBG from './../LandingPage/Section/images/listen.svg';
+// import ClientBG from './../LandingPage/Section/images/speak.svg';
+// import ServantBG from './../LandingPage/Section/images/listen.svg';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -427,31 +427,31 @@ export default function Chatroom(props) {
     )
   }
 
-  // if (loading) {
-  //   return (
-  //     <>
-  //       <PromptLeaving 
-  //         when={true}
-  //         onLeave={handleLeaveChatroom}/>
-  //       <LoadingPage />
-  //     </>
-  //   )
-  // } 
+  if (loading) {
+    return (
+      <div style={{ alignItems: "center", justifyContent: "center" }}>
+        <PromptLeaving 
+          when={true}
+          onLeave={handleLeaveChatroom}/>
+        <LoadingPage />
+      </div>
+    )
+  } 
 
   return (
     <>
-      {/* <PromptLeaving 
+      <PromptLeaving 
         onLeave={handleLeaveChatroom}
-        when={!roomDone}/> */}
+        when={!roomDone}/>
       <div className="chatroom"
         style={{ height: 'calc(100vh - 69px)' }}
       > 
         <Grid container style={{ height: "100%" }}>
           <Grid item sm={12} md={8}>
-            <img className="bg" alt="background"
+            {/* <img className="bg" alt="background"
             src={
               userRole === "client" ? ClientBG:
-              userRole === "servant" ? ServantBG : ""} />
+              userRole === "servant" ? ServantBG : ""} /> */}
             {/* <div style={{position: "absolute", zIndex: "1001"}}>
               <RoomStatusPopover
                 content={(
