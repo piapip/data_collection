@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const cors = require('cors');
+const session = require('express-session');
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
@@ -29,6 +30,13 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+app.use(session({
+  secret: "9d5067a5a36f2bd6f5e93008865536c7",
+  resave: true,
+  saveUninitialized: true,
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+}))
+
 app.use('/api/users', require('./routes/users'));
 app.use('/api/chatroom', require("./routes/chatroom"));
 // app.use('/api/upload/file', require('./routes/upload'));
@@ -37,7 +45,7 @@ app.use('/api/message', require('./routes/message'));
 app.use('/api/audio', require('./routes/audio'));
 app.use('/api/aws/upload', require('./routes/upload_aws'));
 app.use('/api/testing', require('./routes/audio_transcript/audio_transcript'));
-app.use('/api/v1', require('./routes/merge'));
+app.use('/api/sso', require('./routes/merge'));
 //use this to show the image you have in node js server to client (react js)
 //https://stackoverflow.com/questions/48914987/send-image-path-from-node-js-express-server-to-react-client
 app.use('/uploads', express.static('uploads'));
