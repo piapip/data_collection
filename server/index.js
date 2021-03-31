@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 const config = require("./config/key");
+const redis = require("redis");
 
 const mongoose = require("mongoose");
 mongoose.connect(config.mongoURI,
@@ -37,6 +38,12 @@ app.use(session({
   cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
 }))
 
+
+const port = process.env.PORT || 5000;
+// const redis_port = process.env.PORT || 6379;
+
+// const client = redis.createClient(redis_port);
+
 app.use('/api/users', require('./routes/users'));
 app.use('/api/chatroom', require("./routes/chatroom"));
 // app.use('/api/upload/file', require('./routes/upload'));
@@ -64,8 +71,6 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.resolve(__dirname, "../client", "build", "index.html"));
   });
 }
-
-const port = process.env.PORT || 5000
 
 const server = app.listen(port, () => {
   console.log(`Server Listening on ${port}`)

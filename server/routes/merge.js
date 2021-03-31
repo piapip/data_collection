@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { User } = require("../models/User");
+const redis_client = require("../redis-client");
 
 const CLIENT_SECRET = "tjfjfL7BSIdCyUnuc6R15Q4qtzWMMyZ8";
 
@@ -17,18 +18,20 @@ router.post("/users", (req, res) => {
 
   const userInfo = req.body.user;
 
-  User.create({
+  const user = new User({
     name: userInfo.name,
     email: userInfo.email,
-    token: userInfo.ssoUserId,
-    tokenExp: "",
-  })
-  .then(() => {
-    res.status(200).send({ status: 1 });
-  })
-  .catch(err => {
-    res.status(500).send({ status: 0, error: err });
-  })
+    ssoUserId: userInfo.ssoUserId,
+    password: "12345678",
+    role: 0,
+    sex: 0,
+    image: userInfo.avatar,
+  });
+
+  user.save((err, doc) => {
+    if (err) return res.status(500).send({ status: 0, error: err });
+    return res.status(200).send({ status: 1 });
+  });
 })
 
 // LOGIN
@@ -38,10 +41,9 @@ router.post("/users/token", (req, res) => {
     res.status(405).send({ status: 0, error: "None of your business!" });
     return
   }
-
-  // console.log("This is your access token: ", req.body.accessToken);
-  const token = req.body.accessToken;
-  const decodeInfo = jwt.verify(token, "9d5067a5a36f2bd6f5e93008865536c7", (err, decode) => {
+  
+  const accessToken = req.body.accessToken;
+  const decodeInfo = jwt.verify(accessToken, "9d5067a5a36f2bd6f5e93008865536c7", (err, decode) => {
     if (err) {
       res.status(500).send({ status: 0, err: `Having problem decoding, ${err}` });
       throw err;
@@ -51,20 +53,15 @@ router.post("/users/token", (req, res) => {
 
   const ssoUserId = decodeInfo.ssoUserId;
 
-  User.find({ token: ssoUserId })
+  User.find({ ssoUserId: ssoUserId })
   .then(userFound => {
     if (userFound.length === 0) {
       res.status(404).send({ status: 0, err: "User doesn't exist!" });
       return
     } else {
-      req.session.user = {
-        token: token,
-      }
+      // const user = userFound[0];
 
-      const user = userFound[0];
-      user.tokenExp = decodeInfo.exp;
-      user.save();
-      
+      redis_client.setex("accessToken", 4*3600, accessToken);
       res.status(200).send({ status: 1 });
     }
   })
@@ -78,8 +75,8 @@ router.post("/users/logout", (req, res) => {
     return
   }
 
-  const token = req.body.accessToken;
-  const decodeInfo = jwt.verify(token, "9d5067a5a36f2bd6f5e93008865536c7", (err, decode) => {
+  const accessToken = req.body.accessToken;
+  const decodeInfo = jwt.verify(accessToken, "9d5067a5a36f2bd6f5e93008865536c7", (err, decode) => {
     if (err) {
       res.status(500).send({ status: 0, err: `Having problem decoding, ${err}` });
       throw err;
@@ -87,9 +84,11 @@ router.post("/users/logout", (req, res) => {
     return decode;
   });
 
+  redis_client.del("accessToken");
+
   const ssoUserId = decodeInfo.ssoUserId;
 
-  User.find({ token: ssoUserId })
+  User.find({ ssoUserId: ssoUserId })
   .then(userFound => {
     if (userFound.length === 0) {
       res.status(404).send({ status: 0, err: "User doesn't exist!" });
@@ -99,14 +98,10 @@ router.post("/users/logout", (req, res) => {
       if (user.tokenExp === null) {
         res.status(500).send({ status: 0, err: "The user is already logged out!" });
       } else {
-        req.session.destroy((err) => {
-          if(err) res.status(400).send({ status: 0, error: err });
-          else {
-            user.tokenExp = "";
-            user.save();
-            res.status(200).send({ status: 1 });
-          } 
-        });
+        user.token = "";
+        user.tokenExp = "";
+        user.save();
+        res.status(200).send({ status: 1 });
       }
     }
   })
@@ -116,16 +111,24 @@ router.post("/users/logout", (req, res) => {
 })
 
 router.get("/isLogin", (req, res) => {
-  if (req.session.user !== null && req.session.user !== undefined) {
-    res.status(200).send({ status: 1, isAuth: true });
-    return
-  }
-
-  req.session.destroy((err)=>{
-    if(err) res.status(500).send({ status: 0, error: err });
-    else res.status(200).send({ status: 1, isAuth: false });
-  });
-  
+  redis_client.get("accessToken", (err, value) => {
+    if (err) return res.status(500).send({ status: 0, error: "Having problem retrieving user information!" });
+    res.status(200).send({ status: 1, accessToken: value });  
+  })
 })
+
+// Unsuable, work fine in Insomnia, but axios can't update req.session in browser :<
+// router.get("/isLogin", (req, res) => {
+//   if (req.session.user !== null && req.session.user !== undefined) {
+//     res.status(200).send({ status: 1, isAuth: true });
+//     return
+//   }
+
+//   req.session.destroy((err)=>{
+//     if(err) res.status(500).send({ status: 0, error: err });
+//     else res.status(200).send({ status: 1, isAuth: false });
+//   });
+  
+// })
 
 module.exports = router;

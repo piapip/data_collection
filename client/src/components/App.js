@@ -23,6 +23,13 @@ function App(props) {
   // const [ inQueue, setInQueue ] = useState(0);
   // const [ inRoom, setInRoom ] = useState(0);
 
+  let search = window.location.search;
+  let params = new URLSearchParams(search);
+  let accessToken = params.get('accessToken');
+
+  console.log(accessToken);
+  // HOW TO SAVE THIS ACCESSTOKEN???
+
   const setupSocket =  async () => {
     var w_auth
     document.cookie.split(";").map(info => {
@@ -35,7 +42,8 @@ function App(props) {
 
     socket = io(BACKEND_URL, {
       query: {
-        token: w_auth,
+        token: accessToken,
+        // token: user.token,
       },
       transports:['websocket','polling','flashsocket']
     });
@@ -50,6 +58,8 @@ function App(props) {
     socket.on("connection", () => {
       console.log("Socket Connected!")
     });
+
+    
 
     // socket.on('refresh status', ({idle, inQueue, inRoom}) => {
     //   // console.log(`idle:`, idle);
