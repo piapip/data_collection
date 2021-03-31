@@ -29,7 +29,7 @@ function LandingPage(props) {
   const [ roomLink, setRoomLink ] = useState('');
   const [ loading, setLoading ] = useState(true);
   const [ anchorEl, setAnchorEl ] = useState(null);
-  const [ popoverOpenStatus, setPopoverOpenStatus ] = useState(false);
+  const [ popoverOpenStatus, setPopoverOpenStatus ] = useState(true);
 
   const [ timer, setTimer ] = useState(0);
   const increment = useRef(null);
@@ -54,7 +54,6 @@ function LandingPage(props) {
   }, [socket, user])
 
   const notificationAudio = new Audio(WarningTrack);
-
   useEffect(() => {
     if (socket) {
       socket.on('match', ({ client, servant, roomType }) => {
@@ -78,7 +77,11 @@ function LandingPage(props) {
         // setAnchorEl(null);
         setPopoverOpenStatus(false);
       });
+    }
+  }, [socket, notificationAudio, user.userData])
 
+  useEffect(() => {
+    if (socket) {
       socket.on('prompt successful', ({ roomID }) => {
         let link = `/chatroom/${content_type.current === "audio" ? 0 : 1}/${roomID}`
         setMatchFound(false);

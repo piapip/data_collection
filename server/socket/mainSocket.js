@@ -481,8 +481,10 @@ sockets.init = function(server) {
               // remember that roomFound.intent.generic_intent will always be null because it doesn't really matter, so we need to create an alternative that also has such pattern.
               const alternativeIntent = newIntent;
               alternativeIntent.generic_intent = null;
-              if (compareIntent(alternativeIntent, roomFound.intent)) {
-                roomFound.done = true;
+              if (!roomFound.done) {
+                if (compareIntent(alternativeIntent, roomFound.intent)) {
+                  roomFound.done = true;
+                }
               }
 
               // emit signal
@@ -891,7 +893,7 @@ const addSlot = async (roomID, userID) => {
       // IMPLEMENT SOME KIND OF ERROR!!!
       return null;
     } else {
-      if (roomFound.done === 1) {
+      if (roomFound.done) {
         if ((roomFound.user1 !== null && roomFound.user1.equals(userID)) || 
           (roomFound.user2 !== null && roomFound.user2.equals(userID))) { 
           return 0;
