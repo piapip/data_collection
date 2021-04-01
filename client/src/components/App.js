@@ -31,9 +31,6 @@ function App(props) {
     document.cookie = `accessToken=${accessToken}`;
   }
 
-  console.log(document.cookie);
-  // HOW TO SAVE THIS ACCESSTOKEN??? Maybe I'll use this access token to setup the cookie by myself... 
-
   const setupSocket =  async () => {
     // var w_auth
     // document.cookie.split(";").map(info => {
