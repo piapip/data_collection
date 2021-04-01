@@ -29,7 +29,7 @@ function LandingPage(props) {
   const [ roomLink, setRoomLink ] = useState('');
   const [ loading, setLoading ] = useState(true);
   const [ anchorEl, setAnchorEl ] = useState(null);
-  const [ popoverOpenStatus, setPopoverOpenStatus ] = useState(true);
+  const [ popoverOpenStatus, setPopoverOpenStatus ] = useState(false);
 
   const [ timer, setTimer ] = useState(0);
   const increment = useRef(null);

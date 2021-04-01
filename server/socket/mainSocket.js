@@ -18,7 +18,7 @@ sockets.init = function(server) {
     try {
       // Must be matched with the frontend.
       const token = socket.handshake.query.token;
-      if (token !== "undefined") {
+      if (token !== "undefined" && token !== "null" && token !== "") {
         
         // await jwt.verify(token, 'secret', (err, decode) => {
         await jwt.verify(token, '9d5067a5a36f2bd6f5e93008865536c7', (err, decode) => {

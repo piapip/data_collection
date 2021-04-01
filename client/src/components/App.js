@@ -27,15 +27,26 @@ function App(props) {
   let params = new URLSearchParams(search);
   let accessToken = params.get('accessToken');
 
-  console.log(accessToken);
-  // HOW TO SAVE THIS ACCESSTOKEN???
+  if (accessToken !== null) {
+    document.cookie = `accessToken=${accessToken}`;
+  }
+
+  console.log(document.cookie);
+  // HOW TO SAVE THIS ACCESSTOKEN??? Maybe I'll use this access token to setup the cookie by myself... 
 
   const setupSocket =  async () => {
-    var w_auth
-    document.cookie.split(";").map(info => {
-      if (info.slice(0,8) === " w_auth=") {
-        return w_auth = info.substring(8)
-      }else{
+    // var w_auth
+    // document.cookie.split(";").map(info => {
+    //   if (info.slice(0,"accessToken=".length) === " w_auth=") {
+    //     return w_auth = info.substring(8)
+    //   }else{
+    //     return null;
+    //   }
+    // })
+    const accessToken = document.cookie.split(";").map(info => {
+      if (info.slice(0,"accessToken=".length) === "accessToken=") {
+        return document.cookie.substring("accessToken=".length);
+      } else {
         return null;
       }
     })
@@ -43,7 +54,6 @@ function App(props) {
     socket = io(BACKEND_URL, {
       query: {
         token: accessToken,
-        // token: user.token,
       },
       transports:['websocket','polling','flashsocket']
     });

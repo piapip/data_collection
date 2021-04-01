@@ -59,9 +59,14 @@ router.post("/users/token", (req, res) => {
       res.status(404).send({ status: 0, err: "User doesn't exist!" });
       return
     } else {
-      // const user = userFound[0];
+      const user = userFound[0];
 
-      redis_client.setex("accessToken", 4*3600, accessToken);
+      user.generateToken((err) => {
+        if (err) return res.status(400).send({ status: 0, error: "Having problem recording user session!" });
+      });
+
+      // token, expire, 0 - offline, 1 - online
+      redis_client.setex(accessToken, 4*3600, 1);
       res.status(200).send({ status: 1 });
     }
   })
@@ -84,7 +89,7 @@ router.post("/users/logout", (req, res) => {
     return decode;
   });
 
-  redis_client.del("accessToken");
+  redis_client.del(accessToken);
 
   const ssoUserId = decodeInfo.ssoUserId;
 
@@ -98,9 +103,9 @@ router.post("/users/logout", (req, res) => {
       if (user.tokenExp === null) {
         res.status(500).send({ status: 0, err: "The user is already logged out!" });
       } else {
-        user.token = "";
-        user.tokenExp = "";
-        user.save();
+        // user.token = "";
+        // user.tokenExp = "";
+        // user.save();
         res.status(200).send({ status: 1 });
       }
     }
@@ -111,9 +116,20 @@ router.post("/users/logout", (req, res) => {
 })
 
 router.get("/isLogin", (req, res) => {
-  redis_client.get("accessToken", (err, value) => {
+  let accessToken = req.cookies.accessToken;
+  console.log(accessToken);
+  if (accessToken === undefined || accessToken === null) return res.status(200).send({ status: 1, isAuth: false });
+  
+
+  redis_client.get(accessToken, (err, value) => {
     if (err) return res.status(500).send({ status: 0, error: "Having problem retrieving user information!" });
-    res.status(200).send({ status: 1, accessToken: value });  
+    if (value === 0 || value === null || value === undefined) {
+      console.log("Value: ", value);
+      res.status(200).send({ status: 1, isAuth: false });
+    } else {
+      res.status(200).send({ status: 1, isAuth: true });
+    }
+    
   })
 })
 
