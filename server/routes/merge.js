@@ -100,12 +100,13 @@ router.post("/users/logout", (req, res) => {
       return
     } else {
       const user = userFound[0]
+      console.log("User: ", user)
       if (user.tokenExp === null) {
         res.status(500).send({ status: 0, err: "The user is already logged out!" });
       } else {
-        // user.token = "";
-        // user.tokenExp = "";
-        // user.save();
+        user.token = "";
+        user.tokenExp = "";
+        user.save();
         res.status(200).send({ status: 1 });
       }
     }

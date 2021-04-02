@@ -40,17 +40,20 @@ function App(props) {
     //     return null;
     //   }
     // })
-    const accessToken = document.cookie.split(";").map(info => {
+    let cookieAccessToken;
+    document.cookie.split(";").map(info => {
+      // remove space
+      info = info.replace(" ", "");
       if (info.slice(0,"accessToken=".length) === "accessToken=") {
+        cookieAccessToken = info.substring("accessToken=".length);
         return document.cookie.substring("accessToken=".length);
-      } else {
-        return null;
       }
+      return null
     })
 
     socket = io(BACKEND_URL, {
       query: {
-        token: accessToken,
+        token: cookieAccessToken,
       },
       transports:['websocket','polling','flashsocket']
     });
