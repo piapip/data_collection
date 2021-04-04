@@ -26,8 +26,8 @@ import ErrorNotFound from '../Error/ErrorNotFound';
 import LoadingPage from '../Loading/LoadingPage';
 import LoadingComponent from '../Loading/LoadingComponent';
 
-import ClientBG from './../LandingPage/Section/images/speak.svg';
-import ServantBG from './../LandingPage/Section/images/listen.svg';
+// import ClientBG from './../LandingPage/Section/images/speak.svg';
+// import ServantBG from './../LandingPage/Section/images/listen.svg';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -194,7 +194,7 @@ export default function Chatroom(props) {
         });
       }
     };
-  }, [socket, chatroomID, username, userID])
+  }, [socket, chatroomID, username, userID]);
 
   useEffect(() => {
     if (socket) {
@@ -252,7 +252,7 @@ export default function Chatroom(props) {
   }, [scenario, socket]);
 
   useEffect(() => {
-    if (socket && turn !== -1 && userRole !== "") {
+    if (socket) {
       socket.on('newAudioURL', async ({ userID, sender, audioLink }) => {
         console.log(`Receive signal from ${sender} with the ID of ${userID}. Here's the link: ${audioLink}`)
         let newHistory = [...audioHistory];
@@ -264,25 +264,15 @@ export default function Chatroom(props) {
         if(turn === 1) {
           await setTurn(2);
           setMessage(StatusMessage.TURN_TWO_TRANSITION);
-          if (userRole === "servant") {
-            setIsModalVisible(true);
-          }
         // if servant sent then move on
         } else if (turn === 3) {
           await setTurn(1);
           setMessage(StatusMessage.TURN_ONE_TRANSITION);
-          if (userRole === "client") {
-            setIsModalVisible(true);
-          }
-        }
-        
-        return () => {
-          socket.off();
         }
       });
     }
     // Idk about this... it may cause problem later...
-  }, [turn, socket, audioHistory, userRole]);
+  }, [turn, socket, audioHistory]);
   // }, [])
 
   useEffect(() => {
@@ -362,6 +352,7 @@ export default function Chatroom(props) {
     if (socket) {
       socket.emit("leaveRoom", {
         chatroomID,
+        userID,
         username,
       });
     }
@@ -427,31 +418,31 @@ export default function Chatroom(props) {
     )
   }
 
-  // if (loading) {
-  //   return (
-  //     <>
-  //       <PromptLeaving 
-  //         when={true}
-  //         onLeave={handleLeaveChatroom}/>
-  //       <LoadingPage />
-  //     </>
-  //   )
-  // } 
+  if (loading || !(socket && turn !== -1 && userRole !== "")) {
+    return (
+      <div style={{ alignItems: "center", justifyContent: "center" }}>
+        <PromptLeaving 
+          when={true}
+          onLeave={handleLeaveChatroom}/>
+        <LoadingPage />
+      </div>
+    )
+  } 
 
   return (
     <>
-      {/* <PromptLeaving 
+      <PromptLeaving 
         onLeave={handleLeaveChatroom}
-        when={!roomDone}/> */}
+        when={!roomDone}/>
       <div className="chatroom"
         style={{ height: 'calc(100vh - 69px)' }}
       > 
         <Grid container style={{ height: "100%" }}>
           <Grid item sm={12} md={8}>
-            <img className="bg" alt="background"
+            {/* <img className="bg" alt="background"
             src={
               userRole === "client" ? ClientBG:
-              userRole === "servant" ? ServantBG : ""} />
+              userRole === "servant" ? ServantBG : ""} /> */}
             {/* <div style={{position: "absolute", zIndex: "1001"}}>
               <RoomStatusPopover
                 content={(

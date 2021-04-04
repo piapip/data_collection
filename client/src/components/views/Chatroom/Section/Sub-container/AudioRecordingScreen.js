@@ -220,7 +220,7 @@ export default function AudioRecordingScreen(props) {
       }
       
 
-      <Grid container>
+      <Grid container style={{ marginTop: audio ? "60px" : "0px" }} >
         <Grid item sm={12} md={12}>
           <div style={{width: '100%', margin: '1rem auto', paddingLeft: "10px"}}>
             <Dropdown 

@@ -1,4 +1,5 @@
 var sockets = {}
+const { User } = require("./../models/User");
 const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
 const { Audio } = require("./../models/Audio");
@@ -17,12 +18,20 @@ sockets.init = function(server) {
     try {
       // Must be matched with the frontend.
       const token = socket.handshake.query.token;
-      if (token !== "undefined") {
-        await jwt.verify(token, 'secret', (err, decode) => {
+      if (token !== "undefined" && token !== "null" && token !== "") {
+        
+        // await jwt.verify(token, 'secret', (err, decode) => {
+        await jwt.verify(token, '9d5067a5a36f2bd6f5e93008865536c7', (err, decode) => {
           if (err) console.log(err)
           else {
-            socket.userId = decode
-            next()
+            const ssoUserId = decode.ssoUserId;
+            User.findOne({ ssoUserId: ssoUserId })
+            .then(userFound => {
+              socket.userId = userFound._id;
+              next()
+            })
+            // socket.userId = decode
+            // next()
           }
         });
       }
@@ -237,7 +246,6 @@ sockets.init = function(server) {
         username: username,
         socketID: socketID,
       });
-
       // -1 - no slot left  0 - already in room  1 - got in there successfully
       let status = await addSlot(chatroomID, userID);
 
@@ -466,8 +474,15 @@ sockets.init = function(server) {
                       currentIntentFound = transferObject(currentIntentFound, intentDetailed);
                     } else {
                       for (const property in intentDetailed) {
-                        if(intentDetailed[property] !== null) {
-                          currentIntentFound[property] = intentDetailed[property];
+                        // special case where users have to type. The value is always not null but can be "", which is empty.
+                        if(property === "cmnd" || property === "name" || property === "four_last_digits") {
+                          if(intentDetailed[property].length !== 0) {
+                            currentIntentFound[property] = intentDetailed[property];  
+                          }  
+                        } else {
+                          if(intentDetailed[property] !== null) {
+                            currentIntentFound[property] = intentDetailed[property];
+                          }
                         }
                       }
                     }
@@ -481,8 +496,10 @@ sockets.init = function(server) {
               // remember that roomFound.intent.generic_intent will always be null because it doesn't really matter, so we need to create an alternative that also has such pattern.
               const alternativeIntent = newIntent;
               alternativeIntent.generic_intent = null;
-              if (compareIntent(alternativeIntent, roomFound.intent)) {
-                roomFound.done = true;
+              if (!roomFound.done) {
+                if (compareIntent(alternativeIntent, roomFound.intent)) {
+                  roomFound.done = true;
+                }
               }
 
               // emit signal
@@ -891,7 +908,7 @@ const addSlot = async (roomID, userID) => {
       // IMPLEMENT SOME KIND OF ERROR!!!
       return null;
     } else {
-      if (roomFound.done === 1) {
+      if (roomFound.done) {
         if ((roomFound.user1 !== null && roomFound.user1.equals(userID)) || 
           (roomFound.user2 !== null && roomFound.user2.equals(userID))) { 
           return 0;

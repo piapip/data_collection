@@ -23,19 +23,37 @@ function App(props) {
   // const [ inQueue, setInQueue ] = useState(0);
   // const [ inRoom, setInRoom ] = useState(0);
 
+  let search = window.location.search;
+  let params = new URLSearchParams(search);
+  let accessToken = params.get('accessToken');
+
+  if (accessToken !== null) {
+    document.cookie = `accessToken=${accessToken}`;
+  }
+
   const setupSocket =  async () => {
-    var w_auth
+    // var w_auth
+    // document.cookie.split(";").map(info => {
+    //   if (info.slice(0,"accessToken=".length) === " w_auth=") {
+    //     return w_auth = info.substring(8)
+    //   }else{
+    //     return null;
+    //   }
+    // })
+    let cookieAccessToken;
     document.cookie.split(";").map(info => {
-      if (info.slice(0,8) === " w_auth=") {
-        return w_auth = info.substring(8)
-      }else{
-        return null;
+      // remove space
+      info = info.replace(" ", "");
+      if (info.slice(0,"accessToken=".length) === "accessToken=") {
+        cookieAccessToken = info.substring("accessToken=".length);
+        return document.cookie.substring("accessToken=".length);
       }
+      return null
     })
 
     socket = io(BACKEND_URL, {
       query: {
-        token: w_auth,
+        token: cookieAccessToken,
       },
       transports:['websocket','polling','flashsocket']
     });
@@ -50,6 +68,8 @@ function App(props) {
     socket.on("connection", () => {
       console.log("Socket Connected!")
     });
+
+    
 
     // socket.on('refresh status', ({idle, inQueue, inRoom}) => {
     //   // console.log(`idle:`, idle);

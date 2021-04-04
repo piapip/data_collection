@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useDispatch } from "react-redux";
 
 import Grid from '@material-ui/core/Grid';
-import EditIcon from '@material-ui/icons/Edit';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import ThumbUpOutlinedIcon from '@material-ui/icons/ThumbUpOutlined';
@@ -85,12 +84,12 @@ export default function AudioPlayerWithTranscript(props) {
     </>
   )
 
-  const renderEditButton = (
-    <button style={{backgroundColor: "transparent"}} onClick={() => {
-      setEditContent(transcript ? transcript.content : "...")
-      setEditMode(true)
-    }}><EditIcon fontSize="small"/></button>
-  )
+  // const renderEditButton = (
+  //   <button style={{backgroundColor: "transparent"}} onClick={() => {
+  //     setEditContent(transcript ? transcript.content : "...")
+  //     setEditMode(true)
+  //   }}><EditIcon fontSize="small"/></button>
+  // )
 
   if (audioLink === undefined || audioLink === null) return "";
 

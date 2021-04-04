@@ -45,7 +45,7 @@ export default function AudioList(props) {
                 <div key={`audio_${index}`}>
                   <AudioPlayerWithTranscript
                     index={index}
-                    backgroundColor={index % 2 === 0 ? "#FABFC6" : "#D5F8DC"}
+                    backgroundColor={index % 2 === 0 ? "#F8EFF0" : "#E9FFFB"}
                     offset={((userRole === "client" && index % 2 === 0) || (userRole === "servant" && index % 2 === 1)) ? "left" : "right"}
                     socket={socket}
                     roomID={roomID}

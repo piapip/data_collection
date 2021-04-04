@@ -35,7 +35,11 @@ const userSchema = mongoose.Schema({
     },
     tokenExp: {
         type: Number
-    }
+    },
+    ssoUserId: {
+        type: String,
+        default: "",
+    },
 })
 
 
