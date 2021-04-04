@@ -246,7 +246,6 @@ sockets.init = function(server) {
         username: username,
         socketID: socketID,
       });
-
       // -1 - no slot left  0 - already in room  1 - got in there successfully
       let status = await addSlot(chatroomID, userID);
 
@@ -475,8 +474,15 @@ sockets.init = function(server) {
                       currentIntentFound = transferObject(currentIntentFound, intentDetailed);
                     } else {
                       for (const property in intentDetailed) {
-                        if(intentDetailed[property] !== null) {
-                          currentIntentFound[property] = intentDetailed[property];
+                        // special case where users have to type. The value is always not null but can be "", which is empty.
+                        if(property === "cmnd" || property === "name" || property === "four_last_digits") {
+                          if(intentDetailed[property].length !== 0) {
+                            currentIntentFound[property] = intentDetailed[property];  
+                          }  
+                        } else {
+                          if(intentDetailed[property] !== null) {
+                            currentIntentFound[property] = intentDetailed[property];
+                          }
                         }
                       }
                     }

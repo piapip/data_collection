@@ -1,6 +1,7 @@
 const { User } = require('../models/User');
 const redis_client = require("../redis-client");
 const jwt = require('jsonwebtoken');
+const config = require('../config/key');
 
 let auth = (req, res, next) => {
   // let token = req.cookies.w_auth;
@@ -18,7 +19,7 @@ let auth = (req, res, next) => {
       error: true,
     });
     
-    const decodeInfo = jwt.verify(accessToken, "9d5067a5a36f2bd6f5e93008865536c7", (err, decode) => {
+    const decodeInfo = jwt.verify(accessToken, config.JWT_SECRET_KEY, (err, decode) => {
       if (err) {
         res.status(500).json({ isAuth: false, error: true });
         throw err;

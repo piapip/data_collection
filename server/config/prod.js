@@ -1,6 +1,7 @@
 module.exports = {
     mongoURI:process.env.MONGO_URI,
     uploadAPI:process.env.uploadAPI,
+    JWT_SECRET_KEY:process.env.JWT_SECRET_KEY,
     // vvvvvvv doesn't need for now.
     awsAccessKeyId:process.env.awsAccessKeyId,
     awsSecretAccessKey:process.env.awsSecretAccessKey,

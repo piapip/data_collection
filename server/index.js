@@ -7,7 +7,6 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 const config = require("./config/key");
-const redis = require("redis");
 
 const mongoose = require("mongoose");
 mongoose.connect(config.mongoURI,
@@ -32,7 +31,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.use(session({
-  secret: "9d5067a5a36f2bd6f5e93008865536c7",
+  secret: "secret",
   resave: true,
   saveUninitialized: true,
   cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }

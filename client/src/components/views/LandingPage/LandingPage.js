@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector } from "react-redux";
-import { Redirect } from 'react-router-dom';
+// import { Redirect } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -25,7 +26,7 @@ function LandingPage(props) {
   const [ promptDuration, setPromptDuration ] = useState(10);
 
   const [ matchFound, setMatchFound ] = useState(false);
-  const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
+  // const [ redirect, setRedirect ] = useState(false); // redirect is the substitute of history.
   const [ roomLink, setRoomLink ] = useState('');
   const [ loading, setLoading ] = useState(true);
   const [ anchorEl, setAnchorEl ] = useState(null);
@@ -46,6 +47,7 @@ function LandingPage(props) {
 
   const user = useSelector(state=>state.user)
   let socket = props ? props.socket : null;
+  let history = useHistory();
 
   useEffect(() => {
     if (socket !== null && user !== null) {
@@ -87,7 +89,9 @@ function LandingPage(props) {
         setMatchFound(false);
         setReadyStatus(false);
         setRoomLink(link);
-        setRedirect(true);
+        // setRedirect(true);
+        // history.push(link);
+        window.location.assign(link);
       });
 
       // when the other user miss or doesn't accept the second prompt, get back to queueing
@@ -224,9 +228,9 @@ function LandingPage(props) {
   } else {
     return (
       <>
-        {
+        {/* {
           redirect ? (<Redirect to={roomLink} userRole={role.current} />) : ""
-        }
+        } */}
         <div>
           <div className="container">
             <div className="box">

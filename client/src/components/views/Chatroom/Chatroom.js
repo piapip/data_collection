@@ -194,7 +194,7 @@ export default function Chatroom(props) {
         });
       }
     };
-  }, [socket, chatroomID, username, userID])
+  }, [socket, chatroomID, username, userID]);
 
   useEffect(() => {
     if (socket) {
@@ -252,7 +252,7 @@ export default function Chatroom(props) {
   }, [scenario, socket]);
 
   useEffect(() => {
-    if (socket && turn !== -1 && userRole !== "") {
+    if (socket) {
       socket.on('newAudioURL', async ({ userID, sender, audioLink }) => {
         console.log(`Receive signal from ${sender} with the ID of ${userID}. Here's the link: ${audioLink}`)
         let newHistory = [...audioHistory];
@@ -264,25 +264,15 @@ export default function Chatroom(props) {
         if(turn === 1) {
           await setTurn(2);
           setMessage(StatusMessage.TURN_TWO_TRANSITION);
-          if (userRole === "servant") {
-            setIsModalVisible(true);
-          }
         // if servant sent then move on
         } else if (turn === 3) {
           await setTurn(1);
           setMessage(StatusMessage.TURN_ONE_TRANSITION);
-          if (userRole === "client") {
-            setIsModalVisible(true);
-          }
-        }
-        
-        return () => {
-          socket.off();
         }
       });
     }
     // Idk about this... it may cause problem later...
-  }, [turn, socket, audioHistory, userRole]);
+  }, [turn, socket, audioHistory]);
   // }, [])
 
   useEffect(() => {
@@ -362,6 +352,7 @@ export default function Chatroom(props) {
     if (socket) {
       socket.emit("leaveRoom", {
         chatroomID,
+        userID,
         username,
       });
     }
@@ -427,7 +418,7 @@ export default function Chatroom(props) {
     )
   }
 
-  if (loading) {
+  if (loading || !(socket && turn !== -1 && userRole !== "")) {
     return (
       <div style={{ alignItems: "center", justifyContent: "center" }}>
         <PromptLeaving 

@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { User } = require("../models/User");
 const redis_client = require("../redis-client");
+const config = require("../config/key");
 
 const CLIENT_SECRET = "tjfjfL7BSIdCyUnuc6R15Q4qtzWMMyZ8";
 
@@ -43,7 +44,7 @@ router.post("/users/token", (req, res) => {
   }
   
   const accessToken = req.body.accessToken;
-  const decodeInfo = jwt.verify(accessToken, "9d5067a5a36f2bd6f5e93008865536c7", (err, decode) => {
+  const decodeInfo = jwt.verify(accessToken, config.JWT_SECRET_KEY, (err, decode) => {
     if (err) {
       res.status(500).send({ status: 0, err: `Having problem decoding, ${err}` });
       throw err;
@@ -81,7 +82,7 @@ router.post("/users/logout", (req, res) => {
   }
 
   const accessToken = req.body.accessToken;
-  const decodeInfo = jwt.verify(accessToken, "9d5067a5a36f2bd6f5e93008865536c7", (err, decode) => {
+  const decodeInfo = jwt.verify(accessToken, config.JWT_SECRET_KEY, (err, decode) => {
     if (err) {
       res.status(500).send({ status: 0, err: `Having problem decoding, ${err}` });
       throw err;

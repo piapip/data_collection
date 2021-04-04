@@ -72,24 +72,6 @@ export default function Scenario(props) {
             currentIntent={currentIntent}/>
         </Grid>
       </Grid>
-
-      {/* <Row style={{height:"100%"}}>
-        <h3 style={{fontWeight:'bold',fontSize:'18px',textAlign: "center"}}>Kịch bản hội thoại</h3>
-        <Col span={24} style={{fontSize:"15px",marginTop:"auto", padding: "10px"}}>
-          {
-            loading ? (
-              <LoadingComponent />
-            ) : (
-              generateScript
-            )
-          }
-        </Col>
-        <Col span={24}>
-          <Progress
-            scenario={scenario}
-            currentIntent={currentIntent}/>
-        </Col>
-      </Row> */}
     </div>
   )
 }

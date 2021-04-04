@@ -45,8 +45,6 @@ export default function ServantSendButton(props) {
     return true;
   }
 
-  // console.log(roomDone || buttonState || !validateIntent());
-
   const dispatch = useDispatch();
 
   const audioName = props ? props.audioName : "test.wav";
@@ -95,11 +93,11 @@ export default function ServantSendButton(props) {
             });
             // tell the server that thing's are ready to move on.
             props.sendAudioSignal(audioLink);
-            setButtonState(false);
-            setButtonPhase(0);
             // get transcript
             dispatch(getTranscript(audioLink, audioID))
             .then(() => {
+              setButtonState(false);
+              setButtonPhase(0);
               if (socket) {
                 socket.emit('servant audio', {
                   roomID,

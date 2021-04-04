@@ -74,7 +74,7 @@ export default function RandomRoomButton(props) {
 
   if (redirect) {
     return (
-      <Redirect to={`/chatroom/${roomType}/${randomRoomID}`} />
+      <Redirect exact path={`/chatroom/${roomType}/${randomRoomID}`} />
     )
   }
   
