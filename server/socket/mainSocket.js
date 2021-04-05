@@ -476,7 +476,7 @@ sockets.init = function(server) {
                       for (const property in intentDetailed) {
                         // special case where users have to type. The value is always not null but can be "", which is empty.
                         if(property === "cmnd" || property === "name" || property === "four_last_digits") {
-                          if(intentDetailed[property].length !== 0) {
+                          if(intentDetailed[property].replace(" ", "").length !== 0) {
                             currentIntentFound[property] = intentDetailed[property];  
                           }  
                         } else {

@@ -6,7 +6,9 @@ const tmp = require("tmp");
 const fs = require("fs");
 const request = require('request');
 const { exec } = require('child_process');
+// const auth = require("../middleware/auth");
 
+// ADD AUDIO TO DB'S RECORD
 router.post("/", (req, res) => {
 
   const { userID, link } = req.body;

@@ -75,28 +75,39 @@ router.get("/logout", auth, (req, res) => {
   );
 });
 
+const redis_client = require("../redis-client");
+
 // GET USER BY ACCESSID
 router.get("/:accessToken", (req, res) => {
   const accessToken = req.params.accessToken;
-  const decodeInfo = jwt.verify(
-    accessToken,
-    config.JWT_SECRET_KEY,
-    (err, decode) => {
-      if (err) {
-        res.status(500).json({ isAuth: false, error: true });
-        throw err;
+
+  redis_client.get(accessToken, (err, data) => {
+    if (err) throw err;
+    if (data === null || data === 0 || data === undefined) return res.json({
+      isAuth: false,  
+      userFound: null,
+    });
+
+    const decodeInfo = jwt.verify(
+      accessToken,
+      config.JWT_SECRET_KEY,
+      (err, decode) => {
+        if (err) {
+          res.status(500).json({ isAuth: false, userFound: null });
+          throw err;
+        }
+        return decode;
       }
-      return decode;
-    }
-  );
+    );
 
-  const ssoUserId = decodeInfo.ssoUserId;
+    const ssoUserId = decodeInfo.ssoUserId;
 
-  User.find({ ssoUserId: ssoUserId }).then((userFound) => {
-    if (userFound.length === 0) {
-      res.status(404).send({ userFound: null });
-      return;
-    } else res.status(201).send({ userFound: userFound[0] })
+    User.find({ ssoUserId: ssoUserId }).then((userFound) => {
+      if (userFound.length === 0) {
+        res.status(404).send({ isAuth: false, userFound: null });
+        return;
+      } else res.status(201).send({ isAuth: true, userFound: userFound[0] })
+    });
   });
 });
 

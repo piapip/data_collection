@@ -6,7 +6,6 @@ const config = require('../config/key');
 let auth = (req, res, next) => {
   // let token = req.cookies.w_auth;
   let accessToken = req.cookies.accessToken;
-
   if (accessToken === null || accessToken === undefined) return res.json({
     isAuth: false,  
     error: true,
@@ -36,7 +35,6 @@ let auth = (req, res, next) => {
         return
       } else {
         const user = userFound[0];
-        req.token = user.token;
         req.user = user;
         next();
       }

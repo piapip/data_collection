@@ -39,9 +39,6 @@ app.use(session({
 
 
 const port = process.env.PORT || 5000;
-// const redis_port = process.env.PORT || 6379;
-
-// const client = redis.createClient(redis_port);
 
 app.use('/api/users', require('./routes/users'));
 app.use('/api/chatroom', require("./routes/chatroom"));

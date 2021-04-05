@@ -117,36 +117,4 @@ router.post("/users/logout", (req, res) => {
   });
 })
 
-router.get("/isLogin", (req, res) => {
-  let accessToken = req.cookies.accessToken;
-  console.log(accessToken);
-  if (accessToken === undefined || accessToken === null) return res.status(200).send({ status: 1, isAuth: false });
-  
-
-  redis_client.get(accessToken, (err, value) => {
-    if (err) return res.status(500).send({ status: 0, error: "Having problem retrieving user information!" });
-    if (value === 0 || value === null || value === undefined) {
-      console.log("Value: ", value);
-      res.status(200).send({ status: 1, isAuth: false });
-    } else {
-      res.status(200).send({ status: 1, isAuth: true });
-    }
-    
-  })
-})
-
-// Unsuable, work fine in Insomnia, but axios can't update req.session in browser :<
-// router.get("/isLogin", (req, res) => {
-//   if (req.session.user !== null && req.session.user !== undefined) {
-//     res.status(200).send({ status: 1, isAuth: true });
-//     return
-//   }
-
-//   req.session.destroy((err)=>{
-//     if(err) res.status(500).send({ status: 0, error: err });
-//     else res.status(200).send({ status: 1, isAuth: false });
-//   });
-  
-// })
-
 module.exports = router;
