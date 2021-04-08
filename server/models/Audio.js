@@ -9,11 +9,10 @@ const audioSchema = new mongoose.Schema({
     required: true,
   },
 
-  // room: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'Chatroom',
-  //   required: true,
-  // },
+  prevIntent: {
+    type: String,
+    default: "",
+  },
 
   link: {
     type: String,

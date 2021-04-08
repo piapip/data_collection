@@ -305,6 +305,7 @@ sockets.init = function(server) {
 
       // check turn of the room. Throw a fit if it's not 1. If it's 1 then: 
       await Chatroom.findById(roomID)
+      .populate('currentIntent')
       .then(async (roomFound) => {
         if (!roomFound) {
           console.log("... Some shenanigan.. Room doesn't even exist.");
@@ -338,7 +339,7 @@ sockets.init = function(server) {
                 return null;
               } else {
                 audioFound.intent = newIntent._id;
-
+                audioFound.prevIntent = flattenIntent(roomFound.currentIntent);
                 return audioFound.save();
               }
             })
@@ -476,9 +477,11 @@ sockets.init = function(server) {
                       for (const property in intentDetailed) {
                         // special case where users have to type. The value is always not null but can be "", which is empty.
                         if(property === "cmnd" || property === "name" || property === "four_last_digits") {
-                          if(intentDetailed[property].replace(" ", "").length !== 0) {
-                            currentIntentFound[property] = intentDetailed[property];  
-                          }  
+                          if(intentDetailed[property] !== null) {
+                            if(intentDetailed[property].replace(" ", "").length !== 0) {
+                              currentIntentFound[property] = intentDetailed[property];  
+                            }
+                          }
                         } else {
                           if(intentDetailed[property] !== null) {
                             currentIntentFound[property] = intentDetailed[property];
@@ -526,6 +529,7 @@ sockets.init = function(server) {
     socket.on('servant audio', async ({ roomID, audioID }) => {      
       // update room turn
       Chatroom.findById(roomID)
+      .populate('currentIntent')
       .then(async (roomFound) => {
         if (!roomFound) {
           console.log("... Some shenanigan.. Room doesn't even exist.");
@@ -545,7 +549,7 @@ sockets.init = function(server) {
               return null;
             } else {
               audioFound.intent = newIntent._id;
-
+              audioFound.prevIntent = flattenIntent(roomFound.currentIntent);
               return audioFound.save();
             }
           })
@@ -991,6 +995,11 @@ const generateRandomString = (length, allowedChars) => {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
+}
+
+const flattenIntent = (currentIntent) => {
+  const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = currentIntent;
+  return `${intent}_${loan_purpose}_${loan_type}_${card_type}_${card_usage}_${digital_bank}_${card_activation_type}_${district}_${city}_${name}_${cmnd}_${four_last_digits}_${generic_intent}`;
 }
 
 module.exports = sockets;
