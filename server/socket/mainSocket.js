@@ -447,7 +447,7 @@ sockets.init = function(server) {
 
       // if correct, emit a signal, telling both of them that's it's okay. Update the current intent for the room and move turn to 3.
       if (compare) {
-
+        console.log("Update current intent: " + JSON.stringify(intentDetailed));
         await Chatroom.findById(roomID)
         .populate('intent')
         .then(async (roomFound) => {
@@ -809,11 +809,12 @@ const generateTask = () => {
 }
 
 const intentSamplePool = require("./../config/intent");
+const namePool = require("./../config/name");
 
 const createRandomIntent = () => {
   // gen base intent
-  const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
-  // const intentIndex = 12;
+  // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  const intentIndex = 7;
   const slots = intentSamplePool.INTENT[intentIndex].slot;
 
   let tempIntent = {
@@ -824,19 +825,26 @@ const createRandomIntent = () => {
   slots.map(slot => {
     if (intentSamplePool[slot.toUpperCase()] === undefined) {
       // Have to change it once we know how to handle the city and district.
+      if (slot === 'name') {
+        return tempIntent[slot] = namePool.NAME[getRandomFromArray(namePool.NAME)];
+      } else if (slot === 'cmnd') {
+        return tempIntent[slot] = generateNumberWithLength(9);
+      } else if (slot === 'four_last_digits') {
+        return tempIntent[slot] = generateNumberWithLength(4);
+      }
       return tempIntent[slot] = -1;
     }
     const slotPool = intentSamplePool[slot.toUpperCase()];
     // we decide the objective.
-    // if (slot === "district") {
-    //   // console.log
-    //   const slotIndex = getRandomFromArray(slotPool[intentSamplePool.CITY[tempIntent["city"]]]);
-    //   return tempIntent[slot] = slotIndex;
-    // }
-    // let users decide the object.
-    if (slot === "city" || slot === "district") {
-      return tempIntent[slot] = -1;
+    if (slot === "district") {
+      // console.log
+      const slotIndex = getRandomFromArray(slotPool[intentSamplePool.CITY[tempIntent["city"]]]);
+      return tempIntent[slot] = slotIndex;
     }
+    // let users decide the object.
+    // if (slot === "city" || slot === "district") {
+    //   return tempIntent[slot] = -1;
+    // }
     const slotIndex = getRandomFromArray(slotPool);
     return tempIntent[slot] = slotIndex;
   })
@@ -990,6 +998,16 @@ const generateRandomString = (length, allowedChars) => {
   const possible =
     allowedChars ||
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for (let i = 0; i < length; i += 1) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}
+
+const generateNumberWithLength = (length) => {
+  let text = '';
+  const possible = '0123456789';
 
   for (let i = 0; i < length; i += 1) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
