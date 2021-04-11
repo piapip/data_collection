@@ -714,7 +714,11 @@ const compareIntent = (intent1, intent2) => {
     } else if(intent2[properties[key]] === "-1" || intent2[properties[key]] === -1) {
       if(intent1[properties[key]] === null) count++;
     } else {
-      if(intent1[properties[key]] !== intent2[properties[key]]) count++;
+      if(properties[key]==="name") {
+        if(intent1[properties[key]].toLowerCase() !== intent2[properties[key]].toLowerCase()) count++;
+      } else {
+        if(intent1[properties[key]] !== intent2[properties[key]]) count++;
+      }
     }
     
   }
@@ -813,8 +817,8 @@ const namePool = require("./../config/name");
 
 const createRandomIntent = () => {
   // gen base intent
-  // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
-  const intentIndex = 7;
+  const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  // const intentIndex = 7;
   const slots = intentSamplePool.INTENT[intentIndex].slot;
 
   let tempIntent = {
