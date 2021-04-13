@@ -400,7 +400,7 @@ sockets.init = function(server) {
       // }
 
       if (intentDetailed === null) intentDetailed = {};
-      const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits", "generic_intent"];
+      const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
       for (let key in properties) {
         if(intentDetailed[properties[key]] === undefined) intentDetailed[properties[key]] = null
       }
@@ -706,7 +706,7 @@ const compareIntent = (intent1, intent2) => {
   if ((intent1 === null && intent2 !== null) || (intent1 !== null && intent2 === null)) return false;
   if (intent1 === null && intent2 === null) return true;
 
-  const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "four_last_digits", "generic_intent"];
+  const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
   let count = 0;
   for (let key in properties) {
     if(intent1[properties[key]] === "-1" || intent1[properties[key]] === -1) {
@@ -715,7 +715,11 @@ const compareIntent = (intent1, intent2) => {
       if(intent1[properties[key]] === null) count++;
     } else {
       if(properties[key]==="name") {
-        if(intent1[properties[key]].toLowerCase() !== intent2[properties[key]].toLowerCase()) count++;
+        if (intent1["name"] === null && intent2["name"] !== null) count++;
+        else if (intent1["name"] !== null && intent2["name"] === null) count++
+        else if (intent1["name"] !== null && intent2["name"] !== null) {
+          if (intent1["name"].toLowerCase() !== intent2["name"].toLowerCase()) count++;
+        } else {}
       } else {
         if(intent1[properties[key]] !== intent2[properties[key]]) count++;
       }
