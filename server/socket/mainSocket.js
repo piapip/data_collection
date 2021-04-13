@@ -3,6 +3,7 @@ const { User } = require("./../models/User");
 const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
 const { Audio } = require("./../models/Audio");
+const config = require("./../config/key");
 
 sockets.init = function(server) {
   // socket.io setup
@@ -21,7 +22,7 @@ sockets.init = function(server) {
       if (token !== "undefined" && token !== "null" && token !== "") {
         
         // await jwt.verify(token, 'secret', (err, decode) => {
-        await jwt.verify(token, '9d5067a5a36f2bd6f5e93008865536c7', (err, decode) => {
+        await jwt.verify(token, config.JWT_SECRET_KEY, (err, decode) => {
           if (err) console.log(err)
           else {
             const ssoUserId = decode.ssoUserId;
