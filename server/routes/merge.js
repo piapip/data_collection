@@ -5,17 +5,14 @@ const { User } = require("../models/User");
 const redis_client = require("../redis-client");
 const config = require("../config/key");
 
-const CLIENT_SECRET = "tjfjfL7BSIdCyUnuc6R15Q4qtzWMMyZ8";
+// const CLIENT_SECRET = "tjfjfL7BSIdCyUnuc6R15Q4qtzWMMyZ8";
 
 // CREATE USER
 router.post("/users", (req, res) => {
-  // console.log("Client-secret: ", req.headers["client-secret"]);
-  // console.log("user info: ", req.body.user);
-
-  if (req.headers["client-secret"] !== CLIENT_SECRET) {
-    res.status(405).send({ status: 0, error: "None of your business!" });
-    return
-  }
+  // if (req.headers["client-secret"] !== CLIENT_SECRET) {
+  //   res.status(405).send({ status: 0, error: "None of your business!" });
+  //   return
+  // }
 
   const userInfo = req.body.user;
 
@@ -38,10 +35,10 @@ router.post("/users", (req, res) => {
 // LOGIN
 router.post("/users/token", (req, res) => {
 
-  if (req.headers["client-secret"] !== CLIENT_SECRET) {
-    res.status(405).send({ status: 0, error: "None of your business!" });
-    return
-  }
+  // if (req.headers["client-secret"] !== CLIENT_SECRET) {
+  //   res.status(405).send({ status: 0, error: "None of your business!" });
+  //   return
+  // }
   
   const accessToken = req.body.accessToken;
   const decodeInfo = jwt.verify(accessToken, config.JWT_SECRET_KEY, (err, decode) => {
@@ -76,10 +73,10 @@ router.post("/users/token", (req, res) => {
 // LOGOUT
 router.post("/users/logout", (req, res) => {
 
-  if (req.headers["client-secret"] !== CLIENT_SECRET) {
-    res.status(405).send({ status: 0, error: "None of your business!" });
-    return
-  }
+  // if (req.headers["client-secret"] !== CLIENT_SECRET) {
+  //   res.status(405).send({ status: 0, error: "None of your business!" });
+  //   return
+  // }
 
   const accessToken = req.body.accessToken;
   const decodeInfo = jwt.verify(accessToken, config.JWT_SECRET_KEY, (err, decode) => {
