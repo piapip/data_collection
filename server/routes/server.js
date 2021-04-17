@@ -4,6 +4,7 @@ const { User } = require("../models/User");
 const { Chatroom } = require("../models/Chatroom");
 const { Audio } = require("../models/Audio");
 const fs = require("fs");
+const intentSamplePool = require("./../config/intent");
 
 // count user
 router.get("/user", (req, res) => {
@@ -93,24 +94,35 @@ router.get("/export", async (req, res) => {
     let conversation = {};
     conversation.id = room.name;
     conversation.turns = [];
-    console.log("Got here!")
     const { audioList } = room;
 
     if (audioList.length > 0) {
       audioList.forEach((audio, audioIndex) => {
         const frames = {};
-        const { prevIntent, user, intent, transcript } = audio;
+        const { prevIntent, user, intent, transcript, link } = audio;
         const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
         
+        frames.path = link;
         frames.prevIntent = prevIntent;
         frames.speaker = user;
         frames.turn_id = audioIndex;
         frames.transcript = transcript;
         frames.slot_values = {};
+        frames.semantics = '';
 
         for (let key in properties) {
-          if(intent[properties[key]] !== null) frames.slot_values[properties[key]] = intent[properties[key]];
+          if(intent[properties[key]] !== null) {
+            const slot = properties[key];
+            frames.slot_values[slot] = intent[slot];
+            if (intentSamplePool[slot.toUpperCase] === undefined) {
+              frames.semantics = frames.semantics + `'${slot}': '${intent[slot]}', `
+            } else {
+              frames.semantics = frames.semantics + `'${slot}': ${intentInfo[slot.toUpperCase][intent[slot]]}, `
+            }
+            
+          }
         }
+        frames.semantics = "{" + frames.semantics.substring(0, frames.semantics.length - 2) + "}";
         conversation.turns.push(frames);
       })
     }

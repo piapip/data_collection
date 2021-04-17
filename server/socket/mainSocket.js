@@ -1025,8 +1025,22 @@ const generateNumberWithLength = (length) => {
 }
 
 const flattenIntent = (currentIntent) => {
-  const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = currentIntent;
-  return `${intent}_${loan_purpose}_${loan_type}_${card_type}_${card_usage}_${digital_bank}_${card_activation_type}_${district}_${city}_${name}_${cmnd}_${four_last_digits}_${generic_intent}`;
+  // const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = currentIntent;
+  // return `${intent}_${loan_purpose}_${loan_type}_${card_type}_${card_usage}_${digital_bank}_${card_activation_type}_${district}_${city}_${name}_${cmnd}_${four_last_digits}_${generic_intent}`;
+  const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
+  let result = '';
+  for (let key in properties) {
+    if(currentIntent[properties[key]] !== null) {
+      const slot = properties[key];
+      if (intentSamplePool[slot.toUpperCase] === undefined) {
+        result = result + `'${slot}': '${currentIntent[slot]}', `
+      } else {
+        result = result + `'${slot}': ${intentInfo[slot.toUpperCase][intent[slot]]}, `
+      }
+    }
+  }
+  result = "{" + result.substring(0, result.length - 2) + "}";
+  return result
 }
 
 module.exports = sockets;
