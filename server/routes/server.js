@@ -3,6 +3,7 @@ const router = express.Router();
 const { User } = require("../models/User");
 const { Chatroom } = require("../models/Chatroom");
 const { Audio } = require("../models/Audio");
+const fs = require("fs");
 
 // count user
 router.get("/user", (req, res) => {
@@ -64,6 +65,69 @@ router.get("/flatten", (req, res) => {
 })
 
 // count main intent for rooms
+router.get("/export", async (req, res) => {
+  const exportFolder = `C:/Users/thovi/Desktop/Data/data_collection/export`;
+  const userExportFile = "/User.json";
+  const conversationsExportFile = "/Conversations.json";
+  
+  await User.find()
+  .then((userFound) => {
+    exportObject(exportFolder + userExportFile, userFound)
+  })
+  .catch(err => {
+    res.status(500).send("Internal problem... Can't get User's information. Err:");
+    throw err
+  });
+
+  const rooms = await Chatroom
+  .find()
+  .populate({
+    path: 'audioList',
+    populate: {
+      path: 'intent',
+    }
+  })
+  .exec();
+  let result = [];
+  rooms.forEach((room, roomIndex) => {
+    let conversation = {};
+    conversation.id = room.name;
+    conversation.turns = [];
+    console.log("Got here!")
+    const { audioList } = room;
+
+    if (audioList.length > 0) {
+      audioList.forEach((audio, audioIndex) => {
+        const frames = {};
+        const { prevIntent, user, intent, transcript } = audio;
+        const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
+        
+        frames.prevIntent = prevIntent;
+        frames.speaker = user;
+        frames.turn_id = audioIndex;
+        frames.transcript = transcript;
+        frames.slot_values = {};
+
+        for (let key in properties) {
+          if(intent[properties[key]] !== null) frames.slot_values[properties[key]] = intent[properties[key]];
+        }
+        conversation.turns.push(frames);
+      })
+    }
+    result.push(conversation);
+  })
+  exportObject(exportFolder + conversationsExportFile, result);
+  res.status(200).send("ok!");
+})
+
+const exportObject = (destination, object) => {
+  fs.writeFile(destination, JSON.stringify(object), (err) => {
+    // return doesn't work...
+    if (err) {
+      console.log(err)
+    }
+  })
+}
 
 const flattenIntent = (currentIntent) => {
   const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = currentIntent;

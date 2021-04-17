@@ -15,6 +15,7 @@ yarn-error.log*
 .vscode
 /public/
 /server/public
+/export
 
 Lib
 Scripts
