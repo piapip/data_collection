@@ -75,6 +75,14 @@ const INTENT = [
 
 const SLOT_LABEL = [
   {
+    name: "Ý định",
+    tag: "intent",
+  },
+  {
+    name: "Ý định",
+    tag: "generic_intent",
+  },
+  {
     name: "Mục đích cho vay",
     tag: "LOAN_PURPOSE",
   },

@@ -1030,12 +1030,24 @@ const flattenIntent = (currentIntent) => {
   const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
   let result = '';
   for (let key in properties) {
-    if(currentIntent[properties[key]] !== null) {
+    if(intent[properties[key]] !== null) {
       const slot = properties[key];
-      if (intentSamplePool[slot.toUpperCase] === undefined) {
-        result = result + `'${slot}': '${currentIntent[slot]}', `
-      } else {
-        result = result + `'${slot}': ${intentInfo[slot.toUpperCase][intent[slot]]}, `
+      frames.slot_values[slot] = intent[slot];
+      
+      switch(slot) {
+        case "city":
+          frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["CITY"][intent[slot]]}', `
+          break;
+        case "district":
+          const city = intentSamplePool["CITY"][intent["city"]]
+          frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["DISTRICT"][city][intent[slot]]}', `
+          break;
+        default:
+          if (intentSamplePool[slot.toUpperCase()] === undefined || intent[slot] === -1) {
+            frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intent[slot]}', `
+          } else {
+            frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool[slot.toUpperCase()][intent[slot]].name}', `
+          }
       }
     }
   }
