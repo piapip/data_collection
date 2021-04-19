@@ -65,19 +65,25 @@ router.get("/flatten", (req, res) => {
   });
 })
 
-// count main intent for rooms
-router.get("/export", async (req, res) => {
-  const { userExportFile, conversationsExportFile } = req.body;
-  
+router.get("/export-user", async (req, res) => {
+  const { destination } = req.body;
+
   await User.find()
   .then((userFound) => {
-    exportObject(userExportFile, userFound)
+    exportObject(destination, userFound)
   })
   .catch(err => {
     res.status(500).send("Internal problem... Can't get User's information. Err:");
     throw err
   });
 
+  res.status(200).send("Ok");
+})
+
+// count main intent for rooms
+router.get("/export-conversation", async (req, res) => {
+  const { destination } = req.body;
+  
   const rooms = await Chatroom
   .find()
   .populate({
@@ -142,7 +148,7 @@ router.get("/export", async (req, res) => {
     }
     result.push(conversation);
   })
-  exportObject(conversationsExportFile, result);
+  exportObject(destination, result);
   res.status(200).send("ok!");
 })
 
