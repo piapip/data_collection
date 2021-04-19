@@ -94,7 +94,7 @@ router.get("/export-conversation", async (req, res) => {
   })
   .exec();
   let result = [];
-  rooms.forEach((room, roomIndex) => {
+  rooms.forEach((room) => {
     let conversation = {};
     conversation.id = room.name;
     conversation.turns = [];
@@ -104,7 +104,6 @@ router.get("/export-conversation", async (req, res) => {
       audioList.forEach((audio, audioIndex) => {
         const frames = {};
         const { prevIntent, user, intent, transcript, link } = audio;
-        const properties = ["intent", "generic_intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits"];
         
         frames.path = link;
         frames.prevIntent = prevIntent;
@@ -115,34 +114,57 @@ router.get("/export-conversation", async (req, res) => {
           intent["intent"] !== null ? intentSamplePool["INTENT"][intent["intent"]].name :
           intent["generic_intent"] !== null ? intentSamplePool["GENERIC_INTENT"][intent["generic_intent"]] : ""
         frames.slot_values = {};
-        frames.semantics = '';
 
+        const properties = ["loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits"];
         for (let key in properties) {
           if(intent[properties[key]] !== null) {
             const slot = properties[key];
-            if (slot !== "intent" && slot !== "generic_intent") frames.slot_values[slot] = intent[slot];
             
             switch(slot) {
               case "city":
-                frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["CITY"][intent[slot]]}', `
+                frames.slot_values[slot] = intentSamplePool["CITY"][intent[slot]];
                 break;
               case "district":
-                const city = intentSamplePool["CITY"][intent["city"]]
-                frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["DISTRICT"][city][intent[slot]]}', `
-                break;
-              case "generic_intent":
-                frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["GENERIC_INTENT"][intent[slot]]}', `
+                const city = intentSamplePool["CITY"][intent["city"]];
+                frames.slot_values[slot] = intentSamplePool["DISTRICT"][city][intent[slot]];
                 break;
               default:
                 if (intentSamplePool[slot.toUpperCase()] === undefined || intent[slot] === -1) {
-                  frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intent[slot]}', `
+                  frames.slot_values[slot] = intent[slot];
                 } else {
-                  frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool[slot.toUpperCase()][intent[slot]].name}', `
+                  frames.slot_values[slot] = intentSamplePool[slot.toUpperCase()][intent[slot]].name;
                 }
             }
           }
         }
-        frames.semantics = "{" + frames.semantics.substring(0, frames.semantics.length - 2) + "}";
+
+        // const properties = ["intent", "generic_intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits"];
+        // for (let key in properties) {
+        //   if(intent[properties[key]] !== null) {
+        //     const slot = properties[key];
+        //     if (slot !== "intent" && slot !== "generic_intent") frames.slot_values[slot] = intent[slot];
+            
+        //     switch(slot) {
+        //       case "city":
+        //         frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["CITY"][intent[slot]]}', `
+        //         break;
+        //       case "district":
+        //         const city = intentSamplePool["CITY"][intent["city"]]
+        //         frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["DISTRICT"][city][intent[slot]]}', `
+        //         break;
+        //       case "generic_intent":
+        //         frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["GENERIC_INTENT"][intent[slot]]}', `
+        //         break;
+        //       default:
+        //         if (intentSamplePool[slot.toUpperCase()] === undefined || intent[slot] === -1) {
+        //           frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intent[slot]}', `
+        //         } else {
+        //           frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool[slot.toUpperCase()][intent[slot]].name}', `
+        //         }
+        //     }
+        //   }
+        // }
+        // frames.semantics = "{" + frames.semantics.substring(0, frames.semantics.length - 2) + "}";
         conversation.turns.push(frames);
       })
     }
@@ -166,12 +188,12 @@ const flattenIntent = (currentIntent) => {
   return `${intent}_${loan_purpose}_${loan_type}_${card_type}_${card_usage}_${digital_bank}_${card_activation_type}_${district}_${city}_${name}_${cmnd}_${four_last_digits}_${generic_intent}`;
 }
 
-const getLabel = (slot) => {
-  const slotIndex = intentSamplePool.SLOT_LABEL.findIndex((item) => {
-    return item.tag.toUpperCase() === slot.toUpperCase();
-  });
+// const getLabel = (slot) => {
+//   const slotIndex = intentSamplePool.SLOT_LABEL.findIndex((item) => {
+//     return item.tag.toUpperCase() === slot.toUpperCase();
+//   });
 
-  return slotIndex === -1 ? '' : intentSamplePool.SLOT_LABEL[slotIndex].name;
-};
+//   return slotIndex === -1 ? '' : intentSamplePool.SLOT_LABEL[slotIndex].name;
+// };
 
 module.exports = router;
