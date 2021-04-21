@@ -239,7 +239,8 @@ sockets.init = function(server) {
 
     // when an user enters the room, announce to everyone else in the room
     socket.on('joinRoom', async ({ socketID, chatroomID, userID, username }) => {
-
+      
+      console.log("userID: ", userID)
       const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socketID})
       if (inRoomIndex === -1) inRoom.push({
         roomID: chatroomID,
@@ -257,6 +258,7 @@ sockets.init = function(server) {
         // sending to individual socketid (private message)	
         io.to(chatroomID).emit('joinRoom announce', {	
           username: username,	
+          userID: userID,
         });
       } else if (status === -1) {
         io.to(socketID).emit('room full', {});
@@ -264,8 +266,9 @@ sockets.init = function(server) {
         socket.join(chatroomID);
         console.log(`The user ${username} has rejoined chatroom: ${chatroomID}`);
 
-        io.to(chatroomID).emit('joinRoom announce', {	
-          username: username,	
+        io.to(chatroomID).emit('joinRoom announce', {
+          username: username,
+          userID: userID,
         });
       } else {
         console.log("how the fuck...??? joinRoom mainsocket.js")
@@ -302,7 +305,7 @@ sockets.init = function(server) {
 
     socket.on('client intent', async ({ roomID, audioID, intentDetailed }) => {
       
-      console.log("Receive client intent: " + JSON.stringify(intentDetailed) + " of audio " + audioID + " from room " + roomID);
+      // console.log("Receive client intent: " + JSON.stringify(intentDetailed) + " of audio " + audioID + " from room " + roomID);
 
       // check turn of the room. Throw a fit if it's not 1. If it's 1 then: 
       await Chatroom.findById(roomID)
@@ -448,7 +451,7 @@ sockets.init = function(server) {
 
       // if correct, emit a signal, telling both of them that's it's okay. Update the current intent for the room and move turn to 3.
       if (compare) {
-        console.log("Update current intent: " + JSON.stringify(intentDetailed));
+        // console.log("Update current intent: " + JSON.stringify(intentDetailed));
         await Chatroom.findById(roomID)
         .populate('intent')
         .then(async (roomFound) => {
@@ -587,7 +590,7 @@ sockets.init = function(server) {
           transcript: transcript,
           index: -1,
         });
-      }, 2500);
+      }, 3500);
     });
 
     socket.on("remove audio", ({ roomID }) => {
