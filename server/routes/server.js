@@ -17,15 +17,48 @@ router.get("/user", (req, res) => {
   });
 });
 
-// count room done
-router.get("/room", (req, res) => {
-  Chatroom.estimatedDocumentCount({done: true}, (err, count) => {
-    if (err) res.status(500).send({ success: false, err })
-    return res.status(200).send({
-      success: true,
-      count
-    })
+// Count room done.
+// Count room undone.
+// Count approved audios with intent.
+// Count intents distribution. 
+router.get("/statistic", async (req, res) => {
+  let roomDoneCount = 0;
+  let roomNotDoneCount = 0;
+  let audioCount = 0;
+  let intentCount = {};
+  for (let i = 0; i < intentSamplePool.INTENT.length; i++) intentCount[intentSamplePool.INTENT[i].name] = 0;
+  for (let i = 0; i < intentSamplePool.GENERIC_INTENT.length; i++) intentCount[intentSamplePool.GENERIC_INTENT[i]] = 0;
+  const roomList = await Chatroom.find({}).populate({
+    path: 'audioList',
+    populate: {
+      path: 'intent',
+    }
   });
+
+  for (let roomIndex = 0; roomIndex < roomList.length; roomIndex++) {
+    
+    const { audioList, done } = roomList[roomIndex];
+    if (done) roomDoneCount++;
+    else roomNotDoneCount++;
+    // audioCount = audioCount + audioList.length;
+    for (let audioIndex = 0; audioIndex < audioList.length; audioIndex++) {
+      const { intent, generic_intent } = audioList[audioIndex].intent;
+      let count = 0;
+      if (intent !== null) {
+        count++;
+        intentCount[intentSamplePool.INTENT[intent].name]++;
+      }
+      if (generic_intent !== null) {
+        count++
+        intentCount[intentSamplePool.GENERIC_INTENT[generic_intent]]++;
+      }
+      if (count !== 0) audioCount++;
+    }
+  }
+  res.status(200).send({
+    success: true,
+    roomDoneCount, roomNotDoneCount, audioCount, intentCount
+  })
 });
 
 // count all accepted audio
@@ -138,33 +171,6 @@ router.get("/export-conversation", async (req, res) => {
           }
         }
 
-        // const properties = ["intent", "generic_intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits"];
-        // for (let key in properties) {
-        //   if(intent[properties[key]] !== null) {
-        //     const slot = properties[key];
-        //     if (slot !== "intent" && slot !== "generic_intent") frames.slot_values[slot] = intent[slot];
-            
-        //     switch(slot) {
-        //       case "city":
-        //         frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["CITY"][intent[slot]]}', `
-        //         break;
-        //       case "district":
-        //         const city = intentSamplePool["CITY"][intent["city"]]
-        //         frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["DISTRICT"][city][intent[slot]]}', `
-        //         break;
-        //       case "generic_intent":
-        //         frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool["GENERIC_INTENT"][intent[slot]]}', `
-        //         break;
-        //       default:
-        //         if (intentSamplePool[slot.toUpperCase()] === undefined || intent[slot] === -1) {
-        //           frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intent[slot]}', `
-        //         } else {
-        //           frames.semantics = frames.semantics + `'${getLabel(slot)}': '${intentSamplePool[slot.toUpperCase()][intent[slot]].name}', `
-        //         }
-        //     }
-        //   }
-        // }
-        // frames.semantics = "{" + frames.semantics.substring(0, frames.semantics.length - 2) + "}";
         conversation.turns.push(frames);
       })
     }
@@ -172,6 +178,10 @@ router.get("/export-conversation", async (req, res) => {
   })
   exportObject(destination, result);
   res.status(200).send("ok!");
+})
+
+router.get("/test", (req, res) => {
+  res.status(200).send("oke!")
 })
 
 const exportObject = (destination, object) => {
