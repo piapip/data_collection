@@ -5,7 +5,7 @@ const multer = require('multer');
 
 const DOMAIN_NAME = 'http://localhost:5000';
 
-const upload_local = uploadService.upload.single('soundBlob');
+const upload_local = uploadService.upload.single('file');
 
 router.post('/', (req, res) => {
   upload_local(req, res, async err => {

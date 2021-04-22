@@ -25,7 +25,7 @@ const storage = multer.memoryStorage({
   }
 })
 
-const upload = multer({ storage }).single('soundBlob');
+const upload = multer({ storage }).single('file');
 
 // save those blob to the server
 router.post('/', upload, async (req, res) => {
