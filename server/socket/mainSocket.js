@@ -384,7 +384,7 @@ sockets.init = function(server) {
           transcript: transcript,
           index: -1,
         });
-      }, 3500);
+      }, 4500);
     });
 
     socket.on('servant intent', async ({ roomID, intentDetailed }) => {
@@ -590,7 +590,7 @@ sockets.init = function(server) {
           transcript: transcript,
           index: -1,
         });
-      }, 3500);
+      }, 4500);
     });
 
     socket.on("remove audio", ({ roomID }) => {
