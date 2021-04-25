@@ -240,7 +240,6 @@ sockets.init = function(server) {
     // when an user enters the room, announce to everyone else in the room
     socket.on('joinRoom', async ({ socketID, chatroomID, userID, username }) => {
       
-      console.log("userID: ", userID)
       const inRoomIndex = inRoom.findIndex((item) => {return item.socketID === socketID})
       if (inRoomIndex === -1) inRoom.push({
         roomID: chatroomID,
@@ -384,7 +383,7 @@ sockets.init = function(server) {
           transcript: transcript,
           index: -1,
         });
-      }, 4500);
+      }, 4000);
     });
 
     socket.on('servant intent', async ({ roomID, intentDetailed }) => {
@@ -590,7 +589,7 @@ sockets.init = function(server) {
           transcript: transcript,
           index: -1,
         });
-      }, 4500);
+      }, 4000);
     });
 
     socket.on("remove audio", ({ roomID }) => {

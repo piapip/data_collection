@@ -4,10 +4,10 @@ const { Audio } = require("../models/Audio");
 const axios = require('axios');
 const config = require('./../config/key');
 
-const tmp = require("tmp");
-const fs = require("fs");
-const request = require('request');
-const { exec } = require('child_process');
+// const tmp = require("tmp");
+// const fs = require("fs");
+// const request = require('request');
+// const { exec } = require('child_process');
 // const auth = require("../middleware/auth");
 
 // ADD AUDIO TO DB'S RECORD
@@ -98,9 +98,6 @@ router.put("/:audioID/:userID", (req, res) => {
     console.log(`Error while updating audio ${audioID} transcript... ${err}`)
     res.status(500).send({success: false, message: "Something's wrong internally, so sorry..."})
   })
-  // console.log("Received transcript for audio " + audioID + " " + transcript);
-  // res.status(200).send({success: true});
-  // res.status(404)
 })
 
 // const getTranscript = (uri, audioID) => {
@@ -139,14 +136,16 @@ router.put("/:audioID/:userID", (req, res) => {
 // }
 
 const getTranscriptWithGGAPI = (uri, audioID) => {
-  axios.get(`http://43.239.223.87:3087/api/v1/stt?url=https://end-to-end-slu.s3.amazonaws.com/0_5ff6de72e5181b29201d56b6_6044b32a1ac967304835c8d1.wav`, {
-  // axios(`${config.transcript_api}/stt?url=${uri}`,{
+  // console.log("uri: ", uri);
+  axios.get(`${config.transcript_api}/stt?url=${uri}`, {
     headers: {
       Authorization: config.transcript_api_key,
     },
   })
   .then(response => {
     const { result, status } = response.data;
+
+    // console.log(response.data)
 
     if (status === 1) {
       const { transcription } = result;

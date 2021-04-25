@@ -78,11 +78,15 @@ router.get("/logout", auth, (req, res) => {
 const redis_client = require("../redis-client");
 
 // GET USER BY ACCESSID
-router.get("/:accessToken", (req, res) => {
-  const accessToken = req.params.accessToken;
+router.get("/accessToken", (req, res) => {
+  const accessToken = req.headers.accesstoken;
+  // const accessToken = req.params.accessToken;
 
   redis_client.get(accessToken, (err, data) => {
-    if (err) throw err;
+    if (err) {
+      res.json({ isAuth: false, userFound: null });
+      throw err;
+    }
     if (data === null || data === 0 || data === undefined) return res.json({
       isAuth: false,  
       userFound: null,
