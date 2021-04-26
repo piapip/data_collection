@@ -2,9 +2,8 @@ PORT=5000
 REDIS_PORT=6379
 
 mongoURI=mongodb://localhost:27017/data-collection-SLU
-uploadAPI=/api/upload/file
 JWT_SECRET_KEY=9d5067a5a36f2bd6f5e93008865536c7
-transcript_api=http://43.239.223.87:3087/api/v1
+transcript_api=https://asr.vbeecore.com/api/v1
 transcript_api_key=
 REDIS_HOST=
 REDIS_PORT=
