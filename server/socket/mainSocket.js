@@ -306,6 +306,13 @@ sockets.init = function(server) {
       
       // console.log("Receive client intent: " + JSON.stringify(intentDetailed) + " of audio " + audioID + " from room " + roomID);
 
+      // parse the received intent
+      if (intentDetailed === null) intentDetailed = {};
+      const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
+      for (let key in properties) {
+        if(intentDetailed[properties[key]] === undefined || intentDetailed[properties[key]] === '') intentDetailed[properties[key]] = null
+      }
+
       // check turn of the room. Throw a fit if it's not 1. If it's 1 then: 
       await Chatroom.findById(roomID)
       .populate('currentIntent')
@@ -389,23 +396,10 @@ sockets.init = function(server) {
     socket.on('servant intent', async ({ roomID, intentDetailed }) => {
       
       // parse the received intent
-      // if (intentDetailed === null) {
-      //   intentDetailed = {
-      //     device: null,
-      //     room: null,
-      //     action: null,
-      //     scale: null,
-      //     floor: null,
-      //     level: null,
-      //   };
-      // } else {
-        
-      // }
-
       if (intentDetailed === null) intentDetailed = {};
       const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
       for (let key in properties) {
-        if(intentDetailed[properties[key]] === undefined) intentDetailed[properties[key]] = null
+        if(intentDetailed[properties[key]] === undefined || intentDetailed[properties[key]] === '') intentDetailed[properties[key]] = null
       }
 
       // compare servant's intent and client's intent.
@@ -718,8 +712,8 @@ const compareIntent = (intent1, intent2) => {
       if(intent1[properties[key]] === null) count++;
     } else {
       if(properties[key]==="name") {
-        if (intent1["name"] === null && intent2["name"] !== null) count++;
-        else if (intent1["name"] !== null && intent2["name"] === null) count++
+        if (intent1["name"] === null && (intent2["name"] !== null && intent2["name"] !== '')) count++;
+        else if ((intent1["name"] !== null && intent1["name"] !== '') && intent2["name"] === null) count++
         else if (intent1["name"] !== null && intent2["name"] !== null) {
           if (intent1["name"].toLowerCase() !== intent2["name"].toLowerCase()) count++;
         } else {}
