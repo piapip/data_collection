@@ -1,87 +1,97 @@
 const INTENT = [
   {
+    // #0
     name: "Cấp lại mật khẩu",
     slot: ["digital_bank"],
   },
   {
+    // #1
     name: "Chương trình ưu đãi",
     slot: ["card_type"],
   },
   {
+    // #2
     name: "Điều kiện vay vốn",
     slot: ["loan_purpose", "loan_type"],
   },
   {
+    // #3
     name: "Điểm đặt ATM",
     slot: ["city", "district"],
   },
   {
+    // #4
     name: "Điểm giao dịch",
     slot: ["city", "district"],
   },
   {
+    // #5
     name: "Hồ sơ phát hành thẻ",
     slot: ["card_type", "card_usage"],
   },
   {
+    // #6
     name: "Hồ sơ vay vốn",
     slot: ["loan_purpose", "loan_type"],
   },
   {
+    // #7
     name: "Hủy chi tiêu thẻ",
     slot: ["name", "cmnd", "four_last_digits"],
   },
   {
+    // #8
     name: "Hướng dẫn mở thẻ",
     slot: ["card_activation_type"],
   },
   {
+    // #9
     name: "Khái niệm sản phẩm",
     slot: ["card_type", "card_usage"],
   },
   {
+    // #10
     name: "Kích hoạt thẻ tự động",
     slot: ["name", "cmnd", "four_last_digits"],
   },
   {
+    // #11
     name: "Khóa thẻ khẩn cấp",
     slot: ["name", "cmnd", "four_last_digits"],
   },
   {
+    // #12
     name: "Kích hoạt chi tiêu thẻ",
     slot: ["name", "cmnd", "four_last_digits"],
   },
   {
+    // #13
     name: "Phí chuyển tiền",
     slot: ["digital_bank"],
   },
   {
-    name: "Phương thức hủy dịch vụ NHĐT",
+    // #14
+    name: "Phương thức hủy dịch vụ Ngân hàng điện tử",
     slot: ["digital_bank"],
   },
   {
-    name: "Tính năng dịch vụ NHĐT",
+    // #15
+    name: "Tính năng dịch vụ Ngân hàng điện tử",
     slot: ["digital_bank"],
   },
   {
+    // #16
     name: "Tra cứu số dư",
     slot: ["name", "cmnd", "four_last_digits"],
   },
   {
+    // #17
     name: "Thay đổi hạn mức chi tiêu thẻ",
     slot: ["name", "cmnd", "four_last_digits"],
   },
 ];
 
 const SLOT_LABEL = [
-  {
-    name: "Ý định",
-    tag: "intent",
-  },
-  {
-    name: "Ý định",
-    tag: "generic_intent",
-  },
   {
     name: "Mục đích cho vay",
     tag: "LOAN_PURPOSE",
@@ -235,11 +245,6 @@ const DIGITAL_BANK = [
     name: "Mobile Banking",
     tag: "Mobile Banking",
     hint: "mobile banking, MB",
-  },
-  {
-    name: "Phone Banking",
-    tag: "Phone Banking",
-    hint: "phone banking",
   },
   {
     name: "VCBPAY",
