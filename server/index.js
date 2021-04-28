@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const cors = require('cors');
-const session = require('express-session');
+// const session = require('express-session');
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
@@ -30,12 +30,12 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-app.use(session({
-  secret: "secret",
-  resave: true,
-  saveUninitialized: true,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
-}))
+// app.use(session({
+//   secret: "secret",
+//   resave: true,
+//   saveUninitialized: true,
+//   cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+// }))
 
 
 const port = process.env.PORT || 5000;
@@ -48,7 +48,7 @@ app.use("*", (req, res, next) => {
 app.use('/api/users', require('./routes/users'));
 app.use('/api/chatroom', require("./routes/chatroom"));
 // app.use('/api/upload/file', require('./routes/upload'));
-app.use(config.uploadAPI, require('./routes/upload'));
+// app.use(config.uploadAPI, require('./routes/upload'));
 app.use('/api/message', require('./routes/message'));
 app.use('/api/audio', require('./routes/audio'));
 app.use('/api/aws/upload', require('./routes/upload_aws'));
