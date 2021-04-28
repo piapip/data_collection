@@ -3,8 +3,8 @@ REDIS_PORT=6379
 
 mongoURI=mongodb://localhost:27017/data-collection-SLU
 JWT_SECRET_KEY=9d5067a5a36f2bd6f5e93008865536c7
-transcript_api=https://asr.vbeecore.com/api/v1
-transcript_api_key=
+TRANSCRIPT_API=https://asr.vbeecore.com/api/v1
+TRANSCRIPT_API_KEY=
 REDIS_HOST=
 REDIS_PORT=
 REDIS_PASSWORD=

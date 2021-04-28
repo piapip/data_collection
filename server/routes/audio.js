@@ -137,9 +137,9 @@ router.put("/:audioID/:userID", (req, res) => {
 
 const getTranscriptWithGGAPI = (uri, audioID) => {
   // console.log("uri: ", uri);
-  axios.get(`${config.transcript_api}/stt?url=${uri}`, {
+  axios.get(`${config.TRANSCRIPT_API}/stt?url=${uri}`, {
     headers: {
-      Authorization: config.transcript_api_key,
+      Authorization: config.TRANSCRIPT_API_KEY,
     },
   })
   .then(response => {
