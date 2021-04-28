@@ -139,7 +139,7 @@ const getTranscriptWithGGAPI = (uri, audioID) => {
   // console.log("uri: ", uri);
   axios.get(`${config.TRANSCRIPT_API}/api/v1/stt?url=${uri}`, {
     headers: {
-      Authorization: config.TRANSCRIPT_API_KEY,
+      Authorization: `Bearer ${config.TRANSCRIPT_API_KEY}`,
     },
   })
   .then(response => {
