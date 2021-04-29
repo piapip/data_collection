@@ -41,7 +41,9 @@ app.use(cookieParser());
 const port = process.env.PORT || 5000;
 
 app.use("*", (req, res, next) => {
-  console.log(`[${req.method}] ${req._parsedOriginalUrl ? req._parsedOriginalUrl.pathname : ""}`)
+  // console.log(req)
+  // console.log(`[${req.method}] ${req._parsedOriginalUrl ? req._parsedOriginalUrl.pathname : ""}`)
+  console.log(`[${req.method}] ${req.baseUrl}`)
   next()
 })
 
