@@ -165,7 +165,11 @@ router.get("/export-conversation", async (req, res) => {
                 if (intentSamplePool[slot.toUpperCase()] === undefined || intent[slot] === -1) {
                   frames.slot_values[slot] = intent[slot];
                 } else {
-                  frames.slot_values[slot] = intentSamplePool[slot.toUpperCase()][intent[slot]].name;
+                  if (intentSamplePool[slot.toUpperCase()][intent[slot]] !== undefined) { // normally
+                    frames.slot_values[slot] = intentSamplePool[slot.toUpperCase()][intent[slot]].name;
+                  } else { // probably forgot that the intent file has been changed, need to recover the old version for this to be recorded correctly.
+                    res.status(500).send("You probably forgot that the intent file in the config folder has been changed, need to recover the old version for this to be recorded correctly.")
+                  }
                 }
             }
           }
