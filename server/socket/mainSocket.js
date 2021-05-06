@@ -4,6 +4,7 @@ const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
 const { Audio } = require("./../models/Audio");
 const config = require("./../config/key");
+const axios = require('axios');
 
 sockets.init = function(server) {
   // socket.io setup
@@ -609,6 +610,52 @@ sockets.init = function(server) {
       } else {
         // DO I need to put a update transcript fail here?
       }
+    })
+    
+    socket.on("get transcript", ({ audioID, audioURL, userID, chatroomID }) => {
+      axios.get(`${config.TRANSCRIPT_API}/api/v1/stt?url=${audioURL}`, {
+        headers: {
+          Authorization: `Bearer ${config.TRANSCRIPT_API_KEY}`,
+        },
+      })
+      .then(response => {
+        const { result, status } = response.data;
+    
+        if (status === 1) {
+          const { transcription } = result;
+          io.to(chatroomID).emit("confirm transcript", {
+            audioID,
+            audioURL,
+            transcription,
+            userID,
+          })  
+        } else {
+          io.to(chatroomID).emit("confirm transcript", {
+            audioID,
+            audioURL,
+            transcription: "...",
+            userID,
+          })  
+        }
+      })
+    })
+
+    socket.on("transcript confirmed", ({ audioID, userID, newTranscript }) => {
+      Audio.findById(audioID)
+      .then(audioFound => {
+        if(!audioFound) {
+          console.log("Can't find audio to update transcript!");
+          throw "Can't find audio"
+        } else {
+          audioFound.transcript = newTranscript;
+          audioFound.fixBy = userID;
+          return audioFound.save();
+        }
+      })
+      .then(() => {})
+      .catch(err => {
+        console.log(`Error while updating audio ${audioID} transcript... ${err}`)
+      })
     })
 
     // when receive a message
