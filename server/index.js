@@ -53,6 +53,7 @@ app.use('/api/chatroom', require("./routes/chatroom"));
 // app.use(config.uploadAPI, require('./routes/upload'));
 app.use('/api/message', require('./routes/message'));
 app.use('/api/audio', require('./routes/audio'));
+app.use('/api/intent', require('./routes/intent'));
 app.use('/api/aws/upload', require('./routes/upload_aws'));
 app.use('/api/testing', require('./routes/audio_transcript/audio_transcript'));
 app.use('/api/server', require('./routes/server'));
