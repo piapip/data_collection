@@ -875,8 +875,17 @@ const createRandomIntent = () => {
 
   // gen slot required for intent.
   slots.map(slot => {
-    if (intentSamplePool[slot.toUpperCase()] === undefined) {
-      // Have to change it once we know how to handle the city and district.
+    const slotPool = intentSamplePool[slot.toUpperCase()];
+    if (slot === "city") {
+      const slotIndex = getRandomFromArray(slotPool);
+      return tempIntent[slot] = slotPool[slotIndex];
+    }
+    else if (slot === "district") {
+      const districtPool = slotPool[tempIntent["city"]];
+      const slotIndex = getRandomFromArray(districtPool);
+      return tempIntent[slot] = districtPool[slotIndex];
+    }
+    else if (intentSamplePool[slot.toUpperCase()] === undefined) {
       if (slot === 'name') {
         return tempIntent[slot] = namePool.NAME[getRandomFromArray(namePool.NAME)];
       } else if (slot === 'cmnd') {
@@ -885,20 +894,10 @@ const createRandomIntent = () => {
         return tempIntent[slot] = generateNumberWithLength(4);
       }
       return tempIntent[slot] = -1;
-    }
-    const slotPool = intentSamplePool[slot.toUpperCase()];
-    // we decide the objective.
-    if (slot === "district") {
-      // console.log
-      const slotIndex = getRandomFromArray(slotPool[intentSamplePool.CITY[tempIntent["city"]]]);
+    } else {
+      const slotIndex = getRandomFromArray(slotPool);
       return tempIntent[slot] = slotIndex;
     }
-    // let users decide the object.
-    // if (slot === "city" || slot === "district") {
-    //   return tempIntent[slot] = -1;
-    // }
-    const slotIndex = getRandomFromArray(slotPool);
-    return tempIntent[slot] = slotIndex;
   })
 
   const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits } = tempIntent;
@@ -1078,11 +1077,8 @@ const flattenIntent = (currentIntent) => {
       
       switch(slot) {
         case "city":
-          result = result + `'${getLabel(slot)}': '${intentSamplePool["CITY"][currentIntent[slot]]}', `
-          break;
         case "district":
-          const city = intentSamplePool["CITY"][currentIntent["city"]]
-          result = result + `'${getLabel(slot)}': '${intentSamplePool["DISTRICT"][city][currentIntent[slot]]}', `
+          result = result + `'${getLabel(slot)}': '${currentIntent[slot]}', `
           break;
         case "generic_intent":
           result = result + `'${getLabel(slot)}': '${intentSamplePool["GENERIC_INTENT"][currentIntent[slot]]}', `

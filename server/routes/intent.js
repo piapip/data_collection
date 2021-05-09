@@ -71,13 +71,11 @@ const createRandomBankIntent = () => {
       return tempIntent[slot] = slotPool[slotIndex];
     }
     else if (slot === "district") {
-      // console.log
       const districtPool = slotPool[tempIntent["city"]];
       const slotIndex = getRandomFromArray(districtPool);
       return tempIntent[slot] = districtPool[slotIndex];
     }
     else if (intentSamplePool[slot.toUpperCase()] === undefined) {
-      // Have to change it once we know how to handle the city and district.
       if (slot === 'name') {
         return tempIntent[slot] = namePool.NAME[getRandomFromArray(namePool.NAME)];
       } else if (slot === 'cmnd') {
