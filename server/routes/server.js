@@ -155,11 +155,8 @@ router.get("/export-conversation", async (req, res) => {
             
             switch(slot) {
               case "city":
-                frames.slot_values[slot] = intentSamplePool["CITY"][intent[slot]];
-                break;
               case "district":
-                const city = intentSamplePool["CITY"][intent["city"]];
-                frames.slot_values[slot] = intentSamplePool["DISTRICT"][city][intent[slot]];
+                frames.slot_values[slot] = intent[slot];
                 break;
               default:
                 if (intentSamplePool[slot.toUpperCase()] === undefined || intent[slot] === -1) {
