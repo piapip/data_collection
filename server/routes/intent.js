@@ -65,7 +65,18 @@ const createRandomBankIntent = () => {
 
   // gen slot required for intent.
   slots.map(slot => {
-    if (intentSamplePool[slot.toUpperCase()] === undefined) {
+    const slotPool = intentSamplePool[slot.toUpperCase()];
+    if (slot === "city") {
+      const slotIndex = getRandomFromArray(slotPool);
+      return tempIntent[slot] = slotPool[slotIndex];
+    }
+    else if (slot === "district") {
+      // console.log
+      const districtPool = slotPool[tempIntent["city"]];
+      const slotIndex = getRandomFromArray(districtPool);
+      return tempIntent[slot] = districtPool[slotIndex];
+    }
+    else if (intentSamplePool[slot.toUpperCase()] === undefined) {
       // Have to change it once we know how to handle the city and district.
       if (slot === 'name') {
         return tempIntent[slot] = namePool.NAME[getRandomFromArray(namePool.NAME)];
@@ -75,22 +86,11 @@ const createRandomBankIntent = () => {
         return tempIntent[slot] = generateNumberWithLength(4);
       }
       return tempIntent[slot] = -1;
-    }
-    const slotPool = intentSamplePool[slot.toUpperCase()];
-    // we decide the objective.
-    if (slot === "district") {
-      // console.log
-      const slotIndex = getRandomFromArray(slotPool[intentSamplePool.CITY[tempIntent["city"]]]);
+    } else {
+      const slotIndex = getRandomFromArray(slotPool);
       return tempIntent[slot] = slotIndex;
     }
-    // let users decide the object.
-    // if (slot === "city" || slot === "district") {
-    //   return tempIntent[slot] = -1;
-    // }
-    const slotIndex = getRandomFromArray(slotPool);
-    return tempIntent[slot] = slotIndex;
   })
-
   return tempIntent;
 }
 
@@ -119,7 +119,7 @@ const generateNumberWithLength = (length) => {
 const removeFromArrayByValue = (array, value) => {
   let index = array.indexOf(value);
   if (index !== -1) {
-    array.splice(index);
+    array.splice(index, 1);
   }
 }
 

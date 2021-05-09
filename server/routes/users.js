@@ -80,7 +80,6 @@ const redis_client = require("../redis-client");
 // GET USER BY ACCESSID
 router.get("/accessToken", (req, res) => {
   const accessToken = req.headers.accesstoken;
-  // const accessToken = req.params.accessToken;
 
   redis_client.get(accessToken, (err, data) => {
     if (err) {

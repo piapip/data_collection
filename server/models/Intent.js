@@ -38,15 +38,15 @@ const intentSchema = new mongoose.Schema({
 
   // need fix
   district: {
-    // type: String,
-    type: Number,
+    type: String,
+    // type: Number,
     default: null,
   },
 
   // need fix
   city: {
-    // type: String,
-    type: Number,
+    type: String,
+    // type: Number,
     default: null,
   },
   
