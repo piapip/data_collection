@@ -20,7 +20,26 @@ router.get("/random", (req, res) => {
   const baseIntent = createRandomBankIntent();
   const prevIntent = getRandomProperty(baseIntent, null);
   const nextIntent = getRandomProperty(baseIntent, prevIntent);
+  
   res.status(200).send({ prevIntent, nextIntent });
+  // let counter = {};
+  // let counter = {
+  //   good: 0,
+  //   neutral: 0,
+  //   bad: 0,
+  // }
+  // const neutral = [3, 4];
+  // const bad = [7, 10, 11, 12, 16, 17];
+  // for (let i = 0; i < 60; i++) {
+  //   const intent = createRandomBankIntent();
+  //   if (neutral.includes(intent.intent)) {
+  //     counter.neutral++;
+  //   } else if (bad.includes(intent.intent)) {
+  //     counter.bad++;
+  //   } else counter.good++;
+  //   // counter[intent.intent]++;
+  // }
+  // res.status(200).send({ counter });
 })
 
 // const createRandomGenericIntent = () => {
@@ -56,7 +75,9 @@ const getRandomProperty = (baseIntent, prevIntent) => {
 
 const createRandomBankIntent = () => {
   // gen base intent
-  const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
+  const intentShowUpRate = [0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 7, 10, 11, 12, 16, 17, 3, 4, 3, 4];
+  const intentIndex = intentShowUpRate[getRandomFromArray(intentShowUpRate)];
+  // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
   const slots = intentSamplePool.INTENT[intentIndex].slot;
 
   let tempIntent = {
