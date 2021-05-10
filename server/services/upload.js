@@ -45,7 +45,7 @@ const storage = multer.diskStorage({
     
     const customFilename = req.body.name;
     if(customFilename) {
-      filename = customFilename;
+      filename = customFilename + '.wav';
     } else {
       filename = `${path.parse(file.originalname).name}_${generateRandomString(16)}${path.extname(
         file.originalname,

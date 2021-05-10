@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { Audio } = require("../models/Audio");
+const { User } = require("../models/User");
+const { Intent } = require("../models/Intent");
 const axios = require('axios');
 const config = require('./../config/key');
+const intentSamplePool = require("./../config/intent");
 
 // const tmp = require("tmp");
 // const fs = require("fs");
@@ -100,6 +103,70 @@ router.put("/:audioID/:userID", (req, res) => {
   })
 })
 
+const getLabel = (slot) => {
+  const slotIndex = intentSamplePool.SLOT_LABEL.findIndex((item) => {
+    return item.tag.toUpperCase() === slot.toUpperCase();
+  });
+
+  return slotIndex === -1 ? '' : intentSamplePool.SLOT_LABEL[slotIndex].name;
+};
+
+const flattenIntent = (currentIntent) => {
+  const properties = ["intent", "generic_intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits"];
+  let result = '';
+  for (let key in properties) {
+    if(currentIntent[properties[key]] !== null && currentIntent[properties[key]] !== undefined) {
+      const slot = properties[key];
+      switch(slot) {
+        case "city":
+        case "district":
+          result = result + `'${getLabel(slot)}': '${currentIntent[slot]}', `
+          break;
+        case "generic_intent":
+          result = result + `'${getLabel(slot)}': '${intentSamplePool["GENERIC_INTENT"][currentIntent[slot]]}', `
+          break;
+        default:
+          if (intentSamplePool[slot.toUpperCase()] === undefined || currentIntent[slot] === -1) {
+            result = result + `'${getLabel(slot)}': '${currentIntent[slot]}', `
+          } else {
+            result = result + `'${getLabel(slot)}': '${intentSamplePool[slot.toUpperCase()][currentIntent[slot]].name}', `
+          }
+      }
+    }
+  }
+  result = "{" + result.substring(0, result.length - 2) + "}";
+  return result;
+}
+
+router.post("/solo", async (req, res) => {
+  const { userID, prevIntent, link, nextIntent } = req.body;
+
+  const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = nextIntent;
+  const newIntent = await Intent.create({ intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent });
+  Audio.create({ 
+    user: userID,
+    prevIntent: flattenIntent(prevIntent),
+    link,
+    intent: newIntent._id,
+  }).then(audioCreated => {
+    if (!audioCreated) {
+      res.status(500).send({ success: false, error: "Can't save audio information to the db!"});
+    } else {
+      User.findById(userID)
+  .then(userFound => {
+    if (!userFound) res.status(404).send("Can't find user!!!")
+    else {
+      userFound.soloCount++;
+      return userFound.save();
+    }
+  })
+      return res.status(201).send({
+        audioID: audioCreated._id
+      });
+    }
+  });
+})
+
 // const getTranscript = (uri, audioID) => {
 
 //   tmp.file(function _tempFileCreated (err, path, fd, cleanupCallback) {
@@ -136,7 +203,6 @@ router.put("/:audioID/:userID", (req, res) => {
 // }
 
 const getTranscriptWithGGAPI = (uri, audioID) => {
-  // console.log("uri: ", uri);
   axios.get(`${config.TRANSCRIPT_API}/api/v1/stt?url=${uri}`, {
     headers: {
       Authorization: `Bearer ${config.TRANSCRIPT_API_KEY}`,
@@ -144,8 +210,6 @@ const getTranscriptWithGGAPI = (uri, audioID) => {
   })
   .then(response => {
     const { result, status } = response.data;
-
-    // console.log(response.data)
 
     if (status === 1) {
       const { transcription } = result;

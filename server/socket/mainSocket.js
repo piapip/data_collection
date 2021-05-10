@@ -1074,7 +1074,7 @@ const flattenIntent = (currentIntent) => {
   const properties = ["intent", "generic_intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits"];
   let result = '';
   for (let key in properties) {
-    if(currentIntent[properties[key]] !== null) {
+    if(currentIntent[properties[key]] !== null && currentIntent[properties[key]] !== undefined) {
       const slot = properties[key];
       
       switch(slot) {

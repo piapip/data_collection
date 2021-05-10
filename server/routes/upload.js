@@ -21,14 +21,12 @@ router.post('/', (req, res) => {
             res.status(500).send({ success: false, error});
         }
       } else if (!(err instanceof multer.MulterError)) {
-        console.log("Got here!!!!")
         res.status(500).send({ success: false, err })
       }
     }
 
     try {
       let path_components = req.file.path.split('\\')
-      console.log(req.file.path)
       let audio_link = `${DOMAIN_NAME}/${path_components[path_components.length-3]}/${path_components[path_components.length-2]}/${path_components[path_components.length-1]}`
   
       return res.status(200).send(

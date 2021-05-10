@@ -49,7 +49,7 @@ app.use("*", (req, res, next) => {
 
 app.use('/api/users', require('./routes/users'));
 app.use('/api/chatroom', require("./routes/chatroom"));
-// app.use('/api/upload/file', require('./routes/upload'));
+app.use('/api/v1/uploads/file', require('./routes/upload'));
 // app.use(config.uploadAPI, require('./routes/upload'));
 app.use('/api/message', require('./routes/message'));
 app.use('/api/audio', require('./routes/audio'));
