@@ -172,18 +172,43 @@ router.post("/solo", async (req, res) => {
       res.status(500).send({ success: false, error: "Can't save audio information to the db!"});
     } else {
       User.findById(userID)
-  .then(userFound => {
-    if (!userFound) res.status(404).send("Can't find user!!!")
+      .then(userFound => {
+        if (!userFound) res.status(404).send("Can't find user!!!")
+        else {
+          userFound.soloCount++;
+          return userFound.save();
+        }
+      })
+        return res.status(200).send({
+          audioID: audioCreated._id
+        });
+      }
+    }
+  );
+})
+
+router.post("/accept", (req, res) => {
+  const { audioID, userID } = req.body;
+  Audio.findById(audioID)
+  .then((audioFound) => {
+    if (!audioFound) {
+      res.status(404).send({ status: 0 })
+      return console.log("Can't find audio");
+    }
     else {
-      userFound.soloCount++;
-      return userFound.save();
+      User.findById(userID)
+      .then(userFound => {
+        if (!userFound) res.status(404).send({ status: 0 })
+        else {
+          audioFound.revertable = true;
+          audioFound.save();
+          userFound.verifyCount++;
+          userFound.save();
+          return res.status(200).send({ status: 1 });
+        }
+      })
     }
   })
-      return res.status(201).send({
-        audioID: audioCreated._id
-      });
-    }
-  });
 })
 
 // Get audio for testing - Solo feature
@@ -194,10 +219,12 @@ router.get("/sample", async (req, res) => {
     Audio.findOne({ revertable: false }).skip(random).populate('intent')
     .exec((err, audioFound) => {
       if (err) res.status(500).send({ success: false, message: "Can't proceed to find any audio", err })
-      if (testIntent(audioFound.intent)) {
+      else if (!audioFound) {
+        return res.status(404).send({ status: -1, error: "Hiện tại mình không có audio nào để bạn kiểm tra :<" });
+      } else if (testIntent(audioFound.intent)) {
         const { intent, link, transcript, prevIntent } = audioFound;
         const parseVersion = JSON.parse(prevIntent.replace(new RegExp(`'`, 'g'), `"`));
-        return res.status(200).send({ status: 1, prevIntent: parseVersion, intent, link, transcript });
+        return res.status(200).send({ status: 1, audioID: audioFound._id, prevIntent: parseVersion, intent, link, transcript });
       } else {
         audioFound.revertable = true;
         audioFound.save();

@@ -43,6 +43,10 @@ const userSchema = mongoose.Schema({
     soloCount: {
         type: Number,
         default: 0,
+    },
+    verifyCount: {
+        type: Number,
+        default: 0,
     }
 })
 
