@@ -80,7 +80,7 @@ router.get("/random/:userID", (req, res) => {
     },
     ]
   }).exec((err, count) => {
-    if (err) res.status(500).send({ success: false, message: "Can't estimate document count", err })
+    if (err) res.status(500).send({ success: false, message: "Can't estimate room document count", err })
     // Get a random entry 
     var random = Math.floor(Math.random() * count)
     Chatroom.findOne({

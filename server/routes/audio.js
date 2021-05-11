@@ -45,6 +45,24 @@ router.put("/transcript", (req, res) => {
   res.status(200).send("")
 })
 
+// fix all servant's audio's revertable
+router.put("/cleanse", async (req, res) => {
+  Audio.find({ revertable: false }).populate('intent')
+  .then(audioFound => {
+    let count = 0;
+    for (let i = 0; i < audioFound.length; i++) {
+      const { intent } = audioFound[i];
+      if (!testIntent(intent)) {
+        count++;
+        audioFound[i].revertable = true;
+        audioFound[i].save();
+      }
+    }
+    if (count === 0) res.status(200).send("All clean!");
+    else res.status(200).send(`${count} audio fixed!`);
+  })
+})
+
 router.put("/:audioID", (req, res) => {
 
   const audioID = req.params.audioID;
@@ -138,6 +156,7 @@ const flattenIntent = (currentIntent) => {
   return result;
 }
 
+// Upload an audio for solo feature
 router.post("/solo", async (req, res) => {
   const { userID, prevIntent, link, nextIntent } = req.body;
 
@@ -166,6 +185,34 @@ router.post("/solo", async (req, res) => {
     }
   });
 })
+
+// Get audio for testing - Solo feature
+router.get("/sample", async (req, res) => {
+  Audio.countDocuments({ revertable: false }).exec(async (err, count) =>{
+    if (err) res.status(500).send({ success: false, message: "Can't estimate audio document count", err })
+    const random = Math.floor(Math.random() * count);
+    Audio.findOne({ revertable: false }).skip(random).populate('intent')
+    .exec((err, audioFound) => {
+      if (err) res.status(500).send({ success: false, message: "Can't proceed to find any audio", err })
+      if (testIntent(audioFound.intent)) {
+        const { intent, link, transcript, prevIntent } = audioFound;
+        const parseVersion = JSON.parse(prevIntent.replace(new RegExp(`'`, 'g'), `"`));
+        return res.status(200).send({ status: 1, prevIntent: parseVersion, intent, link, transcript });
+      } else {
+        audioFound.revertable = true;
+        audioFound.save();
+        return res.status(500).send({ status: 0 });
+      }
+    })
+  });
+})
+
+// check if intent is a valid one or not (if it's not full of null)
+const testIntent = (currentIntent) => {
+  if (currentIntent === null || currentIntent === undefined) return false;
+  const { intent, generic_intent } = currentIntent;
+  return !((intent === null || intent === undefined) && (generic_intent === null || generic_intent === undefined));
+}
 
 // const getTranscript = (uri, audioID) => {
 
