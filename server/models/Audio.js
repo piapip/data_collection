@@ -44,7 +44,13 @@ const audioSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     default: null,
-  }
+  },
+
+  rejectBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: []
+  }],
 })
 
 const Audio = mongoose.model('Audio', audioSchema);

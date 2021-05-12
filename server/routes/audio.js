@@ -211,12 +211,53 @@ router.post("/accept", (req, res) => {
   })
 })
 
+router.post("/reject", (req, res) => {
+  const { audioID, userID } = req.body;
+  Audio.findById(audioID)
+  .then((audioFound) => {
+    if (!audioFound) {
+      res.status(404).send({ status: 0 })
+      return console.log("Can't find audio");
+    }
+    else {
+      User.findById(userID)
+      .then(userFound => {
+        if (!userFound) res.status(404).send({ status: 0 })
+        else {
+          if (!audioFound.rejectBy.includes(userID)) {
+            audioFound.rejectBy.push(userID);
+            audioFound.save();
+            userFound.verifyCount++;
+            userFound.save();
+          }
+          return res.status(200).send({ status: 1 });
+        }
+      })
+    }
+  })
+})
+
 // Get audio for testing - Solo feature
-router.get("/sample", async (req, res) => {
-  Audio.countDocuments({ revertable: false }).exec(async (err, count) =>{
+router.get("/sample/:userID", async (req, res) => {
+  const { userID } = req.params;
+  Audio.countDocuments({ 
+    $and: [
+      {revertable: false},
+      {rejectBy: {
+        $ne: userID,
+      }}
+    ],
+  }).exec(async (err, count) =>{
     if (err) res.status(500).send({ success: false, message: "Can't estimate audio document count", err })
     const random = Math.floor(Math.random() * count);
-    Audio.findOne({ revertable: false }).skip(random).populate('intent')
+    Audio.findOne({
+      $and: [
+        {revertable: false},
+        {rejectBy: {
+          $ne: userID,
+        }}
+      ],
+    }).skip(random).populate('intent')
     .exec((err, audioFound) => {
       if (err) res.status(500).send({ success: false, message: "Can't proceed to find any audio", err })
       else if (!audioFound) {
