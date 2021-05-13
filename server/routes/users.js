@@ -114,4 +114,28 @@ router.get("/accessToken", (req, res) => {
   });
 });
 
+router.put("/updatePersonal/:userID", (req, res) => {
+  // console.log("Called")
+  const { sex, accent, age } = req.body;
+  const userID = req.params.userID;
+
+  User.findById(userID)
+  .then(userFound => {
+    if (!userFound) res.status(404).send({ status: 0, err: "Not found!" });
+    else {
+      userFound.sex = sex;
+      userFound.accent = accent;
+      if (age <= 0) userFound.age = 20;
+      else userFound.age = age;
+      userFound.save((err) => {
+        if (err) {
+          res.status(500).send({ status: 0, err })
+          throw err
+        }
+        else res.send({ status: 1 });
+      })
+    }
+  })
+})
+
 module.exports = router;

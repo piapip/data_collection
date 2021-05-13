@@ -22,11 +22,22 @@ const userSchema = mongoose.Schema({
         type:Number,
         default: 0 
     },
-    // 0 - ???, 1 - male, 2 - female
+    age: {
+        type: Number,
+        default: 0,
+    },
+    // 0 - UNK, 1 - neither male or female,  2 - male, 3 - female
     sex: {
         type: Number,
         min: 0,
-        max: 2,
+        max: 3,
+        default: 0,
+    },
+    // 0 - UNK, 1 - NORTH,  2 - MID, 3 - SOUTH, 4 - neither male or female
+    accent: {
+        type: Number,
+        min: 0,
+        max: 4,
         default: 0,
     },
     image: String,
@@ -47,7 +58,7 @@ const userSchema = mongoose.Schema({
     verifyCount: {
         type: Number,
         default: 0,
-    }
+    },
 })
 
 
