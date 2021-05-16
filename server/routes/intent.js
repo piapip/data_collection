@@ -6,45 +6,47 @@ const namePool = require("./../config/name");
 // const { Intent } = require("../models/Intent");
 
 // create a random intent.
-router.get("/random", (req, res) => {
-  // // 0 - bank related intent, 1 - generic intent
-  // const intentType = randomIntentType();
-  // if (intentType === 0) {
-  //   const intent = createRandomBankIntent();
-  //   res.status(200).send({ intent });
-  // } else {
-  //   const genericIntent = createRandomGenericIntent();
-  //   res.status(200).send({ genericIntent });
-  // }
+router.get("/random/:phase", (req, res) => {
 
+  const { phase } = req.params;
   const baseIntent = createRandomBankIntent();
-  const prevIntent = getRandomProperty(baseIntent, null);
-  const nextIntent = getRandomProperty(baseIntent, prevIntent);
-  
+  const prevIntent = getPrevIntent(baseIntent, phase);
+  const nextIntent = getNextIntent(baseIntent, prevIntent, phase);
   res.status(200).send({ prevIntent, nextIntent });
-  // let counter = {};
-  // let counter = {
-  //   good: 0,
-  //   neutral: 0,
-  //   bad: 0,
-  // }
-  // const neutral = [3, 4];
-  // const bad = [7, 10, 11, 12, 16, 17];
-  // for (let i = 0; i < 60; i++) {
-  //   const intent = createRandomBankIntent();
-  //   if (neutral.includes(intent.intent)) {
-  //     counter.neutral++;
-  //   } else if (bad.includes(intent.intent)) {
-  //     counter.bad++;
-  //   } else counter.good++;
-  //   // counter[intent.intent]++;
-  // }
-  // res.status(200).send({ counter });
 })
 
-// const createRandomGenericIntent = () => {
-//   return getRandomFromArray(intentSamplePool.GENERIC_INTENT);
-// }
+const getPrevIntent = (baseIntent, phase) => {
+  // always return empty
+  if (phase <= 19) return {};
+  // 50% empty, 50% already have intent
+  else if (phase > 19 && phase <= 39 ) {
+    let num=Math.random();
+    if(num < 0.5) return {}; 
+    return {
+      intent: baseIntent.intent
+    };
+  // always have intent, if there're more than one slots, add one of the slot.
+  } else {
+    return getRandomProperty(baseIntent, null);
+  }
+}
+
+const getNextIntent = (baseIntent, prevIntent, phase) => {
+  // always return intent only
+  if (phase <= 19) return {
+    intent: baseIntent.intent
+  };
+  // always return intent with one slot
+  else if (phase > 19 && phase <= 39 ) {
+    let temp = {
+      intent: baseIntent.intent
+    };
+    return getRandomProperty(baseIntent, temp);
+  // always have intent, if there're more than one slots, add one of the slot.
+  } else {
+    return getRandomProperty(baseIntent, prevIntent);
+  }
+}
 
 const getRandomProperty = (baseIntent, prevIntent) => {
 
