@@ -17,27 +17,36 @@ router.get("/random/:phase", (req, res) => {
 
 const getPrevIntent = (baseIntent, phase) => {
   // always return empty
-  if (phase <= 19) return {};
+  if (phase <= 9) return {};
   // 50% empty, 50% already have intent
-  else if (phase > 19 && phase <= 39 ) {
+  else if (phase > 9 && phase <= 29 ) {
     let num=Math.random();
     if(num < 0.5) return {}; 
     return {
       intent: baseIntent.intent
     };
   // always have intent, if there're more than one slots, add one of the slot.
-  } else {
+  } else if (phase > 29 && phase <= 39 ) {
     return getRandomProperty(baseIntent, null);
+  } else {
+    const newIntent = createRandomBankIntent();
+    if (intentSamplePool.INTENT[newIntent.intent].slot.length === 1) {
+      return {
+        intent: newIntent.intent,
+      }
+    } else return getRandomProperty(newIntent, {
+      intent: newIntent.intent,
+    });
   }
 }
 
 const getNextIntent = (baseIntent, prevIntent, phase) => {
   // always return intent only
-  if (phase <= 19) return {
+  if (phase <= 9) return {
     intent: baseIntent.intent
   };
   // always return intent with one slot
-  else if (phase > 19 && phase <= 39 ) {
+  else if (phase > 9 && phase <= 29 ) {
     let temp = {
       intent: baseIntent.intent
     };
