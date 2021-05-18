@@ -500,6 +500,8 @@ sockets.init = function(server) {
               if (!roomFound.done) {
                 if (compareIntent(alternativeIntent, roomFound.intent)) {
                   roomFound.done = true;
+                  updateRoomDoneCount(roomFound.user1);
+                  updateRoomDoneCount(roomFound.user2);
                 }
               }
 
@@ -1105,5 +1107,18 @@ const getLabel = (slot) => {
 
   return slotIndex === -1 ? '' : intentSamplePool.SLOT_LABEL[slotIndex].name;
 };
+
+const updateRoomDoneCount = (userID) => {
+  if (userID !== null) {
+    User.findById(userID)
+    .then(userFound => {
+      if (!userFound) throw "Can't find user"
+      else {
+        userFound.roomDoneCount++;
+        return userFound.save();
+      }
+    })
+  }
+}
 
 module.exports = sockets;
