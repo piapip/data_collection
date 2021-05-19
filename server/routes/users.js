@@ -190,6 +190,7 @@ router.put("/updatePersonalByAccessToken", (req, res) => {
         userFound[0].accent = accent;
         if (age <= 0) userFound[0].age = 20;
         else userFound[0].age = age;
+        userFound[0].passwordChanged = true;
         userFound[0].save((err) => {
           if (err) {
             res.status(500).send({ status: 0, err })
