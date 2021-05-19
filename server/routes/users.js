@@ -114,6 +114,94 @@ router.get("/accessToken", (req, res) => {
   });
 });
 
+router.get("/checkPasswordChange", (req, res) => {
+  const accessToken = req.headers.accesstoken;
+  
+  redis_client.get(accessToken, (err, data) => {
+    if (err) {
+      res.json({ firstTime: false, status: -3 });
+      throw err;
+    }
+    if (data === null || data === 0 || data === undefined) return res.json({
+      firstTime: false, 
+      status: -2,
+    });
+
+    const decodeInfo = jwt.verify(
+      accessToken,
+      config.JWT_SECRET_KEY,
+      (err, decode) => {
+        if (err) {
+          res.status(500).json({ firstTime: false, status: -1 });
+          throw err;
+        }
+        return decode;
+      }
+    );
+
+    const ssoUserId = decodeInfo.ssoUserId;
+
+    User.find({ ssoUserId: ssoUserId }).then((userFound) => {
+      if (userFound.length === 0) {
+        res.status(404).send({ firstTime: false, status: 0 });
+        return;
+      } else {
+        res.status(201).send({ firstTime: !userFound.passwordChanged, status: 1 })
+      }
+    });
+  });
+})
+
+router.put("/updatePersonalByAccessToken", (req, res) => {
+  // console.log("Called")
+  const { sex, accent, age } = req.body;
+  const accessToken = req.headers.accesstoken;
+
+  redis_client.get(accessToken, (err, data) => {
+    if (err) {
+      res.json({ status: -3, err });
+      throw err;
+    }
+    if (data === null || data === 0 || data === undefined) return res.json({
+      status: -2,
+      err: "Doesn't exist in redis",
+    });
+
+    const decodeInfo = jwt.verify(
+      accessToken,
+      config.JWT_SECRET_KEY,
+      (err, decode) => {
+        if (err) {
+          res.status(500).json({ status: -1, err });
+          throw err;
+        }
+        return decode;
+      }
+    );
+
+    const ssoUserId = decodeInfo.ssoUserId;
+
+    User.find({ ssoUserId: ssoUserId }).then((userFound) => {
+      if (userFound.length === 0) {
+        res.status(404).send({ status: 0, err: "Not found" });
+        return;
+      } else {
+        userFound[0].sex = sex;
+        userFound[0].accent = accent;
+        if (age <= 0) userFound[0].age = 20;
+        else userFound[0].age = age;
+        userFound[0].save((err) => {
+          if (err) {
+            res.status(500).send({ status: 0, err })
+            throw err
+          }
+          else res.send({ status: 1 });
+        })
+      }
+    });
+  });  
+})
+
 router.put("/updatePersonal/:userID", (req, res) => {
   // console.log("Called")
   const { sex, accent, age } = req.body;

@@ -62,6 +62,10 @@ const userSchema = mongoose.Schema({
     roomDoneCount: {
         type: Number,
         default: 0,
+    },
+    passwordChanged: {
+        type: Boolean,
+        default: false,
     }
 })
 
