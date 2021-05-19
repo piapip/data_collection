@@ -146,7 +146,7 @@ router.get("/checkPasswordChange", (req, res) => {
         res.status(404).send({ firstTime: false, status: 0 });
         return;
       } else {
-        res.status(201).send({ firstTime: !userFound.passwordChanged, status: 1 })
+        res.status(201).send({ firstTime: !userFound[0].passwordChanged, status: 1 })
       }
     });
   });
