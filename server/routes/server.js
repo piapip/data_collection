@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { User } = require("../models/User");
 const { Chatroom } = require("../models/Chatroom");
-const { Audio } = require("../models/Audio");
+// const { Audio } = require("../models/Audio");
 const fs = require("fs");
 const intentSamplePool = require("./../config/intent");
 
@@ -16,10 +16,6 @@ router.get("/user", (req, res) => {
     })
   });
 });
-
-// router.get("/audioStat", (req, res) => {
-//   Audio.
-// })
 
 // Count room done.
 // Count room undone.
@@ -36,8 +32,12 @@ router.get("/statistic", async (req, res) => {
     path: 'audioList',
     populate: {
       path: 'intent',
-    }
+    },
+    populate: {
+      path: 'user',
+    },
   });
+  let userRecord = {}
 
   for (let roomIndex = 0; roomIndex < roomList.length; roomIndex++) {
     
@@ -46,9 +46,12 @@ router.get("/statistic", async (req, res) => {
     else roomNotDoneCount++;
     // audioCount = audioCount + audioList.length;
     for (let audioIndex = 0; audioIndex < audioList.length; audioIndex++) {
+      const { name } = audioList[audioIndex].user;
+      if (!userRecord.hasOwnProperty(name)) userRecord[name] = 1;
+      else userRecord[name]++;
       const { intent, generic_intent } = audioList[audioIndex].intent;
       let count = 0;
-      if (intent !== null) {
+      if (intent !== null && intent !== undefined) {
         count++;
         intentCount[intentSamplePool.INTENT[intent].name]++;
       }
@@ -61,8 +64,9 @@ router.get("/statistic", async (req, res) => {
   }
   res.status(200).send({
     success: true,
-    roomDoneCount, roomNotDoneCount, audioCount, intentCount
+    roomDoneCount, roomNotDoneCount, audioCount, intentCount, userRecord
   })
+  // res.status(200).send("ok")
 });
 
 // count all accepted audio
