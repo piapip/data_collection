@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { User } = require("../models/User");
 const { Chatroom } = require("../models/Chatroom");
-// const { Audio } = require("../models/Audio");
+const { Audio } = require("../models/Audio");
 const fs = require("fs");
 const intentSamplePool = require("./../config/intent");
 
@@ -16,6 +16,10 @@ router.get("/user", (req, res) => {
     })
   });
 });
+
+// router.get("/audioStat", (req, res) => {
+//   Audio.
+// })
 
 // Count room done.
 // Count room undone.

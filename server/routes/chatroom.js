@@ -263,6 +263,28 @@ router.put("/", (req, res) => {
   });
 })
 
+router.delete("/delete/:roomID", (req, res) => {
+  const { roomID } = req.params;
+  Chatroom.findByIdAndDelete(roomID)
+  .then((roomFound) => {
+    if (!roomFound) res.status(404).send({ success: false, message: "Room not found" });
+    else res.status(201).send({ success: true, message: "Room deleted!", roomFound });
+  })
+})
+
+router.put("/finish/:roomID", (req, res) => {
+  const { roomID } = req.params;
+  Chatroom.findById(roomID)
+  .then((roomFound) => {
+    if (!roomFound) res.status(404).send({ success: false, message: "Room not found" });
+    else {
+      roomFound.done = true;
+      roomFound.save();
+      return res.status(200).send({ success: true });
+    }
+  })
+})
+
 // REMOVE AUDIO
 router.put("/:roomID/:userRole", (req, res) => {
   const roomID = req.params.roomID;

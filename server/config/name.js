@@ -243,7 +243,7 @@ const NAME = [
   'Phạm Thúy Nga',
   'Phạm Thị Cẩm Giang',
   'Trần Ngọc Tú',
-  'Trương Thị ĐiệP',
+  'Trương Thị Điệp',
   'Phan Thị Thủy',
   'Trần Quang Đông',
   'Trần Văn Hoàng',
