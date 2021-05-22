@@ -30,18 +30,21 @@ router.get("/statistic", async (req, res) => {
     intentCount[intentSamplePool.INTENT[i].name] = 0;
   for (let i = 0; i < intentSamplePool.GENERIC_INTENT.length; i++)
     intentCount[intentSamplePool.GENERIC_INTENT[i]] = 0;
-  const roomList = await Chatroom.find({}).populate({
-    path: "audioList",
-    populate: {
-      path: "intent",
-    },
-  }).populate({
-    path: "audioList",
-    populate: {
-      path: "user",
-    },
-  });
+  const roomList = await Chatroom.find({})
+    .populate({
+      path: "audioList",
+      populate: {
+        path: "intent",
+      },
+    })
+    .populate({
+      path: "audioList",
+      populate: {
+        path: "user",
+      },
+    });
   let userRecord = {};
+  let weirdStuff = [];
 
   for (let roomIndex = 0; roomIndex < roomList.length; roomIndex++) {
     const { audioList, done } = roomList[roomIndex];
@@ -52,21 +55,26 @@ router.get("/statistic", async (req, res) => {
       const { name } = audioList[audioIndex].user;
       if (!userRecord.hasOwnProperty(name)) userRecord[name] = 1;
       else userRecord[name]++;
-      const { intent, generic_intent } = audioList[audioIndex].intent;
-      let count = 0;
-      if (intent !== null && intent !== undefined) {
-        count++;
-        console.log("intent: ", intent)
-        intentCount[intentSamplePool.INTENT[intent].name]++;
-      }
-      if (generic_intent !== null && generic_intent !== undefined) {
-        count++;
-        console.log("generic_intent: ", generic_intent)
-        intentCount[intentSamplePool.GENERIC_INTENT[generic_intent]]++;
-      }
-      if (count !== 0) {
-        console.log("Intent: ", intent)
-        audioCount++;
+      if (
+        audioList[audioIndex].intent !== null &&
+        audioList[audioIndex].intent !== undefined
+      ) {
+        const { intent, generic_intent } = audioList[audioIndex].intent;
+        let count = 0;
+        if (intent !== null && intent !== undefined) {
+          count++;
+          intentCount[intentSamplePool.INTENT[intent].name]++;
+        }
+        if (generic_intent !== null && generic_intent !== undefined) {
+          count++;
+          intentCount[intentSamplePool.GENERIC_INTENT[generic_intent]]++;
+        }
+        if (count !== 0) {
+          audioCount++;
+        }
+      } else {
+        weirdStuff.push(audioList[audioIndex]);
+        // console.log("Weird stuff: ", audioList[audioIndex].intent);
       }
     }
   }
@@ -77,6 +85,7 @@ router.get("/statistic", async (req, res) => {
     audioCount,
     intentCount,
     userRecord,
+    weirdStuff,
   });
   // res.status(200).send("ok")
 });
