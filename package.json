@@ -29,6 +29,7 @@
     "express-session": "^1.17.1",
     "file-type": "^16.2.0",
     "fs": "0.0.1-security",
+    "get-audio-duration": "^2.0.3",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.24.0",
     "mongoose": "^5.4.20",

@@ -51,6 +51,11 @@ const audioSchema = new mongoose.Schema({
     ref: 'User',
     default: []
   }],
+
+  duration: {
+    type: Number,
+    default: -0.05,
+  }
 })
 
 const Audio = mongoose.model('Audio', audioSchema);

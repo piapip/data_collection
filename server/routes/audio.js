@@ -7,9 +7,10 @@ const axios = require('axios');
 const config = require('./../config/key');
 const intentSamplePool = require("./../config/intent");
 
-// const tmp = require("tmp");
-// const fs = require("fs");
-// const request = require('request');
+const tmp = require("tmp");
+const fs = require("fs");
+const request = require('request');
+const { getAudioDurationInSeconds } = require('get-audio-duration');
 // const { exec } = require('child_process');
 // const auth = require("../middleware/auth");
 
@@ -63,6 +64,37 @@ router.put("/cleanse", async (req, res) => {
   })
 })
 
+router.put("/updateDuration", (req, res) => {
+  Audio.find()
+  .then(async batchAudioFound => {
+    for await (let audioFound of batchAudioFound) {
+      // let audioFound = batchAudioFound[i];
+      // if (audio)
+      if (audioFound.duration < 0) {
+        await tmp.file(async function _tempFileCreated (err, path, fd, cleanupCallback) {
+          if (err) {
+            res.status(500).send({ success: false, message: "Can't create tmp file" });
+            throw err;
+          }
+          await download(audioFound.link, path , async function(){
+            await getAudioDurationInSeconds(path).then((duration) => {
+              console.log(duration)
+              audioFound.duration = duration
+              audioFound.save()
+              .catch(error => {
+                res.status(200).send({ success: false, message: "Can't save audio after get duration" });
+                throw error
+              });
+            })
+          })
+          cleanupCallback();
+        })
+      }
+    }
+    res.status(200).send({ success: true, message: "Update audio duration successfully" });
+  })
+})
+
 router.put("/:audioID", (req, res) => {
 
   const audioID = req.params.audioID;
@@ -86,15 +118,15 @@ router.put("/:audioID", (req, res) => {
   })
 })
 
-// let download = function(uri, filename, callback){
-//   request.head(uri, function(err, res, body){
-//     if (err) throw "Something's wrong while uploading audio uri..."
-//     // console.log('content-type:', res.headers['content-type']);
-//     // console.log('content-length:', res.headers['content-length']);
+let download = function(uri, filename, callback){
+  request.head(uri, function(err, res, body){
+    if (err) throw "Something's wrong while uploading audio uri..."
+    // console.log('content-type:', res.headers['content-type']);
+    // console.log('content-length:', res.headers['content-length']);
 
-//     request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
-//   });
-// };
+    request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+  });
+};
 
 router.put("/:audioID/:userID", (req, res) => {
 

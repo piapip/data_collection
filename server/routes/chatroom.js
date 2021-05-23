@@ -149,6 +149,26 @@ router.get("/random/:userID", (req, res) => {
   })
 })
 
+// GET BY NAME
+router.get("/name/:roomName", (req, res) => {
+  Chatroom.find({name: req.params.roomName})
+  .populate('intent')
+  .populate('currentIntent')
+  .populate('user1')
+  .populate('user2')
+  .populate({
+    path: 'audioList',
+    populate: {
+      path: 'fixBy',
+    }
+  })
+  .exec((err, roomFound) => {
+    if (err) res.status(500).send({ success: false, err })
+    else if (!roomFound) res.status(404).send({ success: false, message: "Room not found" })
+    else res.status(200).send({ success: true, roomFound })
+  })
+})
+
 // GET ONE
 router.get("/:roomID", (req, res) => {
   Chatroom.findById(req.params.roomID)

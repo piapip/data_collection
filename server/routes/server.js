@@ -44,6 +44,7 @@ router.get("/statistic", async (req, res) => {
       },
     });
   let userRecord = {};
+  let durationRecord = {};
   let weirdStuff = [];
 
   for (let roomIndex = 0; roomIndex < roomList.length; roomIndex++) {
@@ -53,8 +54,11 @@ router.get("/statistic", async (req, res) => {
     // audioCount = audioCount + audioList.length;
     for (let audioIndex = 0; audioIndex < audioList.length; audioIndex++) {
       const { name } = audioList[audioIndex].user;
+      const { duration } = audioList[audioIndex];
       if (!userRecord.hasOwnProperty(name)) userRecord[name] = 1;
       else userRecord[name]++;
+      if (!durationRecord.hasOwnProperty(name)) durationRecord[name] = duration;
+      else durationRecord[name] = durationRecord[name] + duration;
       if (
         audioList[audioIndex].intent !== null &&
         audioList[audioIndex].intent !== undefined
@@ -85,6 +89,7 @@ router.get("/statistic", async (req, res) => {
     audioCount,
     intentCount,
     userRecord,
+    durationRecord,
     weirdStuff,
   });
   // res.status(200).send("ok")
