@@ -24,7 +24,8 @@ router.get("/user", (req, res) => {
 router.get("/statistic", async (req, res) => {
   let roomDoneCount = 0;
   let roomNotDoneCount = 0;
-  let audioCount = 0;
+  let usableAudioCount = 0;
+  let usableDuration = 0;
   let intentCount = {};
   for (let i = 0; i < intentSamplePool.INTENT.length; i++)
     intentCount[intentSamplePool.INTENT[i].name] = 0;
@@ -51,7 +52,6 @@ router.get("/statistic", async (req, res) => {
     const { audioList, done } = roomList[roomIndex];
     if (done) roomDoneCount++;
     else roomNotDoneCount++;
-    // audioCount = audioCount + audioList.length;
     for (let audioIndex = 0; audioIndex < audioList.length; audioIndex++) {
       const { name } = audioList[audioIndex].user;
       const { duration } = audioList[audioIndex];
@@ -74,7 +74,8 @@ router.get("/statistic", async (req, res) => {
           intentCount[intentSamplePool.GENERIC_INTENT[generic_intent]]++;
         }
         if (count !== 0) {
-          audioCount++;
+          usableAudioCount++;
+          usableDuration = usableDuration + duration;
         }
       } else {
         weirdStuff.push(audioList[audioIndex]);
@@ -86,7 +87,8 @@ router.get("/statistic", async (req, res) => {
     success: true,
     roomDoneCount,
     roomNotDoneCount,
-    audioCount,
+    usableAudioCount,
+    usableDuration,
     intentCount,
     userRecord,
     durationRecord,
