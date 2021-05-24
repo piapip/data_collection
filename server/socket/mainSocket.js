@@ -867,7 +867,7 @@ const namePool = require("./../config/name");
 
 const createRandomIntent = () => {
   // gen base intent
-  const intentShowUpRate = [0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 7, 10, 11, 12, 16, 17, 3, 4, 3, 4];
+  const intentShowUpRate = [0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 0, 1, 2, 5, 6, 8, 9, 13, 14, 15, 7, 10, 11, 12, 16, 17, 3, 4, 3, 4];
   const intentIndex = intentShowUpRate[getRandomFromArray(intentShowUpRate)];
   // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
   // const intentIndex = 7;

@@ -159,7 +159,7 @@ const NAME = [
   'Nguyễn Thị Yến',
   'Nguyễn Văn Khánh',
   'Dương Thanh Hải',
-  'TrầN Quang ThuậN',
+  'Trần Quang Thuận',
   'Nguyễn Thị Hồng',
   'Nguyễn Văn Thành',
   'Nguyễn Thùy Dung',
