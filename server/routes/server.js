@@ -136,11 +136,41 @@ router.get("/flatten", (req, res) => {
 });
 
 router.get("/export-user", async (req, res) => {
-  const { destination } = req.body;
+  const { destination, name } = req.body;
 
   await User.find()
-    .then((userFound) => {
-      exportObject(destination, userFound);
+    .then(async (userFound) => {
+      await exportObject(
+        `${path.join(process.cwd(), '..', destination, name + ".json")}`,
+        userFound,
+        () => {
+          let formData = new FormData();
+          formData.append("destination", destination);
+          formData.append("name", name);
+          formData.append(
+            "file",
+            fs.createReadStream(
+              path.join(process.cwd(), '..', destination, name + ".json")
+            )
+          );
+
+          axios({
+            method: "POST",
+            url: `https://asr.vbeecore.com/api/v1/uploads/file`,
+            data: formData,
+            headers: {
+              "Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}`,
+              Authorization: `Bearer zyvZQGPrr6qdbHLTuzqpCmuBgW3TjTxGKEEIFCiy1lCAOzTBtrqPYdPdZ1AtMxU2`,
+            },
+            maxContentLength: "Infinity",
+            maxBodyLength: "Infinity",
+          })
+            .then((response) => {
+              res.status(200).send(response.data);
+            })
+            .catch((error) => res.status(500).send(error));
+        }
+      );
     })
     .catch((err) => {
       res
@@ -148,8 +178,6 @@ router.get("/export-user", async (req, res) => {
         .send("Internal problem... Can't get User's information. Err:");
       throw err;
     });
-
-  res.status(200).send("Ok");
 });
 
 const FormData = require("form-data");
@@ -246,9 +274,9 @@ router.get("/export-conversation", async (req, res) => {
     }
     result.push(conversation);
   });
-  let returnLink = {};
+
   exportObject(
-    `${path.join(process.cwd(), destination, name + ".json")}`,
+    `${path.join(process.cwd(), '..', destination, name + ".json")}`,
     result,
     () => {
       let formData = new FormData();
@@ -257,7 +285,7 @@ router.get("/export-conversation", async (req, res) => {
       formData.append(
         "file",
         fs.createReadStream(
-          path.join(process.cwd(), destination, name + ".json")
+          path.join(process.cwd(), '..', destination, name + ".json")
         )
       );
 
@@ -273,9 +301,7 @@ router.get("/export-conversation", async (req, res) => {
         maxBodyLength: "Infinity",
       })
         .then((response) => {
-          returnLink = response.data;
-          console.log(response.data);
-          res.status(200).send(returnLink);
+          res.status(200).send(response.data);
         })
         .catch((error) => res.status(500).send(error));
     }
