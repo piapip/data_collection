@@ -246,65 +246,44 @@ router.get("/export-conversation", async (req, res) => {
     }
     result.push(conversation);
   });
+  let returnLink = {};
   exportObject(
     `${path.join(process.cwd(), destination, name + ".json")}`,
     result,
     () => {
-      let formdata = new FormData();
-      formdata.append("destination", destination);
-      formdata.append("name", name);
-      formdata.append(
+      let formData = new FormData();
+      formData.append("destination", destination);
+      formData.append("name", name);
+      formData.append(
         "file",
-        // fs.createReadStream(
-        //   path.join(process.cwd(), destination, name + ".json")
-        // )
-        request(path.join(process.cwd(), destination, name + ".json"))
+        fs.createReadStream(
+          path.join(process.cwd(), destination, name + ".json")
+        )
       );
-      axios
-        .post("https://asr.vbeecore.com/api/v1/uploads/file", formdata, {
-          headers: {
-            "Content-Type": `multipart/form-data`,
-            Authorization: `Bearer zyvZQGPrr6qdbHLTuzqpCmuBgW3TjTxGKEEIFCiy1lCAOzTBtrqPYdPdZ1AtMxU2`,
-          },
-        })
+
+      axios({
+        method: "POST",
+        url: `https://asr.vbeecore.com/api/v1/uploads/file`,
+        data: formData,
+        headers: {
+          "Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}`,
+          Authorization: `Bearer zyvZQGPrr6qdbHLTuzqpCmuBgW3TjTxGKEEIFCiy1lCAOzTBtrqPYdPdZ1AtMxU2`,
+        },
+        maxContentLength: "Infinity",
+        maxBodyLength: "Infinity",
+      })
         .then((response) => {
-          res.status(200).send(response.data);
+          returnLink = response.data;
+          console.log(response.data);
+          res.status(200).send(returnLink);
         })
-        .catch((error) => {
-          res.status(500).send(error);
-        });
+        .catch((error) => res.status(500).send(error));
     }
   );
-  // res.status(200).send("ok!");
 });
 
 router.get("/test", (req, res) => {
-  let formdata = new FormData();
-  formdata.append("destination", "export");
-  formdata.append("name", "SLU_Conversations");
-  formdata.append(
-    "file",
-    "Should be an JSON-type export file"
-    // fs.writeFileSync("SLU_export.txt", 'Should be an JSON-type export file')
-  );
-
-  axios({
-    method: "POST",
-    url: `https://asr.vbeecore.com/api/v1/uploads/file`,
-    data: formdata,
-    headers: {
-      "Content-Type": `multipart/form-data;`,
-      Authorization: `Bearer zyvZQGPrr6qdbHLTuzqpCmuBgW3TjTxGKEEIFCiy1lCAOzTBtrqPYdPdZ1AtMxU2`,
-    },
-    maxContentLength: "Infinity",
-    maxBodyLength: "Infinity",
-  })
-    .then((response) => {
-      res.status(200).send(response.data);
-    })
-    .catch((error) => {
-      res.status(500).send(error);
-    });
+  res.status(200).send("ok");
 });
 
 const exportObject = (destination, object, callback) => {
