@@ -3,6 +3,7 @@ const router = express.Router();
 const { User } = require("../models/User");
 const { Chatroom } = require("../models/Chatroom");
 // const { Audio } = require("../models/Audio");
+const axios = require("axios");
 const fs = require("fs");
 const intentSamplePool = require("./../config/intent");
 
@@ -151,9 +152,12 @@ router.get("/export-user", async (req, res) => {
   res.status(200).send("Ok");
 });
 
+const FormData = require("form-data");
+const path = require("path");
+
 // count main intent for rooms
 router.get("/export-conversation", async (req, res) => {
-  const { destination } = req.body;
+  const { destination, name } = req.body;
 
   const rooms = await Chatroom.find()
     .populate({
@@ -242,19 +246,76 @@ router.get("/export-conversation", async (req, res) => {
     }
     result.push(conversation);
   });
-  exportObject(destination, result);
-  res.status(200).send("ok!");
+  exportObject(
+    `${path.join(process.cwd(), destination, name + ".json")}`,
+    result,
+    () => {
+      let formdata = new FormData();
+      formdata.append("destination", destination);
+      formdata.append("name", name);
+      formdata.append(
+        "file",
+        // fs.createReadStream(
+        //   path.join(process.cwd(), destination, name + ".json")
+        // )
+        request(path.join(process.cwd(), destination, name + ".json"))
+      );
+      axios
+        .post("https://asr.vbeecore.com/api/v1/uploads/file", formdata, {
+          headers: {
+            "Content-Type": `multipart/form-data`,
+            Authorization: `Bearer zyvZQGPrr6qdbHLTuzqpCmuBgW3TjTxGKEEIFCiy1lCAOzTBtrqPYdPdZ1AtMxU2`,
+          },
+        })
+        .then((response) => {
+          res.status(200).send(response.data);
+        })
+        .catch((error) => {
+          res.status(500).send(error);
+        });
+    }
+  );
+  // res.status(200).send("ok!");
 });
 
 router.get("/test", (req, res) => {
-  res.status(200).send("oke!");
+  let formdata = new FormData();
+  formdata.append("destination", "export");
+  formdata.append("name", "SLU_Conversations");
+  formdata.append(
+    "file",
+    "Should be an JSON-type export file"
+    // fs.writeFileSync("SLU_export.txt", 'Should be an JSON-type export file')
+  );
+
+  axios({
+    method: "POST",
+    url: `https://asr.vbeecore.com/api/v1/uploads/file`,
+    data: formdata,
+    headers: {
+      "Content-Type": `multipart/form-data;`,
+      Authorization: `Bearer zyvZQGPrr6qdbHLTuzqpCmuBgW3TjTxGKEEIFCiy1lCAOzTBtrqPYdPdZ1AtMxU2`,
+    },
+    maxContentLength: "Infinity",
+    maxBodyLength: "Infinity",
+  })
+    .then((response) => {
+      res.status(200).send(response.data);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
 });
 
-const exportObject = (destination, object) => {
+const exportObject = (destination, object, callback) => {
+  console.log("Destination: ", destination);
   fs.writeFile(destination, JSON.stringify(object), (err) => {
     // return doesn't work...
     if (err) {
       console.log(err);
+    }
+    if (callback) {
+      callback();
     }
   });
 };
