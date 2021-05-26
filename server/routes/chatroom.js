@@ -149,6 +149,34 @@ router.get("/random/:userID", (req, res) => {
   })
 })
 
+router.get("/getRoomByUserID/:userID", (req, res) => {
+  const { userID } = req.params;
+
+  Chatroom.find({
+    $or: [
+      {client: userID},
+      {servant: userID},
+    ],
+  })
+  .then(batchRoomFound => {
+    let result = []
+    let count = 0;
+    for (room of batchRoomFound) {
+      let roomMetadata = {}
+      count++;
+      roomMetadata.index = count;
+      roomMetadata.id = room._id;
+      roomMetadata.audioCount = room.audioList.length;
+      result.push(roomMetadata)
+    }
+    res.status(200).send(result)
+  })
+  .catch(err => {
+    res.status(500).send(err)
+    throw err
+  })
+})
+
 // GET BY NAME
 router.get("/name/:roomName", (req, res) => {
   Chatroom.find({name: req.params.roomName})
@@ -177,7 +205,7 @@ router.get("/:roomID", (req, res) => {
   .populate({
     path: 'audioList',
     populate: {
-      path: 'fixBy',
+      path: 'intent',
     }
   })
   .exec((err, roomFound) => {
