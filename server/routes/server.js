@@ -269,7 +269,7 @@ router.get("/export-conversation", async (req, res) => {
                       intentSamplePool[slot.toUpperCase()][intent[slot]].name;
                   } else {
                     // probably forgot that the intent file has been changed, need to recover the old version for this to be recorded correctly.
-                    frames.slot_values[slot] = intent[slot];
+                    frames.slot_values[slot] = `Old ${intent[slot]}`;
                     // res
                     //   .status(500)
                     //   .send(
