@@ -141,7 +141,7 @@ router.get("/export-user", async (req, res) => {
   await User.find()
     .then(async (userFound) => {
       await exportObject(
-        `${path.join(process.cwd(), '..', destination, name + ".json")}`,
+        `${path.join(__dirname, "../..", destination, name + ".json")}`,
         userFound,
         () => {
           let formData = new FormData();
@@ -150,7 +150,7 @@ router.get("/export-user", async (req, res) => {
           formData.append(
             "file",
             fs.createReadStream(
-              path.join(process.cwd(), '..', destination, name + ".json")
+              path.join(__dirname, "../..", destination, name + ".json")
             )
           );
 
@@ -276,7 +276,7 @@ router.get("/export-conversation", async (req, res) => {
   });
 
   exportObject(
-    `${path.join(process.cwd(), '..', destination, name + ".json")}`,
+    `${path.join(__dirname, "../..", destination, name + ".json")}`,
     result,
     () => {
       let formData = new FormData();
@@ -285,7 +285,7 @@ router.get("/export-conversation", async (req, res) => {
       formData.append(
         "file",
         fs.createReadStream(
-          path.join(process.cwd(), '..', destination, name + ".json")
+          path.join(__dirname, "../..", destination, name + ".json")
         )
       );
 
@@ -309,7 +309,8 @@ router.get("/export-conversation", async (req, res) => {
 });
 
 router.get("/test", (req, res) => {
-  res.status(200).send("ok");
+  console.log(path.join(__dirname, "../..", "export"));
+  res.status(200).send("oke");
 });
 
 const exportObject = (destination, object, callback) => {
