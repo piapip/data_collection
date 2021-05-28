@@ -138,6 +138,10 @@ router.get("/flatten", (req, res) => {
 router.get("/export-user", async (req, res) => {
   const { destination, name } = req.body;
 
+  if (!fs.existsSync(path.join(__dirname, "../..", destination))) {
+    fs.mkdirSync(path.join(__dirname, "../..", destination));
+  }
+
   await User.find()
     .then(async (userFound) => {
       await exportObject(
@@ -274,6 +278,10 @@ router.get("/export-conversation", async (req, res) => {
     }
     result.push(conversation);
   });
+
+  if (!fs.existsSync(path.join(__dirname, "../..", destination))) {
+    fs.mkdirSync(path.join(__dirname, "../..", destination));
+  }
 
   exportObject(
     `${path.join(__dirname, "../..", destination, name + ".json")}`,
