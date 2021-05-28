@@ -217,11 +217,14 @@ router.get("/export-conversation", async (req, res) => {
         frames.turn_id = audioIndex;
         frames.transcript = transcript;
         frames.active_intent =
-          intent["intent"] !== null
-            ? intentSamplePool["INTENT"][intent["intent"]].name
-            : intent["generic_intent"] !== null
-            ? intentSamplePool["GENERIC_INTENT"][intent["generic_intent"]]
-            : "";
+          intent !== null && intent !== undefined
+            ? intent["intent"] !== null
+              ? intentSamplePool["INTENT"][intent["intent"]].name
+              : intent["generic_intent"] !== null
+              ? intentSamplePool["GENERIC_INTENT"][intent["generic_intent"]]
+              : ""
+            : "intent null";
+
         frames.slot_values = {};
 
         const properties = [
@@ -238,7 +241,11 @@ router.get("/export-conversation", async (req, res) => {
           "four_last_digits",
         ];
         for (let key in properties) {
-          if (intent[properties[key]] !== null) {
+          if (
+            intent !== null &&
+            intent !== undefined &&
+            intent[properties[key]] !== null
+          ) {
             const slot = properties[key];
 
             switch (slot) {
@@ -262,11 +269,12 @@ router.get("/export-conversation", async (req, res) => {
                       intentSamplePool[slot.toUpperCase()][intent[slot]].name;
                   } else {
                     // probably forgot that the intent file has been changed, need to recover the old version for this to be recorded correctly.
-                    res
-                      .status(500)
-                      .send(
-                        "You probably forgot that the intent file in the config folder has been changed, need to recover the old version for this to be recorded correctly."
-                      );
+                    frames.slot_values[slot] = intent[slot];
+                    // res
+                    //   .status(500)
+                    //   .send(
+                    //     "You probably forgot that the intent file in the config folder has been changed, need to recover the old version for this to be recorded correctly."
+                    //   );
                   }
                 }
             }
