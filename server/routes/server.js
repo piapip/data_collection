@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { User } = require("../models/User");
 const { Chatroom } = require("../models/Chatroom");
-// const { Audio } = require("../models/Audio");
+const { Audio } = require("../models/Audio");
 const axios = require("axios");
 const fs = require("fs");
 const intentSamplePool = require("./../config/intent");
@@ -134,6 +134,55 @@ router.get("/flatten", (req, res) => {
       });
     });
 });
+
+router.get("/export-audio", async (req, res) => {
+  const { destination, name } = req.body;
+
+  if (!fs.existsSync(path.join(__dirname, "../..", destination))) {
+    fs.mkdirSync(path.join(__dirname, "../..", destination));
+  }
+
+  await Audio.find().populate("user")
+    .then(async (audioFound) => {
+      await exportObject(
+        `${path.join(__dirname, "../..", destination, name + ".json")}`,
+        audioFound,
+        () => {
+          let formData = new FormData();
+          formData.append("destination", destination);
+          formData.append("name", name);
+          formData.append(
+            "file",
+            fs.createReadStream(
+              path.join(__dirname, "../..", destination, name + ".json")
+            )
+          );
+
+          axios({
+            method: "POST",
+            url: `https://asr.vbeecore.com/api/v1/uploads/file`,
+            data: formData,
+            headers: {
+              "Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}`,
+              Authorization: `Bearer zyvZQGPrr6qdbHLTuzqpCmuBgW3TjTxGKEEIFCiy1lCAOzTBtrqPYdPdZ1AtMxU2`,
+            },
+            maxContentLength: "Infinity",
+            maxBodyLength: "Infinity",
+          })
+            .then((response) => {
+              res.status(200).send(response.data);
+            })
+            .catch((error) => res.status(500).send(error));
+        }
+      );
+    })
+    .catch((err) => {
+      res
+        .status(500)
+        .send("Internal problem... Can't get User's information. Err:");
+      throw err;
+    });
+})
 
 router.get("/export-user", async (req, res) => {
   const { destination, name } = req.body;
