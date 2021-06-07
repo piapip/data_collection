@@ -309,7 +309,7 @@ sockets.init = function(server) {
 
       // parse the received intent
       if (intentDetailed === null) intentDetailed = {};
-      const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
+      const properties = getSlotList();
       for (let key in properties) {
         if(intentDetailed[properties[key]] === undefined || intentDetailed[properties[key]] === '') intentDetailed[properties[key]] = null
       }
@@ -331,14 +331,7 @@ sockets.init = function(server) {
             let newIntent;
             if (intentDetailed === null) newIntent = await Intent.create({})
             else {
-              const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = intentDetailed;
-              newIntent = await Intent.create({
-                intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent
-              });
-
-              if (name && name.length !== 0 && !roomFound.cheat_sheet.includes(name)) roomFound.cheat_sheet.push(name);
-              if (cmnd && cmnd.length !== 0 && !roomFound.cheat_sheet.includes(cmnd)) roomFound.cheat_sheet.push(cmnd);
-              if (four_last_digits && four_last_digits.length !== 0 && !roomFound.cheat_sheet.includes(four_last_digits)) roomFound.cheat_sheet.push(four_last_digits);
+              newIntent = await Intent.create(intentDetailed);
             }
 
             // save intent to audio
@@ -398,7 +391,7 @@ sockets.init = function(server) {
       
       // parse the received intent
       if (intentDetailed === null) intentDetailed = {};
-      const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
+      const properties = getSlotList();
       for (let key in properties) {
         if(intentDetailed[properties[key]] === undefined || intentDetailed[properties[key]] === '') intentDetailed[properties[key]] = null
       }
@@ -752,7 +745,7 @@ const compareIntent = (intent1, intent2) => {
   if ((intent1 === null && intent2 !== null) || (intent1 !== null && intent2 === null)) return false;
   if (intent1 === null && intent2 === null) return true;
 
-  const properties = ["intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits", "generic_intent"];
+  const properties = getSlotList();
   let count = 0;
   for (let key in properties) {
     if(intent1[properties[key]] === "-1" || intent1[properties[key]] === -1) {
@@ -904,12 +897,7 @@ const createRandomIntent = () => {
     }
   })
 
-  const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits } = tempIntent;
-  // I can still put this lil piece of crap in the {} up there, but who knows what magic it might hold, so better safe than sorry.
-  const generic_intent = null;
-  return Intent.create({
-    intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent
-  })
+  return Intent.create(tempIntent)
 }
 
 // transfer information from newObject to the originalObject
@@ -1071,9 +1059,7 @@ const generateNumberWithLength = (length) => {
 }
 
 const flattenIntent = (currentIntent) => {
-  // const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = currentIntent;
-  // return `${intent}_${loan_purpose}_${loan_type}_${card_type}_${card_usage}_${digital_bank}_${card_activation_type}_${district}_${city}_${name}_${cmnd}_${four_last_digits}_${generic_intent}`;
-  const properties = ["intent", "generic_intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits"];
+  const properties = getSlotList();
   let result = '';
   for (let key in properties) {
     if(currentIntent[properties[key]] !== null && currentIntent[properties[key]] !== undefined) {
@@ -1119,6 +1105,14 @@ const updateRoomDoneCount = (userID) => {
       }
     })
   }
+}
+
+const getSlotList = () => {
+  let properties = []
+  for (slot of intentSamplePool.SLOT_LABEL) {
+    properties.push(slot.tag.toLowerCase())
+  }
+  return properties
 }
 
 module.exports = sockets;

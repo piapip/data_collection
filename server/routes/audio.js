@@ -162,7 +162,7 @@ const getLabel = (slot) => {
 };
 
 const flattenIntent = (currentIntent) => {
-  const properties = ["intent", "generic_intent", "loan_purpose", "loan_type", "card_type", "card_usage", "digital_bank", "card_activation_type", "district", "city", "name", "cmnd", "four_last_digits"];
+  let properties = getSlotList();
   let result = '';
   for (let key in properties) {
     if(currentIntent[properties[key]] !== null && currentIntent[properties[key]] !== undefined) {
@@ -192,8 +192,7 @@ const flattenIntent = (currentIntent) => {
 router.post("/solo", async (req, res) => {
   const { userID, prevIntent, link, nextIntent } = req.body;
 
-  const { intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent } = nextIntent;
-  const newIntent = await Intent.create({ intent, loan_purpose, loan_type, card_type, card_usage, digital_bank, card_activation_type, district, city, name, cmnd, four_last_digits, generic_intent });
+  const newIntent = await Intent.create(nextIntent);
   Audio.create({ 
     user: userID,
     prevIntent: flattenIntent(prevIntent),
@@ -378,6 +377,14 @@ const getTranscriptWithGGAPI = (uri, audioID) => {
     }
   })
   
+}
+
+const getSlotList = () => {
+  let properties = []
+  for (slot of intentSamplePool.SLOT_LABEL) {
+    properties.push(slot.tag.toLowerCase())
+  }
+  return properties
 }
 
 module.exports = router;

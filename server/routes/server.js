@@ -121,20 +121,6 @@ router.get("/audio", (req, res) => {
   });
 });
 
-router.get("/flatten", (req, res) => {
-  Chatroom.findOne()
-    .skip(1)
-    .populate("currentIntent")
-    .exec((err, roomFound) => {
-      if (err) res.status(500).send({ success: false, err });
-      const result = flattenIntent(roomFound.currentIntent);
-      return res.status(200).send({
-        success: true,
-        result,
-      });
-    });
-});
-
 router.get("/export-audio", async (req, res) => {
   const { destination, name } = req.body;
 
@@ -276,19 +262,7 @@ router.get("/export-conversation", async (req, res) => {
 
         frames.slot_values = {};
 
-        const properties = [
-          "loan_purpose",
-          "loan_type",
-          "card_type",
-          "card_usage",
-          "digital_bank",
-          "card_activation_type",
-          "district",
-          "city",
-          "name",
-          "cmnd",
-          "four_last_digits",
-        ];
+        const properties = getSlotList();
         for (let key in properties) {
           if (
             intent !== null &&
@@ -391,25 +365,6 @@ const exportObject = (destination, object, callback) => {
   });
 };
 
-const flattenIntent = (currentIntent) => {
-  const {
-    intent,
-    loan_purpose,
-    loan_type,
-    card_type,
-    card_usage,
-    digital_bank,
-    card_activation_type,
-    district,
-    city,
-    name,
-    cmnd,
-    four_last_digits,
-    generic_intent,
-  } = currentIntent;
-  return `${intent}_${loan_purpose}_${loan_type}_${card_type}_${card_usage}_${digital_bank}_${card_activation_type}_${district}_${city}_${name}_${cmnd}_${four_last_digits}_${generic_intent}`;
-};
-
 // const getLabel = (slot) => {
 //   const slotIndex = intentSamplePool.SLOT_LABEL.findIndex((item) => {
 //     return item.tag.toUpperCase() === slot.toUpperCase();
@@ -417,5 +372,13 @@ const flattenIntent = (currentIntent) => {
 
 //   return slotIndex === -1 ? '' : intentSamplePool.SLOT_LABEL[slotIndex].name;
 // };
+
+const getSlotList = () => {
+  let properties = []
+  for (slot of intentSamplePool.SLOT_LABEL) {
+    if (slot.tag !== "intent" && slot.tag !== "generic_intent") properties.push(slot.tag.toLowerCase())
+  }
+  return properties
+}
 
 module.exports = router;
