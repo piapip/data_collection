@@ -58,6 +58,9 @@ app.use('/api/aws/upload', require('./routes/upload_aws'));
 app.use('/api/testing', require('./routes/audio_transcript/audio_transcript'));
 app.use('/api/server', require('./routes/server'));
 app.use('/api/sso', require('./routes/merge'));
+app.use('/api/domain', require('./routes/domain'));
+app.use('/api/intentRecord', require('./routes/intentRecord'));
+app.use('/api/slot', require('./routes/slot'));
 //use this to show the image you have in node js server to client (react js)
 //https://stackoverflow.com/questions/48914987/send-image-path-from-node-js-express-server-to-react-client
 app.use('/uploads', express.static('uploads'));

@@ -7,9 +7,9 @@ const domainSchema = new mongoose.Schema({
     required: true,
   },
 
-  entities: [{
+  intents: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Entity',
+    ref: 'IntentRecord',
     default: [],
   }],
 
