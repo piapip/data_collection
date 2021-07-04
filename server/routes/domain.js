@@ -27,6 +27,22 @@ router.get("/:domainID", (req, res) => {
     });
 });
 
+router.get("/get-by-campaignID/:campaignID", (req, res) => {
+  const { campaignID } = req.params;
+
+  Domain.find({ campaignID })
+    .then((domainFound) => {
+      if (domainFound.length === 0)
+        res.status(404).send({ success: false, message: "No domain found!" });
+      else {
+        res.status(200).send({ success: true, domainFound: domainFound[0] });
+      }
+    })
+    .catch((error) => {
+      res.status(500).send({ success: false, error });
+    });
+});
+
 // CREATE DOMAIN
 router.post("/", (req, res) => {
   const { name, intents, campaignName, campaignID } = req.body;
@@ -76,7 +92,7 @@ router.post("/import-old-domain", (req, res) => {
   const name = "SLU-cũ";
   const intentList = intentSamplePool.INTENT;
   const campaignName = "HỘI THOẠI THEO KỊCH BẢN (SLU)";
-  const campaignID = "60961271fb7438aa67f81a62";
+  const campaignID = "608bf46497e8c09fb9a40a0e";
   const intents = [];
   intentSamplePool.GENERIC_INTENT.forEach((intent) => {
     intentList.push({
