@@ -4,7 +4,8 @@ const { IntentRecord } = require("../models/IntentRecord");
 
 // GET ALL
 router.get("/", (req, res) => {
-  IntentRecord.find().populate("slots")
+  IntentRecord.find()
+    .populate("slots")
     .then((batchIntentFound) => {
       res.status(200).send({ success: true, batchIntentFound });
     })
@@ -70,9 +71,20 @@ router.post("/import-old-intent", (req, res) => {
       });
     });
 
-    if (count === intentList.length) {
-      res.status(200).send({ success: true, message: "oke" });
-    }
+    // if (count === intentList.length) {
+    //   res.status(200).send({ success: true, message: "oke" });
+    // }
+  });
+  const genericIntentList = intentSamplePool.GENERIC_INTENT;
+  genericIntentList.forEach((intent) => {
+    IntentRecord.create({
+      name: intent,
+    }).then(() => {
+      count++;
+      if (count === intentList.length + genericIntentList.length) {
+        res.status(200).send({ success: true, message: `${count} intents recorded.` });
+      }
+    });
   });
 });
 module.exports = router;

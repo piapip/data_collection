@@ -78,6 +78,11 @@ router.post("/import-old-domain", (req, res) => {
   const campaignName = "HỘI THOẠI THEO KỊCH BẢN (SLU)";
   const campaignID = "60961271fb7438aa67f81a62";
   const intents = [];
+  intentSamplePool.GENERIC_INTENT.forEach((intent) => {
+    intentList.push({
+      name: intent,
+    });
+  });
   let count = 0;
   intentList.forEach((intent) => {
     IntentRecord.find({ name: intent.name }).then((intentFound) => {
@@ -89,11 +94,13 @@ router.post("/import-old-domain", (req, res) => {
           intents,
           campaignName,
           campaignID,
-        }).then((createdDomain) => {
-          res.status(200).send({ success: true, createdDomain });
-        }).catch(error => {
-          res.status(500).send({ success: true, error });
-        });
+        })
+          .then((createdDomain) => {
+            res.status(200).send({ success: true, createdDomain });
+          })
+          .catch((error) => {
+            res.status(500).send({ success: true, error });
+          });
       }
     });
   });

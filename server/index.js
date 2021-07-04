@@ -17,9 +17,6 @@ mongoose.connect(config.mongoURI,
     .then(() => console.log('MongoDB Connected...'))
     .catch(err => console.log(err));
 
-
-require("./models/Message")
-
 app.use(cors())
 
 //to not get any deprecation warning or error
@@ -51,7 +48,6 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/chatroom', require("./routes/chatroom"));
 app.use('/api/v1/uploads/file', require('./routes/upload'));
 // app.use(config.uploadAPI, require('./routes/upload'));
-app.use('/api/message', require('./routes/message'));
 app.use('/api/audio', require('./routes/audio'));
 app.use('/api/intent', require('./routes/intent'));
 app.use('/api/aws/upload', require('./routes/upload_aws'));

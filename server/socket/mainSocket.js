@@ -1,6 +1,5 @@
 var sockets = {}
 const { User } = require("./../models/User");
-const { Message } = require("./../models/Message");
 const { Intent } = require("./../models/Intent");
 const { Audio } = require("./../models/Audio");
 const config = require("./../config/key");
@@ -653,24 +652,6 @@ sockets.init = function(server) {
       })
     })
 
-    // when receive a message
-    socket.on("Input Chat message", msg => {
-      try {
-        var message = new Message({ message: msg.chatMes, sender:msg.userId,intent: msg.intent, chatroomID:msg.chatroomID });
-        message.save(function (err,doc) {
-          if(err) return console.error(doc)
-          Message.find({"_id": doc._id})
-              .populate("sender")
-              .exec((err,doc)=>{
-                return io.emit("Output Chat Message", doc);
-              })
-          console.log(doc)
-        })
-      } catch (error) {
-        console.error(error);
-      }
-    });
-  
   });
 
   // Create a log for the record so deleting audio won't be a problem.
