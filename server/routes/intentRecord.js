@@ -18,6 +18,13 @@ router.get("/", (req, res) => {
 router.get("/:intentRecordID", (req, res) => {
   const { intentRecordID } = req.params;
   IntentRecord.findById(intentRecordID)
+    .populate("slots")
+    .populate({
+      path: "slots",
+      populate: {
+        path: "subSlots"
+      }
+    })
     .then((intentFound) => {
       if (!intentFound)
         res.status(400).send({ success: false, message: "No intent found!" });

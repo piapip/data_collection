@@ -9,10 +9,10 @@ const audioSchema = new mongoose.Schema({
     required: true,
   },
 
-  prevIntent: {
-    type: String,
-    default: "",
-  },
+  // prevIntent: {
+  //   type: String,
+  //   default: "",
+  // },
 
   link: {
     type: String,

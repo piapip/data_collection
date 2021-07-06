@@ -43,6 +43,23 @@ router.get("/get-by-campaignID/:campaignID", (req, res) => {
     });
 });
 
+router.get("/get-dropdown-list/:domainID", (req, res) => {
+  const { domainID } = req.params;
+
+  Domain.findById(domainID)
+  .populate("intents")
+    .then((domainFound) => {
+      if (!domainFound)
+        res.status(404).send({ success: false, message: "No domain found!" });
+      else {
+        res.status(200).send({ success: true, domainFound: domainFound });
+      }
+    })
+    .catch((error) => {
+      res.status(500).send({ success: false, error });
+    });
+});
+
 // CREATE DOMAIN
 router.post("/", (req, res) => {
   const { name, intents, campaignName, campaignID } = req.body;

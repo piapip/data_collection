@@ -6,7 +6,7 @@ const slotSchema = new mongoose.Schema({
     required: true,
   },
 
-  // empty array and empty subSlots equals infinite potential value
+  // empty values array and empty subSlots equals infinite potential value
   values: [{
     type: String,
     default: [],

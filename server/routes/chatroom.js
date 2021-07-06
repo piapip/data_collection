@@ -215,11 +215,25 @@ router.get("/name/:roomName", (req, res) => {
     });
 });
 
-// GET ONE
-router.get("/:roomID", (req, res) => {
+// GET ONE BY CAMPAIGN
+router.get("/:campaignID/:roomID", (req, res) => {
   Chatroom.findById(req.params.roomID)
-    .populate("intent")
-    .populate("currentIntent")
+    // .populate("intent")
+    .populate({
+      path: "intent",
+      populate: {
+        path: "slots intent",
+      }
+    })
+    .populate({
+      path: "currentIntent",
+      populate: {
+        path: "slots intent",
+        populate: {
+          path: "slots",
+        }
+      }
+    })
     .populate({
       path: "audioList",
       populate: {

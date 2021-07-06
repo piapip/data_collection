@@ -366,15 +366,28 @@ sockets.init = function (server) {
     socket.on("client intent", async ({ roomID, audioID, intentDetailed }) => {
       // console.log("Receive client intent: " + JSON.stringify(intentDetailed) + " of audio " + audioID + " from room " + roomID);
 
-      // parse the received intent
-      if (intentDetailed === null) intentDetailed = {};
-      const properties = getSlotList();
-      for (let key in properties) {
-        if (
-          intentDetailed[properties[key]] === undefined ||
-          intentDetailed[properties[key]] === ""
-        )
-          intentDetailed[properties[key]] = null;
+      // parse the received intent, let's try getting intentrecord's id, slot's id and slot values
+      let intentRecordID = null;
+      let slots = [];
+      let slot_values = [];
+      for (const key of Object.keys(intentDetailed)) {
+        // console.log(key);
+        // if it's slot
+        if (key !== "intent" && key !== "generic_intent") {
+          // find that slot's id by the name, normally, intent doesn't care if it's slot or subslot
+          const targetSlot = (await Slot.find({ name: key }))[0];
+          slots.push(targetSlot._id);
+          // save its value
+          slot_values.push(intentDetailed[key]);
+        } else {
+          // if it's intent, "intent" collection dgaf if it's generic_intent or intent
+          // find that intentrecord's id
+          intentRecordID = (
+            await IntentRecord.find({
+              name: intentDetailed[key],
+            })
+          )[0]._id;
+        }
       }
 
       // check turn of the room. Throw a fit if it's not 1. If it's 1 then:
@@ -394,32 +407,35 @@ sockets.init = function (server) {
               return null;
             } else {
               let newIntent;
-              if (intentDetailed === null) newIntent = await Intent.create({});
-              else {
-                newIntent = await Intent.create(intentDetailed);
-              }
-
-              // save intent to audio
-              Audio.findById(audioID)
-                .then(async (audioFound) => {
-                  if (!audioFound) {
-                    console.log(
-                      "... Some shenanigan.. Audio doesn't even exist."
-                    );
-                    // IMPLEMENT SOME KIND OF ERROR!!!
-                    return null;
-                  } else {
-                    audioFound.intent = newIntent._id;
-                    audioFound.prevIntent = flattenIntent(
-                      roomFound.currentIntent
-                    );
-                    return audioFound.save();
-                  }
-                })
-                .catch((err) => {
-                  // IMPLEMENT SOME KIND OF ERROR!!!
-                  console.log("Can't update audio's intent, ", err);
+              // if the audio has some intent
+              if (intentRecordID !== null) {
+                newIntent = await Intent.create({
+                  intent: intentRecordID,
+                  slots,
+                  slot_values,
                 });
+                // save intent to audio
+                Audio.findById(audioID)
+                  .then(async (audioFound) => {
+                    if (!audioFound) {
+                      console.log(
+                        "... Some shenanigan.. Audio doesn't even exist."
+                      );
+                      // IMPLEMENT SOME KND OF ERROR!!!
+                      return null;
+                    } else {
+                      audioFound.intent = newIntent._id;
+                      // audioFound.prevIntent = flattenIntent(
+                      //   roomFound.currentIntent
+                      // );
+                      return audioFound.save();
+                    }
+                  })
+                  .catch((err) => {
+                    // IMPLEMENT SOME KIND OF ERROR!!!
+                    console.log("Can't update audio's intent, ", err);
+                  });
+              }
 
               roomFound.turn = 2;
               return roomFound.save();
@@ -456,15 +472,28 @@ sockets.init = function (server) {
     });
 
     socket.on("servant intent", async ({ roomID, intentDetailed }) => {
-      // parse the received intent
-      if (intentDetailed === null) intentDetailed = {};
-      const properties = getSlotList();
-      for (let key in properties) {
-        if (
-          intentDetailed[properties[key]] === undefined ||
-          intentDetailed[properties[key]] === ""
-        )
-          intentDetailed[properties[key]] = null;
+      // parse the received intent, let's try getting intentrecord's id, slot's id and slot values
+      let intentRecordID = null;
+      let slots = [];
+      let slot_values = [];
+      for (const key of Object.keys(intentDetailed)) {
+        // console.log(key);
+        // if it's slot
+        if (key !== "intent" && key !== "generic_intent") {
+          // find that slot's id by the name, normally, intent doesn't care if it's slot or subslot
+          const targetSlot = (await Slot.find({ name: key }))[0];
+          slots.push(targetSlot._id);
+          // save its value
+          slot_values.push(intentDetailed[key]);
+        } else {
+          // if it's intent, "intent" collection dgaf if it's generic_intent or intent
+          // find that intentrecord's id
+          intentRecordID = (
+            await IntentRecord.find({
+              name: intentDetailed[key],
+            })
+          )[0]._id;
+        }
       }
 
       // compare servant's intent and client's intent.
@@ -494,7 +523,9 @@ sockets.init = function (server) {
                   .then((audioFound) => {
                     const result = compareIntent(
                       audioFound.intent,
-                      intentDetailed
+                      intentRecordID,
+                      slots,
+                      slot_values
                     );
                     // if the intent is an exact match to the audio's intent, update audio's revertable status to true in case if it's removed later on.
                     if (result) {
@@ -535,50 +566,74 @@ sockets.init = function (server) {
               } else {
                 // update currentIntent
                 const newIntent = await Intent.findById(roomFound.currentIntent)
-                  .then((currentIntentFound) => {
+                  .populate("intent")
+                  .then(async (currentIntentFound) => {
                     if (!currentIntentFound) {
                       console.log(
                         "... Some shenanigan.. CurrentIntent doesn't even exist."
                       );
                     } else {
                       // no need to update if it's just a generic intent.
-                      if (intentDetailed.generic_intent !== null)
+                      if (
+                        intentDetailed.generic_intent !== null &&
+                        intentDetailed.generic_intent !== undefined
+                      )
                         return currentIntentFound;
                       else {
+                        console.log(currentIntentFound);
                         if (
                           intentDetailed.intent !== null &&
-                          intentDetailed.intent !== currentIntentFound.intent
+                          (currentIntentFound.intent === null ||
+                            !intentRecordID.equals(
+                              currentIntentFound.intent._id
+                            ))
                         ) {
                           currentIntentFound = transferObject(
                             currentIntentFound,
-                            intentDetailed
+                            {
+                              intent: intentRecordID,
+                              slots,
+                              slot_values,
+                            }
                           );
+
+                          // console.log("Transfer result: ", currentIntentFound);
                         } else {
-                          for (const property in intentDetailed) {
-                            // special case where users have to type. The value is always not null but can be "", which is empty.
-                            if (
-                              property === "cmnd" ||
-                              property === "name" ||
-                              property === "four_last_digits"
-                            ) {
-                              if (intentDetailed[property] !== null) {
-                                if (
-                                  intentDetailed[property].replace(" ", "")
-                                    .length !== 0
-                                ) {
-                                  currentIntentFound[property] =
-                                    intentDetailed[property];
-                                }
-                              }
-                            } else {
-                              if (intentDetailed[property] !== null) {
-                                currentIntentFound[property] =
-                                  intentDetailed[property];
+                          // transfer slots and values from up there to the currentIntent
+                          for (let i = 0; i < slots.length; i++) {
+                            if (slots[i] !== null) {
+                              // find the current index of that slot
+                              const indexSlot =
+                                currentIntentFound.slots.findIndex(
+                                  (targetSlot) => targetSlot.equals(slots[i])
+                                );
+                              // if it's already there, we replace the old value to the new one
+                              if (indexSlot !== -1) {
+                                currentIntentFound.slot_values[indexSlot] =
+                                  slot_values[i];
+                              } else {
+                                // otherwise, push that slot and its value to the currentIntent.
+                                currentIntentFound.slots.push(slots[i]);
+                                currentIntentFound.slot_values.push(
+                                  slot_values[i]
+                                );
                               }
                             }
                           }
+                          // console.log("Migrate result: ", currentIntentFound);
                         }
-                        return currentIntentFound.save();
+                        return await currentIntentFound
+                          .save()
+                          .then((savedIntent) =>
+                            savedIntent
+                              .populate({
+                                path: "slots intent",
+                                populate: {
+                                  path: "slots",
+                                },
+                              })
+                              .execPopulate()
+                          );
                       }
                     }
                   })
@@ -589,12 +644,15 @@ sockets.init = function (server) {
                     )
                   );
 
-                // Have to change this, since the definition of a finished room is different now.
-                // remember that roomFound.intent.generic_intent will always be null because it doesn't really matter, so we need to create an alternative that also has such pattern.
-                const alternativeIntent = newIntent;
-                alternativeIntent.generic_intent = null;
                 if (!roomFound.done) {
-                  if (compareIntent(alternativeIntent, roomFound.intent)) {
+                  if (
+                    compareIntent(
+                      roomFound.intent,
+                      newIntent.intent,
+                      newIntent.slots,
+                      newIntent.slot_values
+                    )
+                  ) {
                     roomFound.done = true;
                     updateRoomDoneCount(roomFound.user1);
                     updateRoomDoneCount(roomFound.user2);
@@ -630,31 +688,9 @@ sockets.init = function (server) {
             // IMPLEMENT SOME KIND OF ERROR!!!
             return null;
           } else {
-            // create intent, servant intent is always null. Not having any intention is an intent.
-            const newIntent = await Intent.create({});
-
-            // save intent to audio
-            Audio.findById(audioID)
-              .then(async (audioFound) => {
-                if (!audioFound) {
-                  console.log(
-                    "... Some shenanigan.. Audio doesn't even exist."
-                  );
-                  // IMPLEMENT SOME KIND OF ERROR!!!
-                  return null;
-                } else {
-                  audioFound.intent = newIntent._id;
-                  audioFound.prevIntent = flattenIntent(
-                    roomFound.currentIntent
-                  );
-                  return audioFound.save();
-                }
-              })
-              .catch((err) => {
-                // IMPLEMENT SOME KIND OF ERROR!!!
-                console.log("Can't update audio's intent, ", err);
-              });
-
+            // create intent, servant intent is always null.
+            // though, not having any intention is an intent but that thought will fuck me up
+            // so let's just not create it
             roomFound.turn = 1;
             return roomFound.save();
           }
@@ -841,50 +877,42 @@ const compareObject = (obj1, obj2) => {
   return JSON.stringify(obj1) === JSON.stringify(obj2);
 };
 
-const compareIntent = (intent1, intent2) => {
-  if (
-    (intent1 === null && intent2 !== null) ||
-    (intent1 !== null && intent2 === null)
-  )
-    return false;
-  if (intent1 === null && intent2 === null) return true;
+const compareIntent = (
+  targetIntent,
+  givenIntentRecordID,
+  givenSlots,
+  given_slots_values
+) => {
+  // console.log("targetIntent: ", targetIntent);
+  // console.log("givenIntentRecordID: ", givenIntentRecordID);
+  // console.log("givenSlots: ", givenSlots);
+  // console.log("given_slots_values: ", given_slots_values);
+  const { intent, slots, slot_values } = targetIntent;
+  // compare main intent
+  if (intent === null && givenIntentRecordID !== null) return false;
+  if (!intent.equals(givenIntentRecordID)) return false;
 
-  const properties = getSlotList();
-  let count = 0;
-  for (let key in properties) {
-    if (intent1[properties[key]] === "-1" || intent1[properties[key]] === -1) {
-      if (intent2[properties[key]] === null) count++;
-    } else if (
-      intent2[properties[key]] === "-1" ||
-      intent2[properties[key]] === -1
-    ) {
-      if (intent1[properties[key]] === null) count++;
-    } else {
-      if (properties[key] === "name") {
-        if (
-          intent1["name"] === null &&
-          intent2["name"] !== null &&
-          intent2["name"] !== ""
-        )
-          count++;
-        else if (
-          intent1["name"] !== null &&
-          intent1["name"] !== "" &&
-          intent2["name"] === null
-        )
-          count++;
-        else if (intent1["name"] !== null && intent2["name"] !== null) {
-          if (intent1["name"].toLowerCase() !== intent2["name"].toLowerCase())
-            count++;
-        } else {
-        }
-      } else {
-        if (intent1[properties[key]] !== intent2[properties[key]]) count++;
-      }
-    }
+  // compare slot's type,
+  // to make it easy, we'll compare length, then we compare value of each array
+  if (slots.length !== givenSlots.length) return false;
+  for (let i = 0; i < slots.length; i++) {
+    const slotIndex = givenSlots.findIndex((slot) => {
+      return slot.equals(slots[i]);
+    });
+    if (slotIndex === -1) return false;
   }
 
-  if (count !== 0) return false;
+  // do the same thing to compare slot's values,
+  // for some reason, both findIndex and includes doesn't work properly
+  if (slot_values.length !== given_slots_values.length) return false;
+  for (let i = 0; i < slot_values.length; i++) {
+    let target = -1;
+    given_slots_values.forEach((value, index) => {
+      if (value.toLowerCase() === slot_values[i].toLowerCase()) target = index;
+    });
+    if (target === -1) return false;
+  }
+
   return true;
 };
 
@@ -894,7 +922,8 @@ const createRoom = async (userID1, userID2, roomType, campaignID) => {
   // user1 - client, user2 - servant
   let content_type = roomType === "audio" ? 0 : 1;
   // const randomValue = randomGenerator();
-  const name = await generateName(4);
+  const name = await generateName(6);
+  const targetDomain = (await Domain.find({ campaignID }))[0];
   let intent = await createRandomIntent(campaignID);
   let currentIntent = await Intent.create({});
   const chatroom = await Chatroom.create({
@@ -910,11 +939,12 @@ const createRoom = async (userID1, userID2, roomType, campaignID) => {
     intent: intent._id,
     currentIntent: currentIntent._id,
     turn: 1,
+    domain: targetDomain._id,
   }).catch(async (err) => {
     if (err.name === "MongoError") {
       if (err.code === 11000) {
         return await Chatroom.create({
-          name: await generateName(6),
+          name: await generateName(16),
           task: generateTask(),
           content_type: content_type,
           user1: userID1,
@@ -925,6 +955,7 @@ const createRoom = async (userID1, userID2, roomType, campaignID) => {
           intent: intent._id,
           currentIntent: currentIntent._id,
           turn: 1,
+          domain: targetDomain._id,
         });
       }
     } else {
@@ -944,26 +975,6 @@ const generateName = async (length) => {
   const name = `Room ${generateRandomString(length)}`;
 
   return name;
-  // // PROBLEM!!! Both users will fire this function... fuck... and it doesn't always work...
-  // // Here's the idea: count how many Chatroom documents there are, then increase by 1 then make it as the name
-  // let roomName = "";
-  // await Chatroom.estimatedDocumentCount(async (err, count) => {
-  //   if (err) {
-  //     console.log("Can't count chatroom documents, ", err);
-  //   } else {
-  //     roomName = "Room R" + count;
-  //     console.log("roomName: ", roomName);
-  //     // await Chatroom.find({ name: roomName })
-  //     // .then(async roomFound => {
-  //     //   // console.log(roomFound.);
-  //     //   if (roomFound && roomFound.user1 !== userID1 && roomFound.user2 !== userID2) {
-  //     //     roomName = await generateName(userID1, userID2);
-  //     //   }
-  //     // });
-  //   }
-  // })
-
-  // return roomName;
 };
 
 const generateTask = () => {
@@ -986,12 +997,11 @@ const createRandomIntent = async (campaignID) => {
         const intentList = targetDomain.intents.sort(
           (a, b) => a.count - b.count
         );
-        // return intentList[
-        //   getRandomFromArray(
-        //     intentList.splice(0, Math.floor(intentList.length / 4))
-        //   )
-        // ];
-        return intentList[3];
+        return intentList[
+          getRandomFromArray(
+            intentList.splice(0, Math.floor(intentList.length / 4))
+          )
+        ];
       }
     })
     .catch((error) => {
@@ -1064,8 +1074,6 @@ const createRandomIntent = async (campaignID) => {
                       }
                     });
                   } else {
-                    // 60e169865327621ca43cabba
-                    // 60e169865327621ca43cabba
                     // in case the higher slot is not here yet
                     // then random a value for this higher tier slot
                     await Slot.findById(slotFound.lowerThan).then(
@@ -1120,44 +1128,6 @@ const createRandomIntent = async (campaignID) => {
     slots: tempSlots,
     slot_values: tempSlotValues,
   });
-  // // const intentIndex = intentShowUpRate[getRandomFromArray(intentShowUpRate)];
-  // // const intentIndex = getRandomFromArray(intentSamplePool.INTENT);
-  // // const intentIndex = 7;
-  // const slots = intentSamplePool.INTENT[intentIndex].slot;
-
-  // let tempIntent = {
-  //   intent: intentIndex,
-  // }
-
-  // // gen slot required for intent.
-  // slots.map(slot => {
-  //   const slotPool = intentSamplePool[slot.toUpperCase()];
-  //   if (slot === "city") {
-  //     const slotIndex = getRandomFromArray(slotPool);
-  //     return tempIntent[slot] = slotPool[slotIndex];
-  //   }
-  //   else if (slot === "district") {
-  //     const districtPool = slotPool[tempIntent["city"]];
-  //     const slotIndex = getRandomFromArray(districtPool);
-  //     return tempIntent[slot] = districtPool[slotIndex];
-  //   }
-  //   else if (intentSamplePool[slot.toUpperCase()] === undefined) {
-  // if (slot === "name") {
-  //   return (tempIntent[slot] =
-  //     namePool.NAME[getRandomFromArray(namePool.NAME)]);
-  // } else if (slot === "cmnd") {
-  //   return (tempIntent[slot] = generateNumberWithLength(9));
-  // } else if (slot === "four_last_digits") {
-  //   return (tempIntent[slot] = generateNumberWithLength(4));
-  // }
-  // return (tempIntent[slot] = -1);
-  //   } else {
-  //     const slotIndex = getRandomFromArray(slotPool);
-  //     return tempIntent[slot] = slotIndex;
-  //   }
-  // })
-
-  // return Intent.create(tempIntent)
 };
 
 // transfer information from newObject to the originalObject
@@ -1174,12 +1144,6 @@ const transferObject = (originalObject, newObject) => {
 const getRandomFromArray = (arr) => {
   return Math.floor(Math.random() * arr.length);
 };
-
-// const genRandomInt = (min, max) => {
-//   min = Math.ceil(min);
-//   max = Math.floor(max);
-//   return Math.floor(Math.random() * (max - min + 1)) + min;
-// }
 
 const kickUser = (roomID, userID) => {
   Chatroom.findById(roomID)
@@ -1320,47 +1284,47 @@ const generateNumberWithLength = (length) => {
   return text;
 };
 
-const flattenIntent = (currentIntent) => {
-  const properties = getSlotList();
-  let result = "";
-  for (let key in properties) {
-    if (
-      currentIntent[properties[key]] !== null &&
-      currentIntent[properties[key]] !== undefined
-    ) {
-      const slot = properties[key];
+// const flattenIntent = (currentIntent) => {
+//   const properties = getSlotList();
+//   let result = "";
+//   for (let key in properties) {
+//     if (
+//       currentIntent[properties[key]] !== null &&
+//       currentIntent[properties[key]] !== undefined
+//     ) {
+//       const slot = properties[key];
 
-      switch (slot) {
-        case "city":
-        case "district":
-          result = result + `'${getLabel(slot)}': '${currentIntent[slot]}', `;
-          break;
-        case "generic_intent":
-          result =
-            result +
-            `'${getLabel(slot)}': '${
-              intentSamplePool["GENERIC_INTENT"][currentIntent[slot]]
-            }', `;
-          break;
-        default:
-          if (
-            intentSamplePool[slot.toUpperCase()] === undefined ||
-            currentIntent[slot] === -1
-          ) {
-            result = result + `'${getLabel(slot)}': '${currentIntent[slot]}', `;
-          } else {
-            result =
-              result +
-              `'${getLabel(slot)}': '${
-                intentSamplePool[slot.toUpperCase()][currentIntent[slot]].name
-              }', `;
-          }
-      }
-    }
-  }
-  result = "{" + result.substring(0, result.length - 2) + "}";
-  return result;
-};
+//       switch (slot) {
+//         case "city":
+//         case "district":
+//           result = result + `'${getLabel(slot)}': '${currentIntent[slot]}', `;
+//           break;
+//         case "generic_intent":
+//           result =
+//             result +
+//             `'${getLabel(slot)}': '${
+//               intentSamplePool["GENERIC_INTENT"][currentIntent[slot]]
+//             }', `;
+//           break;
+//         default:
+//           if (
+//             intentSamplePool[slot.toUpperCase()] === undefined ||
+//             currentIntent[slot] === -1
+//           ) {
+//             result = result + `'${getLabel(slot)}': '${currentIntent[slot]}', `;
+//           } else {
+//             result =
+//               result +
+//               `'${getLabel(slot)}': '${
+//                 intentSamplePool[slot.toUpperCase()][currentIntent[slot]].name
+//               }', `;
+//           }
+//       }
+//     }
+//   }
+//   result = "{" + result.substring(0, result.length - 2) + "}";
+//   return result;
+// };
 
 const getLabel = (slot) => {
   const slotIndex = intentSamplePool.SLOT_LABEL.findIndex((item) => {
