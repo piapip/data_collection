@@ -363,320 +363,448 @@ sockets.init = function (server) {
       );
     });
 
-    socket.on("client intent", async ({ roomID, audioID, intentDetailed }) => {
-      // console.log("Receive client intent: " + JSON.stringify(intentDetailed) + " of audio " + audioID + " from room " + roomID);
+    socket.on(
+      "client intent",
+      async ({ roomID, audioID, intentDetailed, campaignID }) => {
+        // console.log("Receive client intent: " + JSON.stringify(intentDetailed) + " of audio " + audioID + " from room " + roomID);
 
-      // parse the received intent, let's try getting intentrecord's id, slot's id and slot values
-      let intentRecordID = null;
-      let slots = [];
-      let slot_values = [];
-      for (const key of Object.keys(intentDetailed)) {
-        // console.log(key);
-        // if it's slot
-        if (key !== "intent" && key !== "generic_intent") {
-          // find that slot's id by the name, normally, intent doesn't care if it's slot or subslot
-          const targetSlot = (await Slot.find({ name: key }))[0];
-          slots.push(targetSlot._id);
-          // save its value
-          slot_values.push(intentDetailed[key]);
-        } else {
-          // if it's intent, "intent" collection dgaf if it's generic_intent or intent
-          // find that intentrecord's id
-          intentRecordID = (
-            await IntentRecord.find({
-              name: intentDetailed[key],
-            })
-          )[0]._id;
-        }
-      }
+        // parse the received intent, let's try getting intentrecord's id, slot's id and slot values
+        let intentRecordID = null;
+        let slots = [];
+        let slot_values = [];
 
-      // check turn of the room. Throw a fit if it's not 1. If it's 1 then:
-      await Chatroom.findById(roomID)
-        .populate("currentIntent")
-        .then(async (roomFound) => {
-          if (!roomFound) {
-            console.log("... Some shenanigan.. Room doesn't even exist.");
-            // IMPLEMENT SOME KIND OF ERROR!!!
-            return null;
-          } else {
-            if (roomFound.turn !== 1) {
-              console.log(
-                "... Some shenanigan.. It's not client's turn to send intent."
-              );
-              // IMPLEMENT SOME KIND OF ERROR!!!
-              return null;
+        await Domain.find({ campaignID })
+          .populate({
+            path: "intents",
+            populate: {
+              path: "slots",
+            },
+          })
+          .then((domainFound) => {
+            if (domainFound.length === 0) {
+              console.log("... Some shenanigan.. Domain doesn't even exist.");
             } else {
-              let newIntent;
-              // if the audio has some intent
-              if (intentRecordID !== null) {
-                newIntent = await Intent.create({
-                  intent: intentRecordID,
-                  slots,
-                  slot_values,
-                });
-                // save intent to audio
-                Audio.findById(audioID)
-                  .then(async (audioFound) => {
-                    if (!audioFound) {
-                      console.log(
-                        "... Some shenanigan.. Audio doesn't even exist."
-                      );
-                      // IMPLEMENT SOME KND OF ERROR!!!
-                      return null;
-                    } else {
-                      audioFound.intent = newIntent._id;
-                      // audioFound.prevIntent = flattenIntent(
-                      //   roomFound.currentIntent
-                      // );
-                      return audioFound.save();
+              const targetDomain = domainFound[0];
+              const intentList = targetDomain.intents;
+              for (const key of Object.keys(intentDetailed)) {
+                // if it's slot
+                if (key !== "intent" && key !== "generic_intent") {
+                  // traverse through the intentList to find the slot
+                  let targetSlot;
+                  for (let i = 0; i < intentList.length; i++) {
+                    const slotList = intentList[i].slots;
+                    const slotIndex = slotList.findIndex((slot) => {
+                      return slot.name === key;
+                    });
+
+                    if (slotIndex !== -1) {
+                      targetSlot = slotList[slotIndex]._id;
+                      slots.push(targetSlot);
+                      slot_values.push(intentDetailed[key]);
+                      break;
                     }
-                  })
-                  .catch((err) => {
-                    // IMPLEMENT SOME KIND OF ERROR!!!
-                    console.log("Can't update audio's intent, ", err);
+                  }
+                } else {
+                  // if it's intent, "intent" collection dgaf if it's generic_intent or intent
+                  // find that intentrecord's id
+                  const targetIntentName = intentDetailed[key];
+                  const intentIndex = intentList.findIndex((intent) => {
+                    return intent.name === targetIntentName;
                   });
+                  intentRecordID = intentList[intentIndex]._id;
+                }
               }
-
-              roomFound.turn = 2;
-              return roomFound.save();
             }
-          }
-        })
-        .catch((err) => {
-          // IMPLEMENT SOME KIND OF ERROR!!!
-          console.log(err);
-        });
+          });
 
-      io.to(roomID).emit("refresh cheatsheet", {});
+        // for (const key of Object.keys(intentDetailed)) {
+        //   // console.log(key);
+        //   // if it's slot
+        //   if (key !== "intent" && key !== "generic_intent") {
+        //     // find that slot's id by the name, normally, intent doesn't care if it's slot or subslot
+        //     const targetSlot = (await Slot.find({ name: key }))[0];
+        //     slots.push(targetSlot._id);
+        //     // save its value
+        //     slot_values.push(intentDetailed[key]);
+        //   } else {
+        //     // if it's intent, "intent" collection dgaf if it's generic_intent or intent
+        //     // find that intentrecord's id
+        //     // Firstly, let's get all the intent from the domain
+        //     intentRecordID = await Domain.find({ campaignID })
+        //       .populate("intents")
+        //       .then((domainFound) => {
+        //         if (domainFound.length === 0) {
+        //           console.log(
+        //             "... Some shenanigan.. Domain doesn't even exist."
+        //           );
+        //         } else {
+        //           const targetIntentName = intentDetailed[key];
+        //           const { intents } = domainFound[0];
+        //           const intentIndex = intents.findIndex((intent) => {
+        //             return intent.name === targetIntentName;
+        //           });
+        //           return intents[intentIndex]._id;
+        //         }
+        //       });
+        //     // console.log("intentRecordID: ", intentRecordID);
+        //   }
+        // }
 
-      setTimeout(async () => {
-        let transcript = await Audio.findById(audioID).then((audioFound) => {
-          if (!audioFound) {
-            console.log("... Some shenanigan.. Audio doesn't even exist.");
-            // IMPLEMENT SOME KIND OF ERROR!!!
-            return null;
-          }
-
-          return audioFound.transcript;
-        });
-
-        // console.log(`transcript: ${transcript}`)
-
-        io.to(roomID).emit("update transcript", {
-          // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
-          username: audioID,
-          transcript: transcript,
-          index: -1,
-        });
-      }, 4000);
-    });
-
-    socket.on("servant intent", async ({ roomID, intentDetailed }) => {
-      // parse the received intent, let's try getting intentrecord's id, slot's id and slot values
-      let intentRecordID = null;
-      let slots = [];
-      let slot_values = [];
-      for (const key of Object.keys(intentDetailed)) {
-        // console.log(key);
-        // if it's slot
-        if (key !== "intent" && key !== "generic_intent") {
-          // find that slot's id by the name, normally, intent doesn't care if it's slot or subslot
-          const targetSlot = (await Slot.find({ name: key }))[0];
-          slots.push(targetSlot._id);
-          // save its value
-          slot_values.push(intentDetailed[key]);
-        } else {
-          // if it's intent, "intent" collection dgaf if it's generic_intent or intent
-          // find that intentrecord's id
-          intentRecordID = (
-            await IntentRecord.find({
-              name: intentDetailed[key],
-            })
-          )[0]._id;
-        }
-      }
-
-      // compare servant's intent and client's intent.
-      const compare = await Chatroom.findById(roomID)
-        .then(async (roomFound) => {
-          // check room status.
-          if (!roomFound) {
-            console.log("... Some shenanigan.. Room doesn't even exist.");
-            // IMPLEMENT SOME KIND OF ERROR!!!
-            return null;
-          } else {
-            if (roomFound.turn !== 2) {
-              console.log(
-                "... Some shenanigan.. It's not servant's turn to send intent."
-              );
-              // IMPLEMENT SOME KIND OF ERROR!!!
-              return null;
-            } else {
-              // get latest audio.
-              const latestAudioID =
-                roomFound.audioList[roomFound.audioList.length - 1];
-              return (
-                Audio.findById(latestAudioID)
-                  .populate("intent")
-
-                  // check intent against audio's intent.
-                  .then((audioFound) => {
-                    const result = compareIntent(
-                      audioFound.intent,
-                      intentRecordID,
-                      slots,
-                      slot_values
-                    );
-                    // if the intent is an exact match to the audio's intent, update audio's revertable status to true in case if it's removed later on.
-                    if (result) {
-                      audioFound.revertable = true;
-                      // I'm so afraid of this shit... it may cause a lot of potential BUG!!!
-                      audioFound.save((err, audioUpdated) => {
-                        if (err) return false;
-                        return true;
-                      });
-                    }
-                    return result;
-                  })
-                  .catch((err) => console.log("Error: ", err))
-              );
-            }
-          }
-        })
-        .catch((err) => console.log(err));
-
-      // if correct, emit a signal, telling both of them that's it's okay. Update the current intent for the room and move turn to 3.
-      if (compare) {
-        // console.log("Update current intent: " + JSON.stringify(intentDetailed));
+        // check turn of the room. Throw a fit if it's not 1. If it's 1 then:
         await Chatroom.findById(roomID)
-          .populate("intent")
+          .populate("currentIntent")
           .then(async (roomFound) => {
             if (!roomFound) {
               console.log("... Some shenanigan.. Room doesn't even exist.");
               // IMPLEMENT SOME KIND OF ERROR!!!
               return null;
             } else {
-              // already check up there but fuck it, just in case.
-              if (roomFound.turn !== 2) {
+              if (roomFound.turn !== 1) {
                 console.log(
-                  "Saving intent... Some shenanigan.. It's not servant's turn to send intent."
+                  "... Some shenanigan.. It's not client's turn to send intent."
                 );
                 // IMPLEMENT SOME KIND OF ERROR!!!
                 return null;
               } else {
-                // update currentIntent
-                const newIntent = await Intent.findById(roomFound.currentIntent)
-                  .populate("intent")
-                  .then(async (currentIntentFound) => {
-                    if (!currentIntentFound) {
-                      console.log(
-                        "... Some shenanigan.. CurrentIntent doesn't even exist."
-                      );
-                    } else {
-                      // no need to update if it's just a generic intent.
-                      if (
-                        intentDetailed.generic_intent !== null &&
-                        intentDetailed.generic_intent !== undefined
-                      )
-                        return currentIntentFound;
-                      else {
-                        console.log(currentIntentFound);
-                        if (
-                          intentDetailed.intent !== null &&
-                          (currentIntentFound.intent === null ||
-                            !intentRecordID.equals(
-                              currentIntentFound.intent._id
-                            ))
-                        ) {
-                          currentIntentFound = transferObject(
-                            currentIntentFound,
-                            {
-                              intent: intentRecordID,
-                              slots,
-                              slot_values,
-                            }
-                          );
-
-                          // console.log("Transfer result: ", currentIntentFound);
-                        } else {
-                          // transfer slots and values from up there to the currentIntent
-                          for (let i = 0; i < slots.length; i++) {
-                            if (slots[i] !== null) {
-                              // find the current index of that slot
-                              const indexSlot =
-                                currentIntentFound.slots.findIndex(
-                                  (targetSlot) => targetSlot.equals(slots[i])
-                                );
-                              // if it's already there, we replace the old value to the new one
-                              if (indexSlot !== -1) {
-                                currentIntentFound.slot_values[indexSlot] =
-                                  slot_values[i];
-                              } else {
-                                // otherwise, push that slot and its value to the currentIntent.
-                                currentIntentFound.slots.push(slots[i]);
-                                currentIntentFound.slot_values.push(
-                                  slot_values[i]
-                                );
-                              }
-                            }
-                          }
-                          // console.log("Migrate result: ", currentIntentFound);
-                        }
-                        return await currentIntentFound
-                          .save()
-                          .then((savedIntent) =>
-                            savedIntent
-                              .populate({
-                                path: "slots intent",
-                                populate: {
-                                  path: "slots",
-                                },
-                              })
-                              .execPopulate()
-                          );
+                let newIntent;
+                // if the audio has some intent
+                if (intentRecordID !== null) {
+                  newIntent = await Intent.create({
+                    intent: intentRecordID,
+                    slots,
+                    slot_values,
+                  });
+                  // save intent to audio
+                  Audio.findById(audioID)
+                    .then(async (audioFound) => {
+                      if (!audioFound) {
+                        console.log(
+                          "... Some shenanigan.. Audio doesn't even exist."
+                        );
+                        // IMPLEMENT SOME KND OF ERROR!!!
+                        return null;
+                      } else {
+                        audioFound.intent = newIntent._id;
+                        // audioFound.prevIntent = flattenIntent(
+                        //   roomFound.currentIntent
+                        // );
+                        return audioFound.save();
                       }
-                    }
-                  })
-                  .catch((err) =>
-                    console.log(
-                      "Having trouble updating currenting intent...",
-                      err
-                    )
-                  );
-
-                if (!roomFound.done) {
-                  if (
-                    compareIntent(
-                      roomFound.intent,
-                      newIntent.intent,
-                      newIntent.slots,
-                      newIntent.slot_values
-                    )
-                  ) {
-                    roomFound.done = true;
-                    updateRoomDoneCount(roomFound.user1);
-                    updateRoomDoneCount(roomFound.user2);
-                  }
+                    })
+                    .catch((err) => {
+                      // IMPLEMENT SOME KIND OF ERROR!!!
+                      console.log("Can't update audio's intent, ", err);
+                    });
                 }
 
-                // emit signal
-                io.to(roomID).emit("intent correct", {
-                  roomDone: roomFound.done,
-                  newIntent: newIntent,
-                });
-
-                // update turn
-                roomFound.turn = 3;
+                roomFound.turn = 2;
                 return roomFound.save();
               }
             }
           })
-          .catch((err) => console.log(err));
-      } else {
-        // else emit a signal, telling the servant that he/she fucked up. Do it again, or press the godly "DELETE" button to remove the client's audio reverse the turn to 1..
-        io.to(roomID).emit("intent incorrect", {});
+          .catch((err) => {
+            // IMPLEMENT SOME KIND OF ERROR!!!
+            console.log(err);
+          });
+
+        io.to(roomID).emit("refresh cheatsheet", {});
+
+        setTimeout(async () => {
+          let transcript = await Audio.findById(audioID).then((audioFound) => {
+            if (!audioFound) {
+              console.log("... Some shenanigan.. Audio doesn't even exist.");
+              // IMPLEMENT SOME KIND OF ERROR!!!
+              return null;
+            }
+
+            return audioFound.transcript;
+          });
+
+          // console.log(`transcript: ${transcript}`)
+
+          io.to(roomID).emit("update transcript", {
+            // a very special case, because we don't have any way to retrieve newly uploaded audioID in the frontend.
+            username: audioID,
+            transcript: transcript,
+            index: -1,
+          });
+        }, 4000);
       }
-    });
+    );
+
+    socket.on(
+      "servant intent",
+      async ({ roomID, intentDetailed, campaignID }) => {
+        // parse the received intent, let's try getting intentrecord's id, slot's id and slot values
+        let intentRecordID = null;
+        let slots = [];
+        let slot_values = [];
+        await Domain.find({ campaignID })
+          .populate({
+            path: "intents",
+            populate: {
+              path: "slots",
+            },
+          })
+          .then((domainFound) => {
+            if (domainFound.length === 0) {
+              console.log("... Some shenanigan.. Domain doesn't even exist.");
+            } else {
+              const targetDomain = domainFound[0];
+              const intentList = targetDomain.intents;
+              for (const key of Object.keys(intentDetailed)) {
+                // if it's slot
+                if (key !== "intent" && key !== "generic_intent") {
+                  // traverse through the intentList to find the slot
+                  let targetSlot;
+                  for (let i = 0; i < intentList.length; i++) {
+                    const slotList = intentList[i].slots;
+                    const slotIndex = slotList.findIndex((slot) => {
+                      return slot.name === key;
+                    });
+
+                    if (slotIndex !== -1) {
+                      targetSlot = slotList[slotIndex]._id;
+                      slots.push(targetSlot);
+                      slot_values.push(intentDetailed[key]);
+                      break;
+                    }
+                  }
+                } else {
+                  // if it's intent, "intent" collection dgaf if it's generic_intent or intent
+                  // find that intentrecord's id
+                  const targetIntentName = intentDetailed[key];
+                  const intentIndex = intentList.findIndex((intent) => {
+                    return intent.name === targetIntentName;
+                  });
+                  intentRecordID = intentList[intentIndex]._id;
+                }
+              }
+            }
+          });
+        // for (const key of Object.keys(intentDetailed)) {
+        //   // console.log(key);
+        //   // if it's slot
+        //   if (key !== "intent" && key !== "generic_intent") {
+        //     // find that slot's id by the name, normally, intent doesn't care if it's slot or subslot
+        //     const targetSlot = (await Slot.find({ name: key }))[0];
+        //     slots.push(targetSlot._id);
+        //     // save its value
+        //     slot_values.push(intentDetailed[key]);
+        //   } else {
+        //     // if it's intent, "intent" collection dgaf if it's generic_intent or intent
+        //     // find that intentrecord's id
+        //     // Firstly, let's get all the intent from the domain
+        //     intentRecordID = await Domain.find({ campaignID })
+        //       .populate("intents")
+        //       .then((domainFound) => {
+        //         if (domainFound.length === 0) {
+        //           console.log(
+        //             "... Some shenanigan.. Domain doesn't even exist."
+        //           );
+        //         } else {
+        //           const targetIntentName = intentDetailed[key];
+        //           const { intents } = domainFound[0];
+        //           const intentIndex = intents.findIndex((intent) => {
+        //             return intent.name === targetIntentName;
+        //           });
+        //           return intents[intentIndex]._id;
+        //         }
+        //       });
+        //   }
+        // }
+
+        // compare servant's intent and client's intent.
+        const compare = await Chatroom.findById(roomID)
+          .then(async (roomFound) => {
+            // check room status.
+            if (!roomFound) {
+              console.log("... Some shenanigan.. Room doesn't even exist.");
+              // IMPLEMENT SOME KIND OF ERROR!!!
+              return null;
+            } else {
+              if (roomFound.turn !== 2) {
+                console.log(
+                  "... Some shenanigan.. It's not servant's turn to send intent."
+                );
+                // IMPLEMENT SOME KIND OF ERROR!!!
+                return null;
+              } else {
+                // get latest audio.
+                const latestAudioID =
+                  roomFound.audioList[roomFound.audioList.length - 1];
+                return (
+                  Audio.findById(latestAudioID)
+                    .populate("intent")
+
+                    // check intent against audio's intent.
+                    .then((audioFound) => {
+                      const result = compareIntent(
+                        audioFound.intent,
+                        intentRecordID,
+                        slots,
+                        slot_values
+                      );
+                      // if the intent is an exact match to the audio's intent, update audio's revertable status to true in case if it's removed later on.
+                      if (result) {
+                        audioFound.revertable = true;
+                        // I'm so afraid of this shit... it may cause a lot of potential BUG!!!
+                        audioFound.save((err, audioUpdated) => {
+                          if (err) return false;
+                          return true;
+                        });
+                      }
+                      return result;
+                    })
+                    .catch((err) => console.log("Error: ", err))
+                );
+              }
+            }
+          })
+          .catch((err) => console.log(err));
+
+        // if correct, update intentRecord count
+        // then emit a signal, telling both of them that's it's okay. Update the current intent for the room and move turn to 3.
+        if (compare) {
+          // console.log("Update current intent: " + JSON.stringify(intentDetailed));
+          await Chatroom.findById(roomID)
+            .populate("intent")
+            .then(async (roomFound) => {
+              if (!roomFound) {
+                console.log("... Some shenanigan.. Room doesn't even exist.");
+                // IMPLEMENT SOME KIND OF ERROR!!!
+                return null;
+              } else {
+                // already check up there but fuck it, just in case.
+                if (roomFound.turn !== 2) {
+                  console.log(
+                    "Saving intent... Some shenanigan.. It's not servant's turn to send intent."
+                  );
+                  // IMPLEMENT SOME KIND OF ERROR!!!
+                  return null;
+                } else {
+                  // update IntentRecord count
+                  IntentRecord.findById(intentRecordID).then((intentFound) => {
+                    intentFound.count++;
+                    intentFound.save();
+                  });
+                  // update currentIntent
+                  const newIntent = await Intent.findById(
+                    roomFound.currentIntent
+                  )
+                    .populate("intent")
+                    .then(async (currentIntentFound) => {
+                      if (!currentIntentFound) {
+                        console.log(
+                          "... Some shenanigan.. CurrentIntent doesn't even exist."
+                        );
+                      } else {
+                        // no need to update if it's just a generic intent.
+                        if (
+                          intentDetailed.generic_intent !== null &&
+                          intentDetailed.generic_intent !== undefined
+                        )
+                          return currentIntentFound;
+                        else {
+                          console.log(currentIntentFound);
+                          if (
+                            intentDetailed.intent !== null &&
+                            (currentIntentFound.intent === null ||
+                              !intentRecordID.equals(
+                                currentIntentFound.intent._id
+                              ))
+                          ) {
+                            currentIntentFound = transferObject(
+                              currentIntentFound,
+                              {
+                                intent: intentRecordID,
+                                slots,
+                                slot_values,
+                              }
+                            );
+
+                            // console.log("Transfer result: ", currentIntentFound);
+                          } else {
+                            // transfer slots and values from up there to the currentIntent
+                            for (let i = 0; i < slots.length; i++) {
+                              if (slots[i] !== null) {
+                                // find the current index of that slot
+                                const indexSlot =
+                                  currentIntentFound.slots.findIndex(
+                                    (targetSlot) => targetSlot.equals(slots[i])
+                                  );
+                                // if it's already there, we replace the old value to the new one
+                                if (indexSlot !== -1) {
+                                  currentIntentFound.slot_values[indexSlot] =
+                                    slot_values[i];
+                                } else {
+                                  // otherwise, push that slot and its value to the currentIntent.
+                                  currentIntentFound.slots.push(slots[i]);
+                                  currentIntentFound.slot_values.push(
+                                    slot_values[i]
+                                  );
+                                }
+                              }
+                            }
+                            // console.log("Migrate result: ", currentIntentFound);
+                          }
+                          return await currentIntentFound
+                            .save()
+                            .then((savedIntent) =>
+                              savedIntent
+                                .populate({
+                                  path: "slots intent",
+                                  populate: {
+                                    path: "slots",
+                                  },
+                                })
+                                .execPopulate()
+                            );
+                        }
+                      }
+                    })
+                    .catch((err) =>
+                      console.log(
+                        "Having trouble updating currenting intent...",
+                        err
+                      )
+                    );
+
+                  if (!roomFound.done) {
+                    console.log("Checking done status...");
+                    if (
+                      compareIntent(
+                        roomFound.intent,
+                        newIntent.intent._id,
+                        newIntent.slots,
+                        newIntent.slot_values
+                      )
+                    ) {
+                      roomFound.done = true;
+                      updateRoomDoneCount(roomFound.user1);
+                      updateRoomDoneCount(roomFound.user2);
+                    }
+                  }
+
+                  // emit signal
+                  io.to(roomID).emit("intent correct", {
+                    roomDone: roomFound.done,
+                    newIntent: newIntent,
+                  });
+
+                  // update turn
+                  roomFound.turn = 3;
+                  return roomFound.save();
+                }
+              }
+            })
+            .catch((err) => console.log(err));
+        } else {
+          // else emit a signal, telling the servant that he/she fucked up. Do it again, or press the godly "DELETE" button to remove the client's audio reverse the turn to 1..
+          io.to(roomID).emit("intent incorrect", {});
+        }
+      }
+    );
 
     socket.on("servant audio", async ({ roomID, audioID }) => {
       // update room turn
@@ -885,6 +1013,7 @@ const compareIntent = (
 ) => {
   // console.log("targetIntent: ", targetIntent);
   // console.log("givenIntentRecordID: ", givenIntentRecordID);
+  // console.log("base slots: ", targetIntent.slots);
   // console.log("givenSlots: ", givenSlots);
   // console.log("given_slots_values: ", given_slots_values);
   const { intent, slots, slot_values } = targetIntent;
@@ -897,9 +1026,18 @@ const compareIntent = (
   if (slots.length !== givenSlots.length) return false;
   for (let i = 0; i < slots.length; i++) {
     const slotIndex = givenSlots.findIndex((slot) => {
-      return slot.equals(slots[i]);
+      const baseSlotID =
+        slots[i]._id !== null && slots[i]._id !== undefined
+          ? slots[i]._id
+          : slots[i];
+      const givenSlotID =
+        slot._id !== null && slot._id !== undefined ? slot._id : slot;
+      return baseSlotID.equals(givenSlotID);
     });
-    if (slotIndex === -1) return false;
+    if (slotIndex === -1) {
+      console.log("Fail slot: ", slots[i]);
+      return false;
+    }
   }
 
   // do the same thing to compare slot's values,
@@ -910,7 +1048,10 @@ const compareIntent = (
     given_slots_values.forEach((value, index) => {
       if (value.toLowerCase() === slot_values[i].toLowerCase()) target = index;
     });
-    if (target === -1) return false;
+    if (target === -1) {
+      console.log("Fail value: ", slot_values[i]);
+      return false;
+    }
   }
 
   return true;
@@ -999,7 +1140,7 @@ const createRandomIntent = async (campaignID) => {
         );
         return intentList[
           getRandomFromArray(
-            intentList.splice(0, Math.floor(intentList.length / 4))
+            intentList.slice(0, Math.ceil(intentList.length / 4))
           )
         ];
       }
@@ -1111,7 +1252,7 @@ const createRandomIntent = async (campaignID) => {
                 } else if (slotFound.name === "4 số cuối tài khoản") {
                   tempSlotValues.push(generateNumberWithLength(4));
                 } else {
-                  return null;
+                  return tempSlotValues.push(generateNumberWithLength(9));
                 }
               }
             }
@@ -1132,6 +1273,8 @@ const createRandomIntent = async (campaignID) => {
 
 // transfer information from newObject to the originalObject
 const transferObject = (originalObject, newObject) => {
+  console.log("Original object: ", originalObject);
+  console.log("New object: ", newObject);
   for (let key in newObject) {
     if (newObject.hasOwnProperty(key)) {
       originalObject[key] = newObject[key];
