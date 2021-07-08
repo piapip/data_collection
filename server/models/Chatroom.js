@@ -75,6 +75,11 @@ const chatroomSchema = new mongoose.Schema({
     type: Boolean,
     required: "Need done status for chatroom",
     default: false,
+  },
+  domain: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Domain',
+    default: null,
   }
 })
 

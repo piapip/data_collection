@@ -2,73 +2,23 @@ const mongoose = require('mongoose');
 
 const intentSchema = new mongoose.Schema({
   intent: {
-    type: Number,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'IntentRecord',
     default: null,
   },
 
-  loan_purpose: {
-    type: Number,
-    default: null,
-  },
+  // empty array means it has no value, slots and subslots are treated equally here.
+  // After all, subslots are still slots.
+  slots: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Slot',
+    default: [],
+  }],
 
-  loan_type: {
-    type: Number,
-    default: null,
-  },
-
-  card_type: {
-    type: Number,
-    default: null,
-  },
-
-  card_usage: {
-    type: Number,
-    default: null,
-  },
-
-  digital_bank: {
-    type: Number,
-    default: null,
-  },
-
-  card_activation_type: {
-    type: Number,
-    default: null,
-  },
-
-  // need fix
-  district: {
+  slot_values: [{
     type: String,
-    // type: Number,
-    default: null,
-  },
-
-  // need fix
-  city: {
-    type: String,
-    // type: Number,
-    default: null,
-  },
-  
-  name: {
-    type: String,
-    default: null,
-  },
-
-  cmnd: {
-    type: String,
-    default: null,
-  },
-
-  four_last_digits: {
-    type: String,
-    default: null,
-  },
-
-  generic_intent: {
-    type: Number,
-    default: null,
-  },
+    default: [],
+  }]
 });
 
 const Intent = mongoose.model('Intent', intentSchema);

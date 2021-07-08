@@ -17,9 +17,6 @@ mongoose.connect(config.mongoURI,
     .then(() => console.log('MongoDB Connected...'))
     .catch(err => console.log(err));
 
-
-require("./models/Message")
-
 app.use(cors())
 
 //to not get any deprecation warning or error
@@ -51,13 +48,15 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/chatroom', require("./routes/chatroom"));
 app.use('/api/v1/uploads/file', require('./routes/upload'));
 // app.use(config.uploadAPI, require('./routes/upload'));
-app.use('/api/message', require('./routes/message'));
 app.use('/api/audio', require('./routes/audio'));
 app.use('/api/intent', require('./routes/intent'));
 app.use('/api/aws/upload', require('./routes/upload_aws'));
 app.use('/api/testing', require('./routes/audio_transcript/audio_transcript'));
 app.use('/api/server', require('./routes/server'));
 app.use('/api/sso', require('./routes/merge'));
+app.use('/api/domain', require('./routes/domain'));
+app.use('/api/intentRecord', require('./routes/intentRecord'));
+app.use('/api/slot', require('./routes/slot'));
 //use this to show the image you have in node js server to client (react js)
 //https://stackoverflow.com/questions/48914987/send-image-path-from-node-js-express-server-to-react-client
 app.use('/uploads', express.static('uploads'));
